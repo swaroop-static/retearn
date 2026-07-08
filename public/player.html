@@ -149,27 +149,47 @@
   .answer-btn.correct .ans-letter { background:var(--green); color:#000; }
   .answer-btn.wrong   .ans-letter { background:var(--red);   color:#fff; }
 
-  /* ── SORT content ── */
-  #gc-sort { display:none; flex-direction:column; align-items:center; gap:16px; }
-  .sort-item-box {
-    text-align:center; background:var(--card); border:1px solid var(--border);
-    border-radius:20px; padding:24px 20px; width:100%;
+  /* ── SORT drag-drop ── */
+  #gc-sort { display:none; flex-direction:column; gap:0; min-height:340px; }
+  .sort-arena {
+    flex:1; position:relative; display:flex; align-items:center; justify-content:center;
+    min-height:180px;
   }
-  .sort-emoji { font-size:4rem; line-height:1; margin-bottom:10px; }
-  .sort-name  { font-size:1.3rem; font-weight:700; }
-  .sort-prompt{ font-size:.85rem; color:var(--muted); margin-top:6px; }
-  .bins-grid  { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; }
-  .bin-btn {
-    background:var(--card); border:2px solid var(--border); border-radius:14px;
-    padding:16px 10px; display:flex; flex-direction:column; align-items:center;
-    gap:6px; cursor:pointer; font-family:inherit; color:var(--text);
-    font-size:.85rem; font-weight:600; transition:all .2s;
+  .sort-drag-hint {
+    position:absolute; top:8px; left:0; right:0;
+    text-align:center; font-size:.78rem; color:var(--muted); pointer-events:none;
   }
-  .bin-btn:active { transform:scale(.97); }
-  .bin-btn:disabled { cursor:default; opacity:.6; }
-  .bin-btn.correct { border-color:var(--green); background:rgba(34,197,94,.12); }
-  .bin-btn.wrong   { border-color:var(--red);   background:rgba(239,68,68,.12); }
-  .bin-icon { font-size:1.6rem; }
+  .draggable-item {
+    position:relative;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    background:var(--card); border:2px solid var(--border);
+    border-radius:20px; padding:18px 32px; text-align:center;
+    touch-action:none; user-select:none; cursor:grab;
+    animation:sortFallIn .45s cubic-bezier(.22,.61,.36,1) both;
+  }
+  .draggable-item.is-dragging {
+    position:fixed; z-index:1000; cursor:grabbing;
+    box-shadow:0 12px 40px rgba(0,0,0,.6);
+    transform:translate(-50%,-50%) scale(1.06) !important;
+    border-color:var(--purple); animation:none;
+  }
+  @keyframes sortFallIn {
+    from { opacity:0; transform:translateY(-70px) scale(.88); }
+    to   { opacity:1; transform:translateY(0)     scale(1);   }
+  }
+  .sort-drag-emoji { font-size:3.6rem; line-height:1; }
+  .sort-drag-name  { font-size:1.1rem; font-weight:700; }
+  .sort-bins-row { display:flex; gap:6px; padding:10px 0 0; }
+  .sort-hole {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    border:2px dashed var(--border); border-radius:14px; padding:8px 4px;
+    transition:all .15s;
+  }
+  .sort-hole.over    { border-color:var(--purple); background:rgba(139,47,201,.12); transform:scale(1.06); }
+  .sort-hole.correct { border-color:var(--green);  background:rgba(34,197,94,.12); }
+  .sort-hole.wrong   { border-color:var(--red);    background:rgba(239,68,68,.12); }
+  .sort-hole-icon  { font-size:1.5rem; }
+  .sort-hole-label { font-size:.62rem; font-weight:700; text-align:center; line-height:1.2; }
 
   /* ── CATCH content ── */
   #gc-catch { display:none; flex-direction:column; align-items:center; gap:14px; }
@@ -349,12 +369,14 @@
 
   <!-- SORT -->
   <div id="gc-sort">
-    <div class="sort-item-box">
-      <div class="sort-emoji" id="sort-emoji">♻️</div>
-      <div class="sort-name"  id="sort-name">Item</div>
-      <div class="sort-prompt">Which bin does it go in?</div>
+    <div class="sort-arena">
+      <div class="sort-drag-hint">Hold &amp; drag into the correct bin ↓</div>
+      <div class="draggable-item" id="sort-draggable">
+        <div class="sort-drag-emoji" id="sort-emoji">♻️</div>
+        <div class="sort-drag-name"  id="sort-name">Item</div>
+      </div>
     </div>
-    <div class="bins-grid" id="bins-grid"></div>
+    <div class="sort-bins-row" id="sort-bins-row"></div>
   </div>
 
   <!-- CATCH -->
@@ -487,21 +509,103 @@ function submitQuiz(idx) {
   socket.emit('submit_answer', { value: idx });
 }
 
-// ── Sort ───────────────────────────────────────────────────────
-function renderBins(bins) {
-  answered = false;
-  document.getElementById('bins-grid').innerHTML = Object.entries(bins).map(([key, b]) => `
-    <button class="bin-btn" id="bin-${key}" onclick="submitSort('${key}')">
-      <span class="bin-icon">${b.emoji}</span>
-      <span>${b.label}</span>
-      <span style="font-size:.7rem;color:var(--muted)">${b.description}</span>
-    </button>`).join('');
+// ── Sort drag-and-drop ─────────────────────────────────────────
+let sortDragging   = false;
+let sortDragEl     = null;
+let sortOffX       = 0;
+let sortOffY       = 0;
+let sortHoveredBin = null;
+let sortBinKeys    = [];
+
+function renderSortBins(bins) {
+  sortBinKeys = Object.keys(bins);
+  document.getElementById('sort-bins-row').innerHTML = sortBinKeys.map(key => {
+    const b = bins[key];
+    return `<div class="sort-hole" id="sh-${key}">
+      <div class="sort-hole-icon">${b.emoji}</div>
+      <div class="sort-hole-label">${b.label}</div>
+    </div>`;
+  }).join('');
+}
+
+function initSortDrag() {
+  const el = document.getElementById('sort-draggable');
+  if (!el) return;
+  sortDragging = false; sortHoveredBin = null; sortDragEl = el;
+  el.className = 'draggable-item';
+  el.style.cssText = '';
+
+  el.ontouchstart = e => { e.preventDefault(); if (!answered) beginDrag(el, e.touches[0].clientX, e.touches[0].clientY); };
+  el.ontouchmove  = e => { e.preventDefault(); if (sortDragging) doDrag(e.touches[0].clientX, e.touches[0].clientY); };
+  el.ontouchend   = e => { e.preventDefault(); endDrag(); };
+  el.onmousedown  = e => {
+    if (answered) return;
+    beginDrag(el, e.clientX, e.clientY);
+    document.onmousemove = ev => doDrag(ev.clientX, ev.clientY);
+    document.onmouseup   = ()  => { endDrag(); document.onmousemove = null; document.onmouseup = null; };
+  };
+}
+
+function beginDrag(el, cx, cy) {
+  const r = el.getBoundingClientRect();
+  sortOffX = cx - (r.left + r.width  / 2);
+  sortOffY = cy - (r.top  + r.height / 2);
+  sortDragging = true;
+  el.classList.add('is-dragging');
+  el.style.left = (r.left + r.width  / 2) + 'px';
+  el.style.top  = (r.top  + r.height / 2) + 'px';
+}
+
+function doDrag(cx, cy) {
+  if (!sortDragEl) return;
+  sortDragEl.style.left = (cx - sortOffX) + 'px';
+  sortDragEl.style.top  = (cy - sortOffY) + 'px';
+  const bin = getBinAt(cx, cy);
+  if (bin !== sortHoveredBin) {
+    if (sortHoveredBin) document.getElementById(`sh-${sortHoveredBin}`)?.classList.remove('over');
+    if (bin)            document.getElementById(`sh-${bin}`)?.classList.add('over');
+    sortHoveredBin = bin;
+  }
+}
+
+function endDrag() {
+  if (!sortDragging) return;
+  sortDragging = false;
+  const el = sortDragEl;
+  if (!el) return;
+  if (sortHoveredBin) document.getElementById(`sh-${sortHoveredBin}`)?.classList.remove('over');
+  if (sortHoveredBin && !answered) {
+    const binEl = document.getElementById(`sh-${sortHoveredBin}`);
+    if (binEl) {
+      const r = binEl.getBoundingClientRect();
+      el.style.transition = 'left .18s, top .18s, opacity .18s, transform .18s';
+      el.style.left       = (r.left + r.width  / 2) + 'px';
+      el.style.top        = (r.top  + r.height / 2) + 'px';
+      el.style.opacity    = '0';
+      el.style.transform  = 'translate(-50%,-50%) scale(0.15)';
+    }
+    const bin = sortHoveredBin;
+    sortHoveredBin = null;
+    setTimeout(() => submitSort(bin), 160);
+  } else {
+    el.classList.remove('is-dragging');
+    el.style.cssText = '';
+  }
+}
+
+function getBinAt(x, y) {
+  for (const key of sortBinKeys) {
+    const el = document.getElementById(`sh-${key}`);
+    if (!el) continue;
+    const r = el.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return key;
+  }
+  return null;
 }
 
 function submitSort(binKey) {
   if (answered) return;
   answered = true;
-  document.querySelectorAll('.bin-btn').forEach(b => b.disabled = true);
   socket.emit('submit_answer', { value: binKey });
 }
 
@@ -576,7 +680,8 @@ function applyState(state) {
   if (gt === 'sort' && state.payload) {
     document.getElementById('sort-emoji').textContent = state.payload.item.emoji;
     document.getElementById('sort-name').textContent  = state.payload.item.name;
-    renderBins(state.payload.bins);
+    renderSortBins(state.payload.bins);
+    initSortDrag();
   }
   if (gt === 'catch' && state.payload) {
     document.getElementById('catch-emoji').textContent = state.payload.item.emoji;
@@ -651,9 +756,9 @@ socket.on('answer_result', (data) => {
     });
   }
   if (gt === 'sort') {
-    document.querySelectorAll('.bin-btn').forEach(b => {
-      b.disabled = true;
-      if (b.id === `bin-${correctValue}`) b.classList.add('correct');
+    sortBinKeys.forEach(key => {
+      const el = document.getElementById(`sh-${key}`);
+      if (el && key === correctValue) el.classList.add('correct');
     });
   }
   if (gt === 'catch' && data.lives !== undefined) {
@@ -703,7 +808,12 @@ socket.on('timer_tick', ({ timeLeft }) => {
 socket.on('timer_expired', () => {
   answered = true;
   memWaiting = false;
-  document.querySelectorAll('.answer-btn, .bin-btn, .catch-action-btn').forEach(b => b.disabled = true);
+  document.querySelectorAll('.answer-btn, .catch-action-btn').forEach(b => b.disabled = true);
+  if (sortDragging && sortDragEl) {
+    sortDragging = false;
+    sortDragEl.classList.remove('is-dragging');
+    sortDragEl.style.cssText = '';
+  }
 });
 
 socket.on('game_finished', ({ score, leaderboard }) => {
