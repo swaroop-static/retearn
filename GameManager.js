@@ -1,16 +1,16 @@
 const config     = require('./config');
 const QuizGame   = require('./QuizGame');
 const SortGame   = require('./SortGame');
-const CatchGame  = require('./CatchGame');
+const ZipGame    = require('./ZipGame');
 const MemoryGame = require('./MemoryGame');
 
-const GAME_MAP = { quiz: QuizGame, sort: SortGame, catch: CatchGame, memory: MemoryGame };
+const GAME_MAP = { quiz: QuizGame, sort: SortGame, zip: ZipGame, memory: MemoryGame };
 
 const GAME_INFO = {
-  quiz:   { label: 'Recycling Quiz',   emoji: '🧠', description: 'Answer 5 questions about recycling',  color: '#8B2FC9' },
-  sort:   { label: 'Sort the Waste',   emoji: '🗑️',  description: 'Sort items into the correct bin',    color: '#3b82f6' },
-  catch:  { label: 'Catch It!',        emoji: '🎯', description: 'Catch recyclables, skip the rest',   color: '#f59e0b' },
-  memory: { label: 'Memory Match',     emoji: '🃏', description: 'Match recycling pairs from memory',  color: '#22c55e' },
+  quiz:   { label: 'Recycling Quiz', emoji: '🧠', description: 'Answer 8 hard recycling questions', color: '#8B2FC9' },
+  sort:   { label: 'Sort the Waste', emoji: '🗑️',  description: 'Drag 3 items per wave to the right bin', color: '#3b82f6' },
+  zip:    { label: 'Zip!',           emoji: '⚡', description: 'Trace a path through all recycling containers', color: '#f59e0b' },
+  memory: { label: 'Memory Match',   emoji: '🃏', description: 'Match 12 recycling pairs from memory', color: '#22c55e' },
 };
 
 const STATUS = {
@@ -29,9 +29,12 @@ class GameManager {
     this.status         = STATUS.WAITING;
     this.currentPlayer  = null;
     this.currentGame    = null;
-    this.queues         = { quiz: [], sort: [], catch: [], memory: [] };
-    this.selecting      = new Map(); // socketId → { id, name } — entered name, picking game
-    this.leaderboard    = [];
+    this.queues         = { quiz: [], sort: [], zip: [], memory: [] };
+    this.selecting      = new Map();
+    this.leaderboard    = [];       // legacy sorted list (top 20)
+    this.gameBests      = { quiz: null, sort: null, zip: null, memory: null };
+    this.playerScores   = {};       // name → { quiz: N, sort: N, ... }
+    this.totalPlayed    = 0;
     this.timerHandle    = null;
     this.timeLeft       = 0;
     this.maintenance    = false;
@@ -44,7 +47,6 @@ class GameManager {
       socket.emit('maintenance', { message: 'Game is temporarily unavailable. Please try again soon.' });
       return;
     }
-
     const trimmed = name.trim().slice(0, 30);
     if (!trimmed) { socket.emit('error', { message: 'Please enter a valid name.' }); return; }
 
@@ -56,14 +58,12 @@ class GameManager {
     this.selecting.set(socket.id, { id: socket.id, name: trimmed });
     this._log(`${trimmed} is choosing a game`);
 
-    // Send them the game picker with live queue counts
     socket.emit('choose_game', {
       playerName: trimmed,
       gameInfo:   GAME_INFO,
       counts:     this._getQueueCounts()
     });
 
-    // Tell screen someone is choosing
     this._broadcastToScreen('player_choosing', { playerName: trimmed });
   }
 
@@ -92,14 +92,34 @@ class GameManager {
     if (!this.currentPlayer || this.currentPlayer.id !== socket.id) return;
     if (this.status !== STATUS.PLAYING) return;
 
-    this._clearTimer();
-    this.status = STATUS.SHOWING_RESULT;
-
     const result = this.currentGame.handleInput(value);
     if (!result) return;
 
+    // Sort wave partial: keep timer running, just update UI
+    if (result.wavePartial) {
+      this.io.to(socket.id).emit('sort_item_result', {
+        itemIndex:  result.itemIndex,
+        correct:    result.correct,
+        correctBin: result.correctBin,
+        points:     result.points,
+        score:      this.currentGame.getScore(),
+        state:      { ...result.state, playerName: this.currentPlayer.name }
+      });
+      this._broadcastToScreen('sort_item_feedback', {
+        itemIndex:  result.itemIndex,
+        correct:    result.correct,
+        correctBin: result.correctBin,
+        playerName: this.currentPlayer.name,
+        score:      this.currentGame.getScore(),
+      });
+      return;
+    }
+
+    // Full result — clear timer and broadcast
+    this._clearTimer();
+    this.status = STATUS.SHOWING_RESULT;
+
     const extraResult = {};
-    // Carry game-specific result fields (lives, pos1/pos2 for memory etc.)
     if (result.lives  !== undefined) extraResult.lives  = result.lives;
     if (result.pos1   !== undefined) extraResult.pos1   = result.pos1;
     if (result.pos2   !== undefined) extraResult.pos2   = result.pos2;
@@ -232,14 +252,14 @@ class GameManager {
     const { score } = this.currentGame.finish();
     const { name, gameType } = this.currentPlayer;
 
-    this.leaderboard.push({ name, score, gameType });
-    this.leaderboard.sort((a, b) => b.score - a.score);
-    if (this.leaderboard.length > 10) this.leaderboard.pop();
+    this.totalPlayed++;
+    this._updateLeaderboards(name, gameType, score);
 
     this._log(`${name} finished ${gameType} — score ${score}`);
 
-    this._broadcastToRoom('game_finished', { score, leaderboard: this.leaderboard });
-    this._broadcastToScreen('game_finished', { playerName: name, score, gameType, leaderboard: this.leaderboard });
+    const lb = this._getLeaderboardPayload();
+    this._broadcastToRoom('game_finished', { score, leaderboard: lb });
+    this._broadcastToScreen('game_finished', { playerName: name, score, gameType, leaderboard: lb });
 
     setTimeout(() => this._countdownNextPlayer(), 3000);
   }
@@ -259,7 +279,6 @@ class GameManager {
     this.currentPlayer = null;
     this.currentGame   = null;
 
-    // Pick whoever has waited longest across all queues
     let next = null;
     let nextGameType = null;
     let earliestTime = Infinity;
@@ -285,6 +304,42 @@ class GameManager {
     this._startGame(next);
   }
 
+  // ── Leaderboard ───────────────────────────────────────────────
+
+  _updateLeaderboards(name, gameType, score) {
+    if (!this.gameBests[gameType] || score > this.gameBests[gameType].score) {
+      this.gameBests[gameType] = { name, score };
+    }
+    if (!this.playerScores[name]) this.playerScores[name] = {};
+    this.playerScores[name][gameType] = Math.max(this.playerScores[name][gameType] || 0, score);
+
+    this.leaderboard.push({ name, score, gameType });
+    this.leaderboard.sort((a, b) => b.score - a.score);
+    if (this.leaderboard.length > 20) this.leaderboard.pop();
+  }
+
+  _getAllKing() {
+    const entries = Object.entries(this.playerScores);
+    if (!entries.length) return null;
+    let best = null;
+    for (const [name, scores] of entries) {
+      const total = Object.values(scores).reduce((a, b) => a + b, 0);
+      const games = Object.keys(scores).length;
+      if (!best || total > best.total) best = { name, total, games };
+    }
+    return best;
+  }
+
+  _getLeaderboardPayload() {
+    return {
+      gameBests: this.gameBests,
+      allKing:   this._getAllKing(),
+      recent:    this.leaderboard.slice(0, 10),
+    };
+  }
+
+  // ── Queue helpers ─────────────────────────────────────────────
+
   _getQueueCounts() {
     return Object.fromEntries(
       Object.entries(this.queues).map(([gt, q]) => [gt, q.length])
@@ -309,15 +364,12 @@ class GameManager {
 
   _broadcastQueueCounts() {
     const counts = this._getQueueCounts();
-    // Notify selecting players so their game picker updates live
     for (const [sid] of this.selecting) {
       this.io.to(sid).emit('queue_counts', counts);
     }
-    // Notify queued players
     for (const queue of Object.values(this.queues)) {
       queue.forEach(p => this.io.to(p.id).emit('queue_counts', counts));
     }
-    // Update screen sidebar
     const allQueued = Object.entries(this.queues).flatMap(([gt, q]) =>
       q.map(p => ({ name: p.name, gameType: gt }))
     );
@@ -340,7 +392,7 @@ class GameManager {
       currentPlayer: this.currentPlayer,
       counts:        this._getQueueCounts(),
       queue:         Object.entries(this.queues).flatMap(([gt, q]) => q.map(p => ({ name: p.name, gameType: gt }))),
-      leaderboard:   this.leaderboard,
+      leaderboard:   this._getLeaderboardPayload(),
       gameState:     this.currentGame
         ? { ...this.currentGame.getState(), playerName: this.currentPlayer?.name, timeLeft: this.timeLeft }
         : null

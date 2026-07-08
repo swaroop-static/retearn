@@ -1,17 +1,21 @@
 const PAIRS = [
-  { id: 1, emoji: '🍾', name: 'Bottle' },
-  { id: 2, emoji: '📰', name: 'Paper' },
-  { id: 3, emoji: '🥤', name: 'Can' },
-  { id: 4, emoji: '🔋', name: 'Battery' },
-  { id: 5, emoji: '💻', name: 'Laptop' },
-  { id: 6, emoji: '🍌', name: 'Banana' },
-  { id: 7, emoji: '♻️', name: 'Recycle' },
-  { id: 8, emoji: '🌿', name: 'Plant' },
+  { id:  1, emoji: '🍾', name: 'Glass Bottle' },
+  { id:  2, emoji: '📰', name: 'Newspaper' },
+  { id:  3, emoji: '🥤', name: 'Aluminium Can' },
+  { id:  4, emoji: '🔋', name: 'Battery' },
+  { id:  5, emoji: '💻', name: 'Laptop' },
+  { id:  6, emoji: '🍌', name: 'Banana Peel' },
+  { id:  7, emoji: '♻️', name: 'Recycle Symbol' },
+  { id:  8, emoji: '🌿', name: 'Organic Waste' },
+  { id:  9, emoji: '📦', name: 'Cardboard Box' },
+  { id: 10, emoji: '🥫', name: 'Metal Tin' },
+  { id: 11, emoji: '🧴', name: 'PET Bottle' },
+  { id: 12, emoji: '🔌', name: 'Old Charger' },
 ];
 
-const PAIR_TIME    = 10;
+const PAIR_TIME    = 12;   // seconds per attempt
 const POINTS_MATCH = 15;
-const MAX_ATTEMPTS = 14;
+const MAX_ATTEMPTS = 26;   // 12 pairs × ~2.2 attempts average allowance
 
 class MemoryGame {
   constructor() {
@@ -34,7 +38,6 @@ class MemoryGame {
   getScore()    { return this.score; }
 
   handleInput(value) {
-    // value === -1 means timer expired — count as wasted attempt
     if (value === -1 || value === null) {
       this.attempts++;
       if (this.attempts >= MAX_ATTEMPTS) this.finished = true;
@@ -69,7 +72,7 @@ class MemoryGame {
       emoji1: c1.emoji,
       emoji2: c2.emoji,
       points: matched ? POINTS_MATCH : 0,
-      fact:   matched ? `✓ ${c1.name} matched!` : `✗ Not a match — keep trying!`,
+      fact:   matched ? `✓ ${c1.name} matched!` : `✗ Not a match — keep going!`,
       state:  this.getState()
     };
   }

@@ -49,22 +49,18 @@
   #view-pick { gap:14px; }
   .pick-header { text-align:center; margin-bottom:4px; }
   .pick-header h2 { font-size:1.3rem; font-weight:700; }
-  .pick-header p { color:var(--muted); font-size:.85rem; margin-top:4px; }
-
+  .pick-header p  { color:var(--muted); font-size:.85rem; margin-top:4px; }
   .game-card {
-    background:var(--card); border:2px solid var(--border);
-    border-radius:16px; padding:16px 18px;
-    display:flex; align-items:center; gap:14px;
-    cursor:pointer; transition:border-color .2s, background .2s;
-    position:relative;
+    background:var(--card); border:2px solid var(--border); border-radius:16px;
+    padding:16px 18px; display:flex; align-items:center; gap:14px;
+    cursor:pointer; transition:border-color .2s, background .2s; position:relative;
   }
   .game-card:active { transform:scale(.98); }
   .game-card.quiz-card   { --accent:var(--purple); }
   .game-card.sort-card   { --accent:var(--blue); }
-  .game-card.catch-card  { --accent:var(--yellow); }
+  .game-card.zip-card    { --accent:var(--yellow); }
   .game-card.memory-card { --accent:var(--green); }
   .game-card:hover { border-color:var(--accent); }
-
   .game-card-icon {
     width:52px; height:52px; border-radius:14px;
     background:color-mix(in srgb, var(--accent) 15%, transparent);
@@ -80,22 +76,15 @@
     border-radius:100px; border:1px solid var(--border);
     color:var(--muted); white-space:nowrap;
   }
-  .queue-badge.empty { color:var(--green); border-color:var(--green); background:rgba(34,197,94,.08); }
+  .queue-badge.empty { color:var(--green);  border-color:var(--green);  background:rgba(34,197,94,.08); }
   .queue-badge.busy  { color:var(--yellow); border-color:var(--yellow); }
 
   /* ── QUEUE ── */
   #view-queue { gap:24px; align-items:center; text-align:center; }
-  .spinner {
-    width:56px; height:56px; border:4px solid var(--border);
-    border-top-color:var(--purple); border-radius:50%;
-    animation:spin 1s linear infinite;
-  }
+  .spinner { width:56px; height:56px; border:4px solid var(--border); border-top-color:var(--purple); border-radius:50%; animation:spin 1s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
-  .queue-game-badge {
-    padding:8px 20px; border-radius:100px; font-size:.85rem;
-    font-weight:700; background:var(--card); border:1px solid var(--border);
-  }
-  .queue-pos { font-size:5rem; font-weight:900; color:var(--purple); line-height:1; }
+  .queue-game-badge { padding:8px 20px; border-radius:100px; font-size:.85rem; font-weight:700; background:var(--card); border:1px solid var(--border); }
+  .queue-pos   { font-size:5rem; font-weight:900; color:var(--purple); line-height:1; }
   .queue-label { color:var(--muted); font-size:1.1rem; }
   .queue-name-display { font-size:1.3rem; font-weight:700; }
 
@@ -112,24 +101,20 @@
     padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:16px;
   }
   .g-left { display:flex; flex-direction:column; gap:3px; }
-  .g-type-badge {
-    font-size:.7rem; font-weight:700; text-transform:uppercase;
-    letter-spacing:1px; color:var(--purple);
-  }
+  .g-type-badge { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--purple); }
   .g-progress { font-size:.85rem; color:var(--muted); }
   .g-progress strong { color:var(--text); }
   .g-score { font-size:1.1rem; font-weight:700; color:var(--green); }
-
   .timer-bar-wrap { margin-bottom:18px; }
   .timer-bar-track { height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
-  .timer-bar-fill { height:100%; background:var(--purple); border-radius:3px; transition:width .9s linear, background .3s; }
+  .timer-bar-fill  { height:100%; background:var(--purple); border-radius:3px; transition:width .9s linear, background .3s; }
   .timer-bar-fill.urgent { background:var(--red); }
   .timer-bar-label { text-align:right; font-size:.75rem; color:var(--muted); margin-top:4px; }
 
-  /* ── QUIZ content ── */
+  /* ── QUIZ ── */
   #gc-quiz { display:flex; flex-direction:column; gap:14px; }
   .question-text { font-size:1.15rem; font-weight:600; line-height:1.5; }
-  .answer-list { display:flex; flex-direction:column; gap:10px; }
+  .answer-list   { display:flex; flex-direction:column; gap:10px; }
   .answer-btn {
     background:var(--card); border:2px solid var(--border); border-radius:13px;
     padding:16px 18px; display:flex; align-items:center; gap:12px;
@@ -149,37 +134,33 @@
   .answer-btn.correct .ans-letter { background:var(--green); color:#000; }
   .answer-btn.wrong   .ans-letter { background:var(--red);   color:#fff; }
 
-  /* ── SORT drag-drop ── */
+  /* ── SORT wave drag-drop ── */
   #gc-sort { display:none; flex-direction:column; gap:0; min-height:340px; }
-  .sort-arena {
-    flex:1; position:relative; display:flex; align-items:center; justify-content:center;
-    min-height:180px;
+  .sort-wave-hint { text-align:center; font-size:.78rem; color:var(--muted); margin-bottom:10px; }
+  .sort-wave-row  { display:flex; gap:8px; justify-content:center; margin-bottom:14px; }
+  .sort-wave-card {
+    flex:1; max-width:110px; display:flex; flex-direction:column; align-items:center;
+    gap:6px; border:2px solid var(--border); border-radius:16px; padding:12px 6px;
+    background:var(--card); text-align:center;
+    touch-action:none; user-select:none; transition:all .2s;
   }
-  .sort-drag-hint {
-    position:absolute; top:8px; left:0; right:0;
-    text-align:center; font-size:.78rem; color:var(--muted); pointer-events:none;
-  }
-  .draggable-item {
-    position:relative;
-    display:flex; flex-direction:column; align-items:center; gap:8px;
-    background:var(--card); border:2px solid var(--border);
-    border-radius:20px; padding:18px 32px; text-align:center;
-    touch-action:none; user-select:none; cursor:grab;
-    animation:sortFallIn .45s cubic-bezier(.22,.61,.36,1) both;
-  }
-  .draggable-item.is-dragging {
+  .sort-wave-card.active  { border-color:var(--purple); background:rgba(139,47,201,.08); cursor:grab; animation:sortFallIn .4s cubic-bezier(.22,.61,.36,1) both; }
+  .sort-wave-card.pending { opacity:.35; }
+  .sort-wave-card.done-correct { border-color:var(--green); background:rgba(34,197,94,.12); opacity:.6; }
+  .sort-wave-card.done-wrong   { border-color:var(--red);   background:rgba(239,68,68,.12); opacity:.6; }
+  .sort-wave-card.is-dragging  {
     position:fixed; z-index:1000; cursor:grabbing;
     box-shadow:0 12px 40px rgba(0,0,0,.6);
-    transform:translate(-50%,-50%) scale(1.06) !important;
+    transform:translate(-50%,-50%) scale(1.07) !important;
     border-color:var(--purple); animation:none;
   }
   @keyframes sortFallIn {
-    from { opacity:0; transform:translateY(-70px) scale(.88); }
+    from { opacity:0; transform:translateY(-60px) scale(.88); }
     to   { opacity:1; transform:translateY(0)     scale(1);   }
   }
-  .sort-drag-emoji { font-size:3.6rem; line-height:1; }
-  .sort-drag-name  { font-size:1.1rem; font-weight:700; }
-  .sort-bins-row { display:flex; gap:6px; padding:10px 0 0; }
+  .sort-wave-emoji { font-size:2.4rem; line-height:1; }
+  .sort-wave-name  { font-size:.68rem; font-weight:700; line-height:1.2; }
+  .sort-bins-row { display:flex; gap:6px; padding:4px 0 0; }
   .sort-hole {
     flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
     border:2px dashed var(--border); border-radius:14px; padding:8px 4px;
@@ -189,55 +170,42 @@
   .sort-hole.correct { border-color:var(--green);  background:rgba(34,197,94,.12); }
   .sort-hole.wrong   { border-color:var(--red);    background:rgba(239,68,68,.12); }
   .sort-hole-icon  { font-size:1.5rem; }
-  .sort-hole-label { font-size:.62rem; font-weight:700; text-align:center; line-height:1.2; }
+  .sort-hole-label { font-size:.6rem; font-weight:700; text-align:center; line-height:1.2; }
 
-  /* ── CATCH content ── */
-  #gc-catch { display:none; flex-direction:column; align-items:center; gap:14px; }
-  .catch-lives { font-size:1.4rem; letter-spacing:4px; }
-  .catch-arena {
-    width:100%; min-height:140px; background:var(--card);
-    border:1px solid var(--border); border-radius:20px;
-    display:flex; flex-direction:column; align-items:center;
-    justify-content:center; gap:8px; position:relative; overflow:hidden;
+  /* ── ZIP ── */
+  #gc-zip { display:none; flex-direction:column; gap:10px; align-items:center; }
+  .zip-hint { font-size:.78rem; color:var(--muted); text-align:center; line-height:1.5; }
+  .zip-grid { display:grid; gap:5px; touch-action:none; user-select:none; }
+  .zip-cell {
+    width:66px; height:66px; border-radius:11px;
+    background:var(--card); border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    position:relative; transition:background .12s, border-color .12s;
   }
-  .catch-emoji { font-size:4.5rem; animation:catchBounce 1s ease-in-out infinite; }
-  @keyframes catchBounce {
-    0%,100%{transform:translateY(0) scale(1)}
-    50%{transform:translateY(-8px) scale(1.05)}
-  }
-  .catch-item-name { font-size:1.1rem; font-weight:700; }
-  .catch-prompt { font-size:.8rem; color:var(--muted); text-align:center; }
-  .catch-buttons { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; }
-  .catch-action-btn {
-    padding:20px; border:2px solid var(--border); border-radius:14px;
-    font-size:1rem; font-weight:800; cursor:pointer; font-family:inherit;
-    transition:all .15s; display:flex; flex-direction:column; align-items:center; gap:6px;
-  }
-  .catch-action-btn:active { transform:scale(.96); }
-  .catch-action-btn:disabled { opacity:.4; cursor:default; }
-  .catch-action-btn.btn-catch { background:rgba(34,197,94,.1); border-color:var(--green); color:var(--green); }
-  .catch-action-btn.btn-skip  { background:rgba(239,68,68,.1); border-color:var(--red);   color:var(--red); }
-  .catch-action-btn .act-icon { font-size:1.8rem; }
+  .zip-cell.zip-anchor  { border-color:var(--purple); background:rgba(139,47,201,.1); }
+  .zip-cell.zip-visited { background:rgba(139,47,201,.18); border-color:var(--purple); }
+  .zip-cell.zip-done    { background:rgba(34,197,94,.2);  border-color:var(--green); }
+  .zip-cell.zip-fail    { background:rgba(239,68,68,.15); border-color:var(--red); }
+  .zip-container { font-size:1.9rem; line-height:1; }
+  .zip-num { position:absolute; top:2px; right:5px; font-size:.65rem; font-weight:900; color:var(--purple); }
+  .zip-status { font-size:.8rem; color:var(--muted); text-align:center; }
 
-  /* ── MEMORY content ── */
+  /* ── MEMORY ── */
   #gc-memory { display:none; flex-direction:column; gap:14px; }
-  .mem-info { display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); }
-  .memory-grid {
-    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
-  }
+  .mem-info   { display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); }
+  .memory-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
   .mem-card {
     aspect-ratio:1; border-radius:12px; border:2px solid var(--border);
     background:var(--card); display:flex; align-items:center; justify-content:center;
-    font-size:1.4rem; cursor:pointer; transition:all .25s; user-select:none;
-    position:relative; overflow:hidden;
+    font-size:1.3rem; cursor:pointer; transition:all .25s; user-select:none; position:relative;
   }
-  .mem-card.flipped   { border-color:var(--purple); background:rgba(139,47,201,.15); }
-  .mem-card.matched   { border-color:var(--green);  background:rgba(34,197,94,.15);  cursor:default; }
-  .mem-card.wrong-flash { border-color:var(--red);  background:rgba(239,68,68,.15); }
+  .mem-card.flipped     { border-color:var(--purple); background:rgba(139,47,201,.15); }
+  .mem-card.matched     { border-color:var(--green);  background:rgba(34,197,94,.15);  cursor:default; }
+  .mem-card.wrong-flash { border-color:var(--red);    background:rgba(239,68,68,.15); }
   .mem-card:active:not(.matched):not(.flipped) { transform:scale(.93); }
-  .mem-back { font-size:1.2rem; color:var(--muted); }
+  .mem-back { font-size:1.1rem; color:var(--muted); }
 
-  /* ── SHARED FACT BOX ── */
+  /* ── FACT BOX ── */
   .fact-box {
     margin-top:14px; background:rgba(34,197,94,.07);
     border:1px solid rgba(34,197,94,.25); border-radius:12px;
@@ -251,25 +219,15 @@
   #view-final { gap:20px; align-items:center; text-align:center; }
   .final-emoji { font-size:3.5rem; }
   .final-name  { font-size:1.3rem; font-weight:700; }
-  .final-game-badge {
-    padding:6px 18px; border-radius:100px; font-size:.8rem;
-    font-weight:700; background:var(--card); border:1px solid var(--border); color:var(--muted);
-  }
+  .final-game-badge { padding:6px 18px; border-radius:100px; font-size:.8rem; font-weight:700; background:var(--card); border:1px solid var(--border); color:var(--muted); }
   .final-score { font-size:5rem; font-weight:900; color:var(--green); line-height:1; }
   .final-pts   { color:var(--muted); font-size:1rem; }
-  .lb-card {
-    width:100%; background:var(--card); border:1px solid var(--border);
-    border-radius:16px; padding:18px;
-  }
-  .lb-title { color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
-  .lb-row {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:7px 0; border-bottom:1px solid var(--border); font-size:.9rem;
-  }
+  .lb-card     { width:100%; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; }
+  .lb-title    { color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+  .lb-row      { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); font-size:.9rem; }
   .lb-row:last-child { border-bottom:none; }
-  .lb-game-icon { font-size:.8rem; margin-left:4px; }
-  .lb-score-f { color:var(--green); font-weight:700; }
-  .thanks { color:var(--muted); font-size:.9rem; }
+  .lb-score-f  { color:var(--green); font-weight:700; }
+  .thanks      { color:var(--muted); font-size:.9rem; }
 </style>
 </head>
 <body>
@@ -289,40 +247,24 @@
     <h2>Hi <span id="pick-name">Player</span>! 👋</h2>
     <p>Choose a game — pick one with less queue</p>
   </div>
-
   <div class="game-card quiz-card"   onclick="selectGame('quiz')">
     <div class="game-card-icon">🧠</div>
-    <div class="game-card-body">
-      <div class="game-card-name">Recycling Quiz</div>
-      <div class="game-card-desc">Answer 5 questions about recycling</div>
-    </div>
+    <div class="game-card-body"><div class="game-card-name">Recycling Quiz</div><div class="game-card-desc">8 hard questions about recycling</div></div>
     <div class="queue-badge" id="qb-quiz">0 waiting</div>
   </div>
-
   <div class="game-card sort-card"   onclick="selectGame('sort')">
     <div class="game-card-icon">🗑️</div>
-    <div class="game-card-body">
-      <div class="game-card-name">Sort the Waste</div>
-      <div class="game-card-desc">Sort items into the correct bin</div>
-    </div>
+    <div class="game-card-body"><div class="game-card-name">Sort the Waste</div><div class="game-card-desc">Drag 3 items per wave to the right bin</div></div>
     <div class="queue-badge" id="qb-sort">0 waiting</div>
   </div>
-
-  <div class="game-card catch-card"  onclick="selectGame('catch')">
-    <div class="game-card-icon">🎯</div>
-    <div class="game-card-body">
-      <div class="game-card-name">Catch It!</div>
-      <div class="game-card-desc">Catch recyclables, skip the rest</div>
-    </div>
-    <div class="queue-badge" id="qb-catch">0 waiting</div>
+  <div class="game-card zip-card"    onclick="selectGame('zip')">
+    <div class="game-card-icon">⚡</div>
+    <div class="game-card-body"><div class="game-card-name">Zip!</div><div class="game-card-desc">Trace a path through all recycling containers</div></div>
+    <div class="queue-badge" id="qb-zip">0 waiting</div>
   </div>
-
   <div class="game-card memory-card" onclick="selectGame('memory')">
     <div class="game-card-icon">🃏</div>
-    <div class="game-card-body">
-      <div class="game-card-name">Memory Match</div>
-      <div class="game-card-desc">Match recycling pairs from memory</div>
-    </div>
+    <div class="game-card-body"><div class="game-card-name">Memory Match</div><div class="game-card-desc">Match 12 recycling pairs from memory</div></div>
     <div class="queue-badge" id="qb-memory">0 waiting</div>
   </div>
 </div>
@@ -332,7 +274,7 @@
   <div class="spinner"></div>
   <div class="queue-game-badge" id="q-game-badge">Quiz</div>
   <div class="queue-name-display" id="q-name">Player</div>
-  <div class="queue-pos" id="q-pos">1</div>
+  <div class="queue-pos"   id="q-pos">1</div>
   <div class="queue-label">in queue</div>
   <p style="color:var(--muted);font-size:.85rem;text-align:center">You'll be notified when it's your turn ♻️</p>
 </div>
@@ -348,59 +290,40 @@
 <div id="view-game" class="view">
   <div class="game-header">
     <div class="g-left">
-      <div class="g-type-badge" id="g-type-badge">Quiz</div>
-      <div class="g-progress">Round <strong id="g-prog">1</strong>/<span id="g-total">5</span></div>
+      <div class="g-type-badge"  id="g-type-badge">Quiz</div>
+      <div class="g-progress"><span id="g-round-label">Round</span> <strong id="g-prog">1</strong>/<span id="g-total">5</span></div>
     </div>
     <div class="g-score" id="g-score">0 pts</div>
   </div>
-
   <div class="timer-bar-wrap">
-    <div class="timer-bar-track">
-      <div class="timer-bar-fill" id="timer-fill" style="width:100%"></div>
-    </div>
+    <div class="timer-bar-track"><div class="timer-bar-fill" id="timer-fill" style="width:100%"></div></div>
     <div class="timer-bar-label"><span id="timer-sec">30</span>s</div>
   </div>
 
   <!-- QUIZ -->
   <div id="gc-quiz">
     <div class="question-text" id="g-question">Loading...</div>
-    <div class="answer-list"  id="answer-list"></div>
+    <div class="answer-list"   id="answer-list"></div>
   </div>
 
   <!-- SORT -->
   <div id="gc-sort">
-    <div class="sort-arena">
-      <div class="sort-drag-hint">Hold &amp; drag into the correct bin ↓</div>
-      <div class="draggable-item" id="sort-draggable">
-        <div class="sort-drag-emoji" id="sort-emoji">♻️</div>
-        <div class="sort-drag-name"  id="sort-name">Item</div>
-      </div>
-    </div>
-    <div class="sort-bins-row" id="sort-bins-row"></div>
+    <div class="sort-wave-hint">Hold &amp; drag each item into the correct bin ↓</div>
+    <div class="sort-wave-row"  id="sort-wave-row"></div>
+    <div class="sort-bins-row"  id="sort-bins-row"></div>
   </div>
 
-  <!-- CATCH -->
-  <div id="gc-catch">
-    <div class="catch-lives" id="catch-lives">❤️❤️❤️</div>
-    <div class="catch-arena">
-      <div class="catch-emoji" id="catch-emoji">🍾</div>
-      <div class="catch-item-name" id="catch-name">Plastic Bottle</div>
-    </div>
-    <div class="catch-prompt">Is it recyclable? Catch it or skip it!</div>
-    <div class="catch-buttons">
-      <button class="catch-action-btn btn-catch" id="btn-catch" onclick="submitCatch('catch')">
-        <span class="act-icon">♻️</span> CATCH
-      </button>
-      <button class="catch-action-btn btn-skip" id="btn-skip" onclick="submitCatch('skip')">
-        <span class="act-icon">🚫</span> SKIP
-      </button>
-    </div>
+  <!-- ZIP -->
+  <div id="gc-zip">
+    <div class="zip-hint">Trace through every cell in order — don't lift your finger!</div>
+    <div class="zip-grid" id="zip-grid"></div>
+    <div class="zip-status" id="zip-status">Place finger on container #1 to begin</div>
   </div>
 
   <!-- MEMORY -->
   <div id="gc-memory">
     <div class="mem-info">
-      <span>Pairs: <strong id="mem-pairs">0/8</strong></span>
+      <span>Pairs: <strong id="mem-pairs">0/12</strong></span>
       <span>Attempts: <span id="mem-attempts">0</span></span>
     </div>
     <div class="memory-grid" id="memory-grid"></div>
@@ -430,32 +353,29 @@ const socket = io();
 
 let myName     = '';
 let myGameType = '';
-let maxTime    = 30;
+let maxTime    = 20;
 let answered   = false;
 
-// memory game state
-let memCards   = [];
-let memFlip1   = null;
-let memWaiting = false;
-
-const GAME_LABELS = { quiz:'Recycling Quiz', sort:'Sort the Waste', catch:'Catch It!', memory:'Memory Match' };
+const GAME_LABELS = { quiz:'Recycling Quiz', sort:'Sort the Waste', zip:'Zip!', memory:'Memory Match' };
+const ROUND_LABELS = { quiz:'Q', sort:'Wave', zip:'Puzzle', memory:'Pairs' };
 
 fetch('/config').then(r=>r.json()).then(cfg => { maxTime = cfg.QUESTION_TIME; });
 
-// ── Views ──────────────────────────────────────────────────────
+// ── Views ────────────────────────────────────────────────────
 function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
 function showGameContent(type) {
-  ['quiz','sort','catch','memory'].forEach(t => {
+  ['quiz','sort','zip','memory'].forEach(t => {
     document.getElementById(`gc-${t}`).style.display = t === type ? 'flex' : 'none';
   });
-  document.getElementById('g-type-badge').textContent = GAME_LABELS[type] || type;
+  document.getElementById('g-type-badge').textContent    = GAME_LABELS[type] || type;
+  document.getElementById('g-round-label').textContent   = ROUND_LABELS[type] || 'Round';
 }
 
-// ── Join ───────────────────────────────────────────────────────
+// ── Join ─────────────────────────────────────────────────────
 document.getElementById('name-input').addEventListener('keydown', e => { if(e.key==='Enter') joinGame(); });
 
 function joinGame() {
@@ -472,7 +392,7 @@ function showError(msg) {
   setTimeout(() => document.getElementById('join-error').textContent = '', 3000);
 }
 
-// ── Game picker ────────────────────────────────────────────────
+// ── Game picker ──────────────────────────────────────────────
 function updateQueueBadges(counts) {
   if (!counts) return;
   Object.entries(counts).forEach(([gt, n]) => {
@@ -488,7 +408,7 @@ function selectGame(gameType) {
   socket.emit('select_game', { gameType });
 }
 
-// ── Quiz ───────────────────────────────────────────────────────
+// ── Quiz ─────────────────────────────────────────────────────
 function renderQuizOptions(options) {
   const labels = ['A','B','C','D'];
   answered = false;
@@ -509,16 +429,20 @@ function submitQuiz(idx) {
   socket.emit('submit_answer', { value: idx });
 }
 
-// ── Sort drag-and-drop ─────────────────────────────────────────
-let sortDragging   = false;
-let sortDragEl     = null;
-let sortOffX       = 0;
-let sortOffY       = 0;
-let sortHoveredBin = null;
-let sortBinKeys    = [];
+// ── Sort wave drag-drop ──────────────────────────────────────
+let sortDragging     = false;
+let sortDragEl       = null;
+let sortDragItemIdx  = -1;
+let sortOffX         = 0;
+let sortOffY         = 0;
+let sortHoveredBin   = null;
+let sortBinKeys      = [];
+let sortActiveIdx    = 0;
 
-function renderSortBins(bins) {
-  sortBinKeys = Object.keys(bins);
+function renderSortWave(waveItems, bins, currentItemIndex) {
+  sortActiveIdx = currentItemIndex || 0;
+  sortBinKeys   = Object.keys(bins);
+
   document.getElementById('sort-bins-row').innerHTML = sortBinKeys.map(key => {
     const b = bins[key];
     return `<div class="sort-hole" id="sh-${key}">
@@ -526,38 +450,45 @@ function renderSortBins(bins) {
       <div class="sort-hole-label">${b.label}</div>
     </div>`;
   }).join('');
+
+  document.getElementById('sort-wave-row').innerHTML = waveItems.map((item, i) => `
+    <div class="sort-wave-card ${i < currentItemIndex ? 'done-correct' : i === currentItemIndex ? 'active' : 'pending'}" id="swi-${i}">
+      <div class="sort-wave-emoji">${item.emoji}</div>
+      <div class="sort-wave-name">${item.name}</div>
+    </div>`).join('');
+
+  attachSortDrag(sortActiveIdx);
 }
 
-function initSortDrag() {
-  const el = document.getElementById('sort-draggable');
-  if (!el) return;
-  sortDragging = false; sortHoveredBin = null; sortDragEl = el;
-  el.className = 'draggable-item';
-  el.style.cssText = '';
+function attachSortDrag(idx) {
+  const el = document.getElementById(`swi-${idx}`);
+  if (!el || answered) return;
+  sortDragEl = el;
 
-  el.ontouchstart = e => { e.preventDefault(); if (!answered) beginDrag(el, e.touches[0].clientX, e.touches[0].clientY); };
+  el.ontouchstart = e => { e.preventDefault(); if (!answered) beginSortDrag(el, idx, e.touches[0].clientX, e.touches[0].clientY); };
   el.ontouchmove  = e => { e.preventDefault(); if (sortDragging) doDrag(e.touches[0].clientX, e.touches[0].clientY); };
-  el.ontouchend   = e => { e.preventDefault(); endDrag(); };
+  el.ontouchend   = e => { e.preventDefault(); endSortDrag(); };
   el.onmousedown  = e => {
     if (answered) return;
-    beginDrag(el, e.clientX, e.clientY);
+    beginSortDrag(el, idx, e.clientX, e.clientY);
     document.onmousemove = ev => doDrag(ev.clientX, ev.clientY);
-    document.onmouseup   = ()  => { endDrag(); document.onmousemove = null; document.onmouseup = null; };
+    document.onmouseup   = ()  => { endSortDrag(); document.onmousemove = null; document.onmouseup = null; };
   };
 }
 
-function beginDrag(el, cx, cy) {
+function beginSortDrag(el, itemIdx, cx, cy) {
   const r = el.getBoundingClientRect();
   sortOffX = cx - (r.left + r.width  / 2);
   sortOffY = cy - (r.top  + r.height / 2);
   sortDragging = true;
+  sortDragItemIdx = itemIdx;
   el.classList.add('is-dragging');
   el.style.left = (r.left + r.width  / 2) + 'px';
   el.style.top  = (r.top  + r.height / 2) + 'px';
 }
 
 function doDrag(cx, cy) {
-  if (!sortDragEl) return;
+  if (!sortDragEl || !sortDragging) return;
   sortDragEl.style.left = (cx - sortOffX) + 'px';
   sortDragEl.style.top  = (cy - sortOffY) + 'px';
   const bin = getBinAt(cx, cy);
@@ -568,12 +499,13 @@ function doDrag(cx, cy) {
   }
 }
 
-function endDrag() {
+function endSortDrag() {
   if (!sortDragging) return;
   sortDragging = false;
   const el = sortDragEl;
   if (!el) return;
   if (sortHoveredBin) document.getElementById(`sh-${sortHoveredBin}`)?.classList.remove('over');
+
   if (sortHoveredBin && !answered) {
     const binEl = document.getElementById(`sh-${sortHoveredBin}`);
     if (binEl) {
@@ -586,7 +518,7 @@ function endDrag() {
     }
     const bin = sortHoveredBin;
     sortHoveredBin = null;
-    setTimeout(() => submitSort(bin), 160);
+    setTimeout(() => submitSortItem(bin), 160);
   } else {
     el.classList.remove('is-dragging');
     el.style.cssText = '';
@@ -603,33 +535,147 @@ function getBinAt(x, y) {
   return null;
 }
 
-function submitSort(binKey) {
-  if (answered) return;
-  answered = true;
+function submitSortItem(binKey) {
   socket.emit('submit_answer', { value: binKey });
 }
 
-// ── Catch ──────────────────────────────────────────────────────
-function submitCatch(action) {
+// ── Zip ──────────────────────────────────────────────────────
+let zipDrawing      = false;
+let zipPath         = [];
+let zipGridData     = [];
+let zipAnchors      = [];
+let zipGridSize     = 4;
+let zipTotalAnchors = 5;
+let zipNextAnchor   = 1;
+
+function initZipGame(payload) {
+  zipGridData     = payload.grid;
+  zipAnchors      = payload.anchors;
+  zipGridSize     = payload.size;
+  zipTotalAnchors = payload.anchors.length;
+  zipNextAnchor   = 1;
+  zipPath         = [];
+  zipDrawing      = false;
+  renderZipGrid();
+}
+
+function renderZipGrid() {
+  const grid = document.getElementById('zip-grid');
+  grid.style.gridTemplateColumns = `repeat(${zipGridSize}, 66px)`;
+  grid.innerHTML = '';
+  for (let r = 0; r < zipGridSize; r++) {
+    for (let c = 0; c < zipGridSize; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'zip-cell';
+      cell.id = `zc-${r}-${c}`;
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      const anchorNum = zipGridData[r][c];
+      if (anchorNum) {
+        cell.classList.add('zip-anchor');
+        const anchor = zipAnchors.find(a => a.num === anchorNum);
+        cell.innerHTML = `<span class="zip-container">${anchor ? anchor.emoji : '♻️'}</span><span class="zip-num">${anchorNum}</span>`;
+      }
+      grid.appendChild(cell);
+    }
+  }
+  grid.ontouchstart = onZipTouchStart;
+  grid.ontouchmove  = onZipTouchMove;
+  grid.ontouchend   = onZipTouchEnd;
+  grid.onmousedown  = e => {
+    startZipDraw(e.clientX, e.clientY);
+    document.onmousemove = ev => continueZipDraw(ev.clientX, ev.clientY);
+    document.onmouseup   = ()  => { endZipDraw(); document.onmousemove = null; document.onmouseup = null; };
+  };
+}
+
+function getCellFromPoint(x, y) {
+  const el = document.elementFromPoint(x, y);
+  if (!el) return null;
+  const cell = el.closest ? el.closest('.zip-cell') : null;
+  if (!cell) return null;
+  return { r: parseInt(cell.dataset.r), c: parseInt(cell.dataset.c), el: cell };
+}
+
+function onZipTouchStart(e) { e.preventDefault(); startZipDraw(e.touches[0].clientX, e.touches[0].clientY); }
+function onZipTouchMove(e)  { e.preventDefault(); if (zipDrawing) continueZipDraw(e.touches[0].clientX, e.touches[0].clientY); }
+function onZipTouchEnd(e)   { e.preventDefault(); endZipDraw(); }
+
+function startZipDraw(x, y) {
   if (answered) return;
-  answered = true;
-  document.getElementById('btn-catch').disabled = true;
-  document.getElementById('btn-skip').disabled  = true;
-  socket.emit('submit_answer', { value: action });
+  const cell = getCellFromPoint(x, y);
+  if (!cell) return;
+  if (zipGridData[cell.r][cell.c] !== 1) {
+    document.getElementById('zip-status').textContent = '⚠ Start from container #1!';
+    return;
+  }
+  zipPath    = [[cell.r, cell.c]];
+  zipDrawing = true;
+  zipNextAnchor = 2;
+  cell.el.classList.add('zip-visited');
+  document.getElementById('zip-status').textContent = `Connected 1/${zipTotalAnchors} — keep going!`;
 }
 
-function renderLives(lives, max) {
-  document.getElementById('catch-lives').textContent =
-    '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, max - lives));
+function continueZipDraw(x, y) {
+  if (!zipDrawing || answered) return;
+  const cell = getCellFromPoint(x, y);
+  if (!cell) return;
+  const { r, c, el } = cell;
+  if (zipPath.some(([pr,pc]) => pr===r && pc===c)) return;
+
+  const [lastR, lastC] = zipPath[zipPath.length - 1];
+  if (Math.abs(r - lastR) + Math.abs(c - lastC) !== 1) { resetZipPath(); return; }
+
+  const anchorNum = zipGridData[r][c];
+  if (anchorNum !== 0) {
+    if (anchorNum !== zipNextAnchor) { resetZipPath(); return; }
+    zipNextAnchor++;
+    document.getElementById('zip-status').textContent =
+      zipNextAnchor > zipTotalAnchors
+        ? `Fill all ${zipGridSize * zipGridSize} cells to complete!`
+        : `Connected ${anchorNum}/${zipTotalAnchors} — keep tracing!`;
+  }
+
+  zipPath.push([r, c]);
+  el.classList.add('zip-visited');
+
+  if (zipPath.length === zipGridSize * zipGridSize && zipNextAnchor > zipTotalAnchors) {
+    submitZipPath();
+  }
 }
 
-// ── Memory ─────────────────────────────────────────────────────
+function endZipDraw() {
+  if (!zipDrawing) return;
+  zipDrawing = false;
+  if (zipPath.length < zipGridSize * zipGridSize) {
+    resetZipPath();
+  }
+}
+
+function resetZipPath() {
+  zipPath = []; zipNextAnchor = 1; zipDrawing = false;
+  document.querySelectorAll('.zip-visited').forEach(el => el.classList.remove('zip-visited'));
+  document.getElementById('zip-status').textContent = 'Place finger on container #1 to begin';
+}
+
+function submitZipPath() {
+  zipDrawing = false;
+  answered   = true;
+  document.querySelectorAll('.zip-cell').forEach(el => el.classList.add('zip-done'));
+  document.getElementById('zip-status').textContent = '✓ Path complete — submitting!';
+  socket.emit('submit_answer', { value: { path: zipPath } });
+}
+
+// ── Memory ───────────────────────────────────────────────────
+let memCards   = [];
+let memFlip1   = null;
+let memWaiting = false;
+
 function renderMemoryGrid(cards) {
-  memCards  = cards;
-  memFlip1  = null;
+  memCards   = cards;
+  memFlip1   = null;
   memWaiting = false;
-  const grid = document.getElementById('memory-grid');
-  grid.innerHTML = cards.map((c, i) => `
+  document.getElementById('memory-grid').innerHTML = cards.map((c, i) => `
     <div class="mem-card ${c.matched ? 'matched' : ''}" id="mc-${i}" onclick="tapMemCard(${i})">
       ${c.matched ? c.emoji : '<span class="mem-back">♻️</span>'}
     </div>`).join('');
@@ -639,11 +685,8 @@ function tapMemCard(pos) {
   if (memWaiting) return;
   const card = document.getElementById(`mc-${pos}`);
   if (!card || card.classList.contains('matched') || card.classList.contains('flipped')) return;
-
-  // Reveal card
   card.classList.add('flipped');
   card.innerHTML = memCards[pos].emoji;
-
   if (memFlip1 === null) {
     memFlip1 = pos;
   } else {
@@ -653,16 +696,16 @@ function tapMemCard(pos) {
   }
 }
 
-// ── Timer ──────────────────────────────────────────────────────
+// ── Timer ────────────────────────────────────────────────────
 function updateTimerBar(timeLeft, maxT) {
-  const pct = (timeLeft / maxT) * 100;
+  const pct  = (timeLeft / maxT) * 100;
   const fill = document.getElementById('timer-fill');
-  fill.style.width   = pct + '%';
-  fill.className     = 'timer-bar-fill' + (timeLeft <= 5 ? ' urgent' : '');
+  fill.style.width = pct + '%';
+  fill.className   = 'timer-bar-fill' + (timeLeft <= 5 ? ' urgent' : '');
   document.getElementById('timer-sec').textContent = timeLeft;
 }
 
-// ── Apply state ────────────────────────────────────────────────
+// ── Apply state ──────────────────────────────────────────────
 function applyState(state) {
   const gt = state.gameType;
   document.getElementById('g-prog').textContent  = state.progress;
@@ -678,18 +721,12 @@ function applyState(state) {
     renderQuizOptions(state.payload.options);
   }
   if (gt === 'sort' && state.payload) {
-    document.getElementById('sort-emoji').textContent = state.payload.item.emoji;
-    document.getElementById('sort-name').textContent  = state.payload.item.name;
-    renderSortBins(state.payload.bins);
-    initSortDrag();
-  }
-  if (gt === 'catch' && state.payload) {
-    document.getElementById('catch-emoji').textContent = state.payload.item.emoji;
-    document.getElementById('catch-name').textContent  = state.payload.item.name;
-    renderLives(state.payload.lives, state.payload.maxLives);
+    renderSortWave(state.payload.waveItems, state.payload.bins, state.payload.currentItemIndex || 0);
     answered = false;
-    document.getElementById('btn-catch').disabled = false;
-    document.getElementById('btn-skip').disabled  = false;
+  }
+  if (gt === 'zip' && state.payload) {
+    initZipGame(state.payload);
+    answered = false;
   }
   if (gt === 'memory' && state.payload) {
     renderMemoryGrid(state.payload.cards);
@@ -698,7 +735,25 @@ function applyState(state) {
   }
 }
 
-// ── Socket events ──────────────────────────────────────────────
+// ── Leaderboard final screen ─────────────────────────────────
+function renderFinalLb(lb) {
+  if (!lb) return '';
+  const icons = { quiz:'🧠', sort:'🗑️', zip:'⚡', memory:'🃏' };
+  let html = '';
+  if (lb.gameBests) {
+    html += '<div class="lb-title">🏅 Per-Game Champions</div>';
+    for (const [gt, best] of Object.entries(lb.gameBests)) {
+      if (best) html += `<div class="lb-row"><span>${icons[gt]||''} ${best.name}</span><span class="lb-score-f">${best.score} pts</span></div>`;
+    }
+  }
+  if (lb.allKing) {
+    html += '<div class="lb-title" style="margin-top:12px">👑 All-King</div>';
+    html += `<div class="lb-row"><span>👑 ${lb.allKing.name}</span><span class="lb-score-f">${lb.allKing.total} pts</span></div>`;
+  }
+  return html;
+}
+
+// ── Socket events ────────────────────────────────────────────
 socket.on('error', ({ message }) => showError(message));
 
 socket.on('maintenance', ({ message }) => {
@@ -715,9 +770,9 @@ socket.on('queue_counts', (counts) => updateQueueBadges(counts));
 
 socket.on('joined_queue', ({ position, gameType, gameInfo }) => {
   myGameType = gameType;
-  document.getElementById('q-name').textContent        = myName;
-  document.getElementById('q-pos').textContent         = position;
-  document.getElementById('q-game-badge').textContent  = gameInfo?.label || gameType;
+  document.getElementById('q-name').textContent       = myName;
+  document.getElementById('q-pos').textContent        = position;
+  document.getElementById('q-game-badge').textContent = gameInfo?.label || gameType;
   showView('view-queue');
 });
 
@@ -726,7 +781,6 @@ socket.on('queue_updated', ({ position }) => {
 });
 
 socket.on('next_player_soon', ({ countdown }) => {
-  // Only show to players waiting in queue, not the one who just finished
   if (!document.getElementById('view-queue').classList.contains('active')) return;
   if (navigator.vibrate) navigator.vibrate(200);
   document.getElementById('yt-count').textContent = countdown > 0 ? countdown : '🎮';
@@ -744,11 +798,33 @@ socket.on('question', ({ state }) => {
   showView('view-game');
 });
 
+socket.on('sort_item_result', ({ itemIndex, correct, correctBin, points, score, state }) => {
+  // Flash the submitted card
+  const card = document.getElementById(`swi-${itemIndex}`);
+  if (card) {
+    card.classList.remove('is-dragging', 'active');
+    card.style.cssText = '';
+    card.classList.add(correct ? 'done-correct' : 'done-wrong');
+  }
+  if (!correct) {
+    const binEl = document.getElementById(`sh-${correctBin}`);
+    if (binEl) { binEl.classList.add('correct'); setTimeout(() => binEl.classList.remove('correct'), 700); }
+  }
+  document.getElementById('g-score').textContent = (score || 0) + ' pts';
+  // Activate next card
+  sortActiveIdx = itemIndex + 1;
+  const nextCard = document.getElementById(`swi-${sortActiveIdx}`);
+  if (nextCard) {
+    nextCard.classList.remove('pending');
+    nextCard.classList.add('active');
+    attachSortDrag(sortActiveIdx);
+  }
+});
+
 socket.on('answer_result', (data) => {
   const { correct, correctValue, points, state } = data;
   const gt = state?.gameType || myGameType;
 
-  // Per-game result handling
   if (gt === 'quiz') {
     document.querySelectorAll('.answer-btn').forEach((b,i) => {
       b.disabled = true;
@@ -761,11 +837,8 @@ socket.on('answer_result', (data) => {
       if (el && key === correctValue) el.classList.add('correct');
     });
   }
-  if (gt === 'catch' && data.lives !== undefined) {
-    renderLives(data.lives, 3);
-  }
   if (gt === 'memory') {
-    const { pos1, pos2, emoji1, emoji2 } = data;
+    const { pos1, pos2 } = data;
     if (correct) {
       document.getElementById(`mc-${pos1}`)?.classList.replace('flipped','matched');
       document.getElementById(`mc-${pos2}`)?.classList.replace('flipped','matched');
@@ -774,7 +847,6 @@ socket.on('answer_result', (data) => {
         document.getElementById('mem-attempts').textContent = state.payload.attempts;
       }
     } else {
-      // Flash red, flip back
       [pos1, pos2].forEach(p => document.getElementById(`mc-${p}`)?.classList.add('wrong-flash'));
       setTimeout(() => {
         [pos1, pos2].forEach(p => {
@@ -790,18 +862,14 @@ socket.on('answer_result', (data) => {
   document.getElementById('g-score').textContent = (state?.score || 0) + ' pts';
 
   const factEl = document.getElementById('fact-box');
-  if (state?.payload?.fact || correct !== undefined) {
-    factEl.textContent = correct ? `✓ +${points} pts` : '✗ Wrong';
-    factEl.className   = 'fact-box show' + (!correct ? ' wrong-fact' : '');
-  }
+  factEl.textContent = data.fact || (correct ? `✓ +${points} pts` : '✗ Wrong');
+  factEl.className   = 'fact-box show' + (!correct ? ' wrong-fact' : '');
 
   if (gt === 'memory' && correct) memWaiting = false;
 });
 
 socket.on('timer_tick', ({ timeLeft }) => {
   if (!document.getElementById('view-game').classList.contains('active')) return;
-  const fill = document.getElementById('timer-fill');
-  const curW = parseFloat(fill.style.width) || 100;
   updateTimerBar(timeLeft, maxTime);
 });
 
@@ -814,20 +882,15 @@ socket.on('timer_expired', () => {
     sortDragEl.classList.remove('is-dragging');
     sortDragEl.style.cssText = '';
   }
+  zipDrawing = false;
 });
 
 socket.on('game_finished', ({ score, leaderboard }) => {
   document.getElementById('final-name').textContent       = myName;
   document.getElementById('final-score').textContent      = score;
   document.getElementById('final-game-badge').textContent = GAME_LABELS[myGameType] || myGameType;
-  document.getElementById('final-emoji').textContent      = score >= 80 ? '🏆' : score >= 50 ? '🎉' : '👍';
-  const medals = ['🥇','🥈','🥉'];
-  document.getElementById('final-lb').innerHTML = leaderboard.slice(0,5).map((e,i) => `
-    <div class="lb-row">
-      <span>${medals[i]||'#'+(i+1)}</span>
-      <span>${e.name}<span class="lb-game-icon">${{quiz:'🧠',sort:'🗑️',catch:'🎯',memory:'🃏'}[e.gameType]||''}</span></span>
-      <span class="lb-score-f">${e.score}</span>
-    </div>`).join('');
+  document.getElementById('final-emoji').textContent      = score >= 150 ? '🏆' : score >= 80 ? '🎉' : '👍';
+  document.getElementById('final-lb').innerHTML           = renderFinalLb(leaderboard);
   showView('view-final');
   if (navigator.vibrate) navigator.vibrate([100,50,200]);
 });

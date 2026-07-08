@@ -12,6 +12,7 @@
     --purple: #8B2FC9;
     --green:  #22c55e;
     --red:    #ef4444;
+    --yellow: #f59e0b;
     --text:   #ffffff;
     --muted:  #777;
     --card:   #161616;
@@ -27,422 +28,235 @@
   }
 
   /* ═══════════════════════════════════════
-     WAITING STATE — QR left, leaderboard right
+     WAITING — QR left, leaderboard right
   ═══════════════════════════════════════ */
   #waiting {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: stretch;
+    position: fixed; inset: 0;
+    display: flex; align-items: stretch;
     background: radial-gradient(ellipse at 30% 60%, #1a0a2e 0%, #0d0d0d 65%);
     z-index: 10;
     transition: opacity 0.6s ease, visibility 0.6s ease;
   }
-
-  #waiting.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
+  #waiting.hidden { opacity:0; visibility:hidden; pointer-events:none; }
 
   .waiting-left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-    padding: 48px;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 28px; padding: 48px;
   }
-
   .waiting-right {
-    width: 340px;
-    flex-shrink: 0;
-    border-left: 1px solid var(--border);
-    background: rgba(22,22,22,0.7);
-    display: flex;
-    flex-direction: column;
-    padding: 40px 32px;
-    gap: 0;
-    justify-content: center;
+    width: 340px; flex-shrink: 0;
+    border-left: 1px solid var(--border); background: rgba(22,22,22,0.7);
+    display: flex; flex-direction: column;
+    padding: 36px 28px; justify-content: center; gap: 0;
   }
 
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
+  .brand { display:flex; align-items:center; gap:14px; }
   .brand-icon {
-    width: 52px; height: 52px;
-    background: var(--purple);
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px;
+    width:52px; height:52px; background:var(--purple); border-radius:14px;
+    display:flex; align-items:center; justify-content:center; font-size:26px;
   }
-
-  .brand-name {
-    font-size: 3rem;
-    font-weight: 900;
-    letter-spacing: -1px;
-  }
-
-  .brand-name span { color: var(--purple); }
+  .brand-name { font-size:3rem; font-weight:900; letter-spacing:-1px; }
+  .brand-name span { color:var(--purple); }
 
   .qr-big-wrap {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 16px;
-    box-shadow: 0 0 80px rgba(139, 47, 201, 0.5);
+    background: #fff; border-radius: 20px; padding: 16px;
+    box-shadow: 0 0 80px rgba(139,47,201,0.5);
   }
+  #qr-big { width:280px; height:280px; display:block; }
 
-  #qr-big {
-    width: 280px;
-    height: 280px;
-    display: block;
-  }
-
-  .scan-label {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .scan-sub {
-    font-size: 1rem;
-    color: var(--muted);
-  }
-
-  .scan-sub strong { color: var(--green); }
+  .scan-label { font-size:1.5rem; font-weight:700; color:var(--muted); letter-spacing:3px; text-transform:uppercase; }
+  .scan-sub   { font-size:1rem; color:var(--muted); }
+  .scan-sub strong { color:var(--green); }
 
   /* Waiting leaderboard */
-  .wlb-title {
-    font-size: .8rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--muted);
-    margin-bottom: 20px;
-  }
-
+  .wlb-title { font-size:.75rem; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:18px; }
   .wlb-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 13px 0;
-    border-bottom: 1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+    padding:11px 0; border-bottom:1px solid var(--border);
   }
-
-  .wlb-row:last-child { border-bottom: none; }
-
-  .wlb-rank  { width: 28px; font-weight: 900; font-size: 1.1rem; flex-shrink: 0; }
-  .wlb-name  { flex: 1; font-size: 1rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .wlb-game  { font-size: 1rem; flex-shrink: 0; }
-  .wlb-score { color: var(--green); font-weight: 800; font-size: 1rem; flex-shrink: 0; }
-
-  .wlb-empty {
-    color: var(--muted);
-    font-size: .95rem;
-    text-align: center;
-    padding: 32px 0;
-    line-height: 1.8;
-  }
+  .wlb-row:last-child { border-bottom:none; }
+  .wlb-icon  { font-size:1.3rem; flex-shrink:0; width:28px; text-align:center; }
+  .wlb-label { flex:1; font-size:.8rem; color:var(--muted); }
+  .wlb-name  { font-size:.95rem; font-weight:700; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .wlb-score { font-size:.9rem; font-weight:800; color:var(--green); flex-shrink:0; }
+  .wlb-king-sep { border-top:1px solid var(--border); margin:12px 0; }
+  .wlb-empty { color:var(--muted); font-size:.9rem; text-align:center; padding:24px 0; line-height:1.8; }
 
   /* ═══════════════════════════════════════
-     PLAYING STATE — game + small QR corner
+     PLAYING STATE
   ═══════════════════════════════════════ */
-  #playing {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-  }
+  #playing { display:flex; flex-direction:column; height:100vh; opacity:0; transition:opacity 0.6s ease; }
+  #playing.visible { opacity:1; }
 
-  #playing.visible { opacity: 1; }
-
-  /* Top bar */
   .top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 24px;
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    height: 72px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px; background:var(--card); border-bottom:1px solid var(--border);
+    flex-shrink:0; height:72px;
   }
-
-  .player-chip {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
+  .player-chip { display:flex; align-items:center; gap:12px; }
   .avatar {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: var(--purple);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-    font-weight: 800;
-    flex-shrink: 0;
+    width:44px; height:44px; border-radius:50%; background:var(--purple);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem; font-weight:800; flex-shrink:0;
   }
+  .player-name-top  { font-size:1.5rem; font-weight:700; }
+  .player-score-top { font-size:.9rem; color:var(--green); font-weight:600; margin-top:2px; }
 
-  .player-name-top { font-size: 1.5rem; font-weight: 700; }
-  .player-score-top { font-size: 0.9rem; color: var(--green); font-weight: 600; margin-top: 2px; }
+  .q-progress { text-align:center; }
+  .q-label { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+  .q-num   { font-size:1.8rem; font-weight:900; }
 
-  .q-progress {
-    text-align: center;
-  }
+  .timer-wrap { position:relative; width:64px; height:64px; }
+  .timer-svg  { width:64px; height:64px; transform:rotate(-90deg); }
+  .timer-track { fill:none; stroke:var(--border); stroke-width:5; }
+  .timer-fill  { fill:none; stroke:var(--purple); stroke-width:5; stroke-linecap:round;
+                 stroke-dasharray:163; stroke-dashoffset:0; transition:stroke-dashoffset .9s linear, stroke .3s; }
+  .timer-fill.urgent { stroke:var(--red); }
+  .timer-num  { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:1.3rem; font-weight:800; }
+  .timer-num.urgent { color:var(--red); }
 
-  .q-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  .q-num { font-size: 1.8rem; font-weight: 900; }
+  .body-row { display:flex; flex:1; overflow:hidden; }
 
-  .timer-wrap {
-    position: relative;
-    width: 64px; height: 64px;
-  }
-
-  .timer-svg {
-    width: 64px; height: 64px;
-    transform: rotate(-90deg);
-  }
-
-  .timer-track { fill: none; stroke: var(--border); stroke-width: 5; }
-  .timer-fill  { fill: none; stroke: var(--purple); stroke-width: 5; stroke-linecap: round;
-                 stroke-dasharray: 163; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s linear, stroke 0.3s; }
-  .timer-fill.urgent { stroke: var(--red); }
-
-  .timer-num {
-    position: absolute;
-    inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-    font-weight: 800;
-  }
-
-  .timer-num.urgent { color: var(--red); }
-
-  /* Body: main area + QR sidebar */
-  .body-row {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  /* Main game area */
   .main-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 48px;
-    gap: 32px;
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:32px 48px; gap:32px;
   }
 
-  .question-text {
-    font-size: 2rem;
-    font-weight: 700;
-    text-align: center;
-    line-height: 1.4;
-    max-width: 820px;
-  }
+  .game-type-label { font-size:.9rem; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
 
-  .options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    width: 100%;
-    max-width: 820px;
-  }
-
+  /* QUIZ / SORT shared */
+  #sc-quiz-sort { display:flex; flex-direction:column; gap:24px; align-items:center; width:100%; }
+  .question-text { font-size:2rem; font-weight:700; text-align:center; line-height:1.4; max-width:820px; }
+  .options-grid  { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:820px; }
   .opt {
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 22px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    transition: border-color 0.3s, background 0.3s;
+    background:var(--card); border:2px solid var(--border); border-radius:14px;
+    padding:18px 22px; display:flex; align-items:center; gap:14px;
+    transition:border-color .3s, background .3s;
   }
-
-  .opt.correct { background: rgba(34,197,94,0.12); border-color: var(--green); }
-  .opt.wrong   { background: rgba(239,68,68,0.12);  border-color: var(--red); }
-
-  .opt-letter {
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    background: var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-    color: var(--purple);
-    flex-shrink: 0;
+  .opt.correct { background:rgba(34,197,94,.12); border-color:var(--green); }
+  .opt.wrong   { background:rgba(239,68,68,.12);  border-color:var(--red); }
+  .opt.active  { background:rgba(139,47,201,.1);  border-color:var(--purple); }
+  .opt-letter  {
+    width:38px; height:38px; border-radius:10px; background:var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:1rem; color:var(--purple); flex-shrink:0;
   }
+  .opt.correct .opt-letter { background:var(--green); color:#000; }
+  .opt.wrong   .opt-letter { background:var(--red);   color:#fff; }
+  .opt-text { font-size:1.25rem; font-weight:500; }
 
-  .opt.correct .opt-letter { background: var(--green); color: #000; }
-  .opt.wrong   .opt-letter { background: var(--red);   color: #fff; }
+  /* SORT wave label */
+  .sort-wave-label { font-size:1.1rem; color:var(--muted); text-align:center; }
 
-  .opt-text { font-size: 1.25rem; font-weight: 500; }
-
-  @keyframes catchPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-
-  .fact-strip {
-    font-size: 0.95rem;
-    color: var(--green);
-    font-style: italic;
-    text-align: center;
-    min-height: 22px;
-    max-width: 820px;
+  /* ZIP */
+  #sc-zip { display:none; flex-direction:column; align-items:center; gap:20px; width:100%; }
+  .sc-zip-grid { display:grid; gap:8px; }
+  .sc-zip-cell {
+    width:72px; height:72px; border-radius:12px;
+    border:2px solid var(--border); background:var(--card);
+    display:flex; align-items:center; justify-content:center;
+    position:relative; transition:all .3s;
   }
+  .sc-zip-cell.anchor { border-color:var(--purple); background:rgba(139,47,201,.12); }
+  .sc-zip-cell.done   { border-color:var(--green);  background:rgba(34,197,94,.15); }
+  .sc-zip-container { font-size:2rem; line-height:1; }
+  .sc-zip-num {
+    position:absolute; top:2px; right:5px;
+    font-size:.7rem; font-weight:900; color:var(--purple);
+  }
+  .sc-zip-hint { font-size:1rem; color:var(--muted); text-align:center; }
+
+  /* MEMORY */
+  #sc-memory { display:none; flex-direction:column; align-items:center; gap:16px; width:100%; }
+  .sc-mem-info { font-size:1.1rem; color:var(--muted); }
+  .sc-mem-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; width:100%; max-width:700px; }
+  .sc-mem-card {
+    aspect-ratio:1; border-radius:10px; border:2px solid var(--border);
+    background:var(--card); display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; transition:all .25s;
+  }
+  .sc-mem-card.matched { border-color:var(--green); background:rgba(34,197,94,.12); }
+
+  .fact-strip { font-size:.95rem; color:var(--green); font-style:italic; text-align:center; min-height:22px; max-width:820px; }
 
   /* QR sidebar */
   .qr-sidebar {
-    width: 200px;
-    flex-shrink: 0;
-    border-left: 1px solid var(--border);
-    background: var(--card);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px;
-    gap: 16px;
+    width:200px; flex-shrink:0; border-left:1px solid var(--border);
+    background:var(--card); display:flex; flex-direction:column;
+    align-items:center; padding:24px 16px; gap:16px;
   }
+  .qr-small-wrap { background:#fff; border-radius:12px; padding:8px; }
+  #qr-small { width:140px; height:140px; display:block; }
+  .scan-next { font-size:.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; text-align:center; }
+  .divider   { width:100%; border:none; border-top:1px solid var(--border); }
+  .queue-title { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; align-self:flex-start; }
+  .queue-names { display:flex; flex-direction:column; gap:8px; width:100%; }
+  .queue-chip  { background:var(--border); border-radius:8px; padding:7px 10px; font-size:.85rem; display:flex; align-items:center; gap:6px; }
+  .queue-chip-num { color:var(--purple); font-weight:700; font-size:.75rem; }
+  .queue-empty    { color:var(--muted); font-size:.85rem; }
 
-  .qr-small-wrap {
-    background: #fff;
-    border-radius: 12px;
-    padding: 8px;
-  }
-
-  #qr-small {
-    width: 140px;
-    height: 140px;
-    display: block;
-  }
-
-  .scan-next {
-    font-size: 0.8rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    text-align: center;
-  }
-
-  .divider {
-    width: 100%;
-    border: none;
-    border-top: 1px solid var(--border);
-  }
-
-  .queue-title {
-    font-size: 0.75rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    align-self: flex-start;
-  }
-
-  .queue-names {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-  }
-
-  .queue-chip {
-    background: var(--border);
-    border-radius: 8px;
-    padding: 7px 10px;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .queue-chip-num {
-    color: var(--purple);
-    font-weight: 700;
-    font-size: 0.75rem;
-  }
-
-  .queue-empty { color: var(--muted); font-size: 0.85rem; }
-
-  /* Game over overlay inside playing */
+  /* ═══════════════════════════════════════
+     GAME OVER — prominent name reveal
+  ═══════════════════════════════════════ */
   #gameover-panel {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 5;
-    background: rgba(0,0,0,0.85);
-    align-items: center;
-    justify-content: center;
-    gap: 0;
+    display:none; position:fixed; inset:0; z-index:5;
+    background:rgba(0,0,0,.88); align-items:center; justify-content:center;
   }
-
-  #gameover-panel.show { display: flex; }
+  #gameover-panel.show { display:flex; }
 
   .go-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 48px 56px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    min-width: 440px;
+    background:var(--card); border:1px solid var(--border); border-radius:24px;
+    padding:48px 56px; display:flex; flex-direction:column;
+    align-items:center; gap:14px; min-width:480px;
   }
 
-  .go-label { color: var(--muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; }
-  .go-name  { font-size: 2.2rem; font-weight: 800; }
-  .go-score { font-size: 5.5rem; font-weight: 900; color: var(--green); line-height: 1; }
-  .go-pts   { color: var(--muted); font-size: 1.1rem; }
+  .go-congrats { font-size:1.1rem; color:var(--muted); font-weight:600; letter-spacing:2px; text-transform:uppercase; }
 
-  .lb-wrap { width: 100%; margin-top: 8px; }
-  .lb-head { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
-
-  .lb-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 1rem;
+  /* Big animated name reveal */
+  .go-name {
+    font-size:3.8rem; font-weight:900; color:var(--text);
+    animation:nameReveal .7s cubic-bezier(.22,.61,.36,1) both;
+    text-align:center;
+  }
+  @keyframes nameReveal {
+    from { transform:scale(0.4) translateY(20px); opacity:0; }
+    to   { transform:scale(1)   translateY(0);    opacity:1; }
   }
 
-  .lb-row:last-child { border-bottom: none; }
-  .lb-r { color: var(--purple); font-weight: 700; width: 28px; }
-  .lb-s { color: var(--green); font-weight: 700; }
+  .go-game-badge {
+    font-size:.8rem; font-weight:700; padding:5px 16px;
+    border-radius:100px; background:var(--border); color:var(--muted);
+    text-transform:uppercase; letter-spacing:1px;
+  }
+  .go-score { font-size:5.5rem; font-weight:900; color:var(--green); line-height:1; animation:scorePop .5s .3s cubic-bezier(.22,.61,.36,1) both; }
+  @keyframes scorePop {
+    from { transform:scale(0.6); opacity:0; }
+    to   { transform:scale(1);   opacity:1; }
+  }
+  .go-pts   { color:var(--muted); font-size:1.1rem; }
 
-  .go-next { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+  .go-lb-wrap { width:100%; margin-top:10px; }
+  .go-lb-head { color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px; }
+  .go-lb-row  { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); font-size:.95rem; }
+  .go-lb-row:last-child { border-bottom:none; }
+  .go-lb-icon { flex-shrink:0; width:24px; }
+  .go-lb-name { flex:1; padding:0 8px; }
+  .go-lb-score { color:var(--green); font-weight:700; }
 
-  /* QR in gameover corner */
+  .go-next { color:var(--muted); font-size:.95rem; margin-top:8px; }
+
   .go-qr-corner {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    z-index: 6;
+    position:fixed; bottom:24px; right:24px;
+    display:flex; flex-direction:column; align-items:center; gap:8px; z-index:6;
   }
-
-  .go-qr-corner .qr-small-wrap {
-    box-shadow: 0 0 24px rgba(139,47,201,0.4);
-  }
-
-  .go-scan-text { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .go-qr-corner .qr-small-wrap { box-shadow:0 0 24px rgba(139,47,201,.4); }
+  .go-scan-text { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
 </style>
 </head>
 <body>
 
-<!-- ═══ WAITING STATE ═══ -->
+<!-- ═══ WAITING ═══ -->
 <div id="waiting">
   <div class="waiting-left">
     <div class="brand">
@@ -453,19 +267,17 @@
       <img id="qr-big" src="" alt="Loading QR...">
     </div>
     <div class="scan-label">Scan to Play</div>
-    <div class="scan-sub">4 games · Quiz, Sort, Catch &amp; Memory · Earn up to <strong>120 pts</strong></div>
+    <div class="scan-sub">Quiz · Sort · Zip · Memory — Earn up to <strong>200 pts</strong></div>
   </div>
 
   <div class="waiting-right">
-    <div class="wlb-title">🏆 Leaderboard</div>
-    <div id="w-lb"></div>
+    <div class="wlb-title">🏆 Champions</div>
+    <div id="w-lb"><div class="wlb-empty">No scores yet.<br>Be the first to play! 🎮</div></div>
   </div>
 </div>
 
-<!-- ═══ PLAYING STATE ═══ -->
+<!-- ═══ PLAYING ═══ -->
 <div id="playing">
-
-  <!-- Top bar -->
   <div class="top-bar">
     <div class="player-chip">
       <div class="avatar" id="p-avatar">?</div>
@@ -474,45 +286,40 @@
         <div class="player-score-top" id="p-score">0 pts</div>
       </div>
     </div>
-
     <div class="q-progress">
-      <div class="q-label">Question</div>
-      <div class="q-num" id="p-progress">1 / 5</div>
+      <div class="q-label" id="p-round-label">Round</div>
+      <div class="q-num"  id="p-progress">1 / 5</div>
     </div>
-
     <div class="timer-wrap">
       <svg class="timer-svg" viewBox="0 0 56 56">
         <circle class="timer-track" cx="28" cy="28" r="26"/>
-        <circle class="timer-fill" id="timer-arc" cx="28" cy="28" r="26"/>
+        <circle class="timer-fill"  id="timer-arc" cx="28" cy="28" r="26"/>
       </svg>
       <div class="timer-num" id="timer-num">30</div>
     </div>
   </div>
 
-  <!-- Body -->
   <div class="body-row">
-
-    <!-- Game area -->
     <div class="main-area">
-      <div class="game-type-label" id="p-game-type" style="font-size:.9rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;"></div>
+      <div class="game-type-label" id="p-game-type"></div>
 
-      <!-- QUIZ / SORT share this layout -->
+      <!-- QUIZ / SORT -->
       <div id="sc-quiz-sort">
         <div class="question-text" id="p-question">Loading...</div>
-        <div class="options-grid" id="p-options"></div>
+        <div class="options-grid"  id="p-options"></div>
       </div>
 
-      <!-- CATCH -->
-      <div id="sc-catch" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%">
-        <div id="sc-catch-emoji" style="font-size:7rem;line-height:1;animation:catchPulse 1s ease-in-out infinite"></div>
-        <div id="sc-catch-name" style="font-size:2rem;font-weight:700;text-align:center"></div>
-        <div id="sc-catch-lives" style="font-size:1.8rem;letter-spacing:6px"></div>
+      <!-- ZIP -->
+      <div id="sc-zip">
+        <div class="sc-zip-hint">Trace a path through every cell in order 1 → 2 → 3 → 4 → 5</div>
+        <div class="sc-zip-grid" id="sc-zip-grid"></div>
+        <div class="sc-zip-hint" id="sc-zip-status">Waiting for player to start tracing...</div>
       </div>
 
       <!-- MEMORY -->
-      <div id="sc-memory" style="display:none;flex-direction:column;align-items:center;gap:16px;width:100%">
-        <div id="sc-mem-info" style="font-size:1.1rem;color:var(--muted)">Pairs: 0/8</div>
-        <div id="sc-mem-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:600px"></div>
+      <div id="sc-memory">
+        <div class="sc-mem-info" id="sc-mem-info">Pairs found: 0 / 12</div>
+        <div class="sc-mem-grid" id="sc-mem-grid"></div>
       </div>
 
       <div class="fact-strip" id="p-fact"></div>
@@ -520,29 +327,25 @@
 
     <!-- QR sidebar -->
     <div class="qr-sidebar">
-      <div class="qr-small-wrap">
-        <img id="qr-small" src="" alt="QR">
-      </div>
+      <div class="qr-small-wrap"><img id="qr-small" src="" alt="QR"></div>
       <div class="scan-next">Scan to play next</div>
       <hr class="divider">
       <div class="queue-title">Queue</div>
-      <div class="queue-names" id="p-queue">
-        <span class="queue-empty">Empty</span>
-      </div>
+      <div class="queue-names" id="p-queue"><span class="queue-empty">Empty</span></div>
     </div>
-
   </div>
 </div>
 
-<!-- ═══ GAME OVER OVERLAY ═══ -->
+<!-- ═══ GAME OVER ═══ -->
 <div id="gameover-panel">
   <div class="go-card">
-    <div class="go-label">Game Over</div>
-    <div class="go-name" id="go-name">Player</div>
-    <div class="go-score" id="go-score">0</div>
+    <div class="go-congrats">🎉 Game Over</div>
+    <div class="go-name"       id="go-name">Player</div>
+    <div class="go-game-badge" id="go-badge">Quiz</div>
+    <div class="go-score"      id="go-score">0</div>
     <div class="go-pts">points</div>
-    <div class="lb-wrap">
-      <div class="lb-head">🏆 Today's Top Scores</div>
+    <div class="go-lb-wrap">
+      <div class="go-lb-head">🏅 Per-Game Champions</div>
       <div id="go-lb"></div>
     </div>
     <div class="go-next" id="go-next">Next player starting soon...</div>
@@ -561,45 +364,21 @@
   const MACHINE_ID = new URLSearchParams(location.search).get('machine') || 'machine1';
   const socket = io();
 
-  let maxTime = 30;
-  let totalQ  = 5;
-  let qrDataUrl = '';
+  let maxTime = 20;
+  let totalQ  = 8;
 
-  // Load config + QR together
   Promise.all([
     fetch('/config').then(r => r.json()),
     fetch(`/qr?machine=${MACHINE_ID}`).then(r => r.json())
   ]).then(([cfg, qr]) => {
     maxTime = cfg.QUESTION_TIME;
     totalQ  = cfg.TOTAL_QUESTIONS;
-    qrDataUrl = qr.qr;
     document.getElementById('qr-big').src    = qr.qr;
     document.getElementById('qr-small').src  = qr.qr;
     document.getElementById('qr-corner').src = qr.qr;
   });
 
   socket.emit('screen_connect', { machineId: MACHINE_ID });
-
-  // ── Waiting leaderboard ───────────────────────────────────
-
-  const GAME_ICONS_W = { quiz:'🧠', sort:'🗑️', catch:'🎯', memory:'🃏' };
-  const MEDALS = ['🥇','🥈','🥉'];
-
-  function updateWaitingLb(leaderboard) {
-    const el = document.getElementById('w-lb');
-    if (!el) return;
-    if (!leaderboard || leaderboard.length === 0) {
-      el.innerHTML = '<div class="wlb-empty">No scores yet.<br>Be the first to play! 🎮</div>';
-      return;
-    }
-    el.innerHTML = leaderboard.slice(0, 8).map((e, i) => `
-      <div class="wlb-row">
-        <span class="wlb-rank">${MEDALS[i] || '#'+(i+1)}</span>
-        <span class="wlb-name">${e.name}</span>
-        <span class="wlb-game">${GAME_ICONS_W[e.gameType] || ''}</span>
-        <span class="wlb-score">${e.score}</span>
-      </div>`).join('');
-  }
 
   // ── State transitions ─────────────────────────────────────
 
@@ -615,41 +394,104 @@
     document.getElementById('gameover-panel').classList.remove('show');
   }
 
-  function showGameOver(playerName, score, leaderboard) {
-    document.getElementById('go-name').textContent  = playerName;
-    document.getElementById('go-score').textContent = score;
-    const medals = ['🥇','🥈','🥉'];
-    document.getElementById('go-lb').innerHTML = leaderboard.slice(0, 5).map((e, i) => `
-      <div class="lb-row">
-        <span class="lb-r">${medals[i] || '#'+(i+1)}</span>
-        <span>${e.name}</span>
-        <span class="lb-s">${e.score} pts</span>
-      </div>`).join('');
+  // ── Waiting leaderboard ───────────────────────────────────
+
+  const ICONS   = { quiz:'🧠', sort:'🗑️', zip:'⚡', memory:'🃏' };
+  const LABELS  = { quiz:'Quiz', sort:'Sort', zip:'Zip!', memory:'Memory' };
+  const MEDALS  = ['🥇','🥈','🥉'];
+
+  function updateWaitingLb(lb) {
+    const el = document.getElementById('w-lb');
+    if (!el || !lb) return;
+
+    let html = '';
+    const { gameBests, allKing } = lb;
+
+    if (gameBests) {
+      for (const [gt, best] of Object.entries(gameBests)) {
+        html += `<div class="wlb-row">
+          <span class="wlb-icon">${ICONS[gt] || ''}</span>
+          <span class="wlb-label">${LABELS[gt] || gt}</span>
+          ${best
+            ? `<span class="wlb-name">${best.name}</span><span class="wlb-score">${best.score}</span>`
+            : `<span style="color:var(--muted);font-size:.8rem">—</span>`
+          }
+        </div>`;
+      }
+    }
+
+    if (allKing) {
+      html += `<div class="wlb-king-sep"></div>
+        <div class="wlb-row">
+          <span class="wlb-icon">👑</span>
+          <span class="wlb-label">All-King</span>
+          <span class="wlb-name" style="color:var(--yellow)">${allKing.name}</span>
+          <span class="wlb-score" style="color:var(--yellow)">${allKing.total}</span>
+        </div>`;
+    }
+
+    el.innerHTML = html || '<div class="wlb-empty">No scores yet.<br>Be the first to play! 🎮</div>';
+  }
+
+  // ── Game over ─────────────────────────────────────────────
+
+  function showGameOver(playerName, score, gameType, leaderboard) {
+    const el = document.getElementById('go-name');
+    el.textContent = playerName;
+    el.style.animation = 'none';
+    el.offsetHeight; // reflow to restart animation
+    el.style.animation = '';
+
+    const scoreEl = document.getElementById('go-score');
+    scoreEl.textContent = score;
+    scoreEl.style.animation = 'none';
+    scoreEl.offsetHeight;
+    scoreEl.style.animation = '';
+
+    document.getElementById('go-badge').textContent =
+      (ICONS[gameType] || '') + ' ' + (LABELS[gameType] || gameType);
+
+    // Leaderboard: per-game bests + all-king
+    let html = '';
+    const lb = leaderboard || {};
+    if (lb.gameBests) {
+      for (const [gt, best] of Object.entries(lb.gameBests)) {
+        if (best) {
+          html += `<div class="go-lb-row">
+            <span class="go-lb-icon">${ICONS[gt]||''}</span>
+            <span class="go-lb-name">${best.name}</span>
+            <span class="go-lb-score">${best.score} pts</span>
+          </div>`;
+        }
+      }
+    }
+    if (lb.allKing) {
+      html += `<div class="go-lb-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+        <span class="go-lb-icon">👑</span>
+        <span class="go-lb-name" style="color:var(--yellow)">${lb.allKing.name}</span>
+        <span class="go-lb-score" style="color:var(--yellow)">${lb.allKing.total} pts</span>
+      </div>`;
+    }
+    document.getElementById('go-lb').innerHTML = html || '<span style="color:var(--muted)">—</span>';
+
     document.getElementById('gameover-panel').classList.add('show');
   }
 
   // ── UI helpers ────────────────────────────────────────────
 
-  const LABELS = ['A','B','C','D'];
+  const ROUND_LABELS = { quiz:'Question', sort:'Wave', zip:'Puzzle', memory:'Pairs' };
 
-  function renderOptions(options) {
-    document.getElementById('p-options').innerHTML = options.map((opt, i) => `
-      <div class="opt" id="opt-${i}">
-        <div class="opt-letter">${LABELS[i]}</div>
-        <div class="opt-text">${opt}</div>
-      </div>`).join('');
+  function showScreenContent(gt) {
+    document.getElementById('sc-quiz-sort').style.display = (gt==='quiz'||gt==='sort') ? 'flex' : 'none';
+    document.getElementById('sc-zip').style.display       = gt==='zip'    ? 'flex' : 'none';
+    document.getElementById('sc-memory').style.display    = gt==='memory' ? 'flex' : 'none';
+    document.getElementById('p-game-type').textContent    = (ICONS[gt]||'') + '  ' + (LABELS[gt]||gt);
+    document.getElementById('p-round-label').textContent  = ROUND_LABELS[gt] || 'Round';
   }
 
-  function highlightAnswer(correctIdx, wrongIdx = -1) {
-    document.querySelectorAll('.opt').forEach((el, i) => {
-      if (i === correctIdx) el.classList.add('correct');
-      if (i === wrongIdx)   el.classList.add('wrong');
-    });
-  }
-
-  function updateTimer(timeLeft) {
-    const circumference = 163;
-    const offset = circumference - (timeLeft / maxTime) * circumference;
+  function updateTimer(timeLeft, maxT) {
+    const circ  = 163;
+    const offset = circ - (timeLeft / (maxT || maxTime)) * circ;
     const arc = document.getElementById('timer-arc');
     const num = document.getElementById('timer-num');
     arc.style.strokeDashoffset = offset;
@@ -660,32 +502,34 @@
 
   function updateQueue(queue) {
     const el = document.getElementById('p-queue');
-    if (!queue || queue.length === 0) {
-      el.innerHTML = '<span class="queue-empty">Empty</span>';
-    } else {
-      el.innerHTML = queue.map((p, i) => `
-        <div class="queue-chip">
-          <span class="queue-chip-num">#${i+1}</span>
-          <span>${p.name}</span>
-        </div>`).join('');
-    }
+    if (!queue || !queue.length) { el.innerHTML = '<span class="queue-empty">Empty</span>'; return; }
+    el.innerHTML = queue.map((p, i) => `
+      <div class="queue-chip">
+        <span class="queue-chip-num">#${i+1}</span>
+        <span>${p.name}</span>
+      </div>`).join('');
   }
 
-  const GAME_LABELS = { quiz:'Recycling Quiz', sort:'Sort the Waste', catch:'Catch It!', memory:'Memory Match' };
-  const GAME_ICONS  = { quiz:'🧠', sort:'🗑️', catch:'🎯', memory:'🃏' };
-
-  function showScreenContent(gt) {
-    document.getElementById('sc-quiz-sort').style.display = (gt==='quiz'||gt==='sort') ? 'flex' : 'none';
-    document.getElementById('sc-catch').style.display     = gt==='catch'  ? 'flex' : 'none';
-    document.getElementById('sc-memory').style.display    = gt==='memory' ? 'flex' : 'none';
-    document.getElementById('p-game-type').textContent    = (GAME_ICONS[gt]||'') + '  ' + (GAME_LABELS[gt]||'');
-
-    // flex-direction fix
-    ['sc-quiz-sort','sc-catch','sc-memory'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el && el.style.display === 'flex') el.style.flexDirection = 'column';
-    });
-    document.getElementById('sc-quiz-sort').style.display === 'flex' && (document.getElementById('sc-quiz-sort').style.flexDirection = 'column');
+  function renderZipGrid(payload) {
+    const { size, grid, anchors } = payload;
+    const el = document.getElementById('sc-zip-grid');
+    el.style.gridTemplateColumns = `repeat(${size}, 72px)`;
+    el.innerHTML = '';
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'sc-zip-cell';
+        cell.id = `scz-${r}-${c}`;
+        const anchorNum = grid[r][c];
+        if (anchorNum) {
+          cell.classList.add('anchor');
+          const a = anchors.find(x => x.num === anchorNum);
+          cell.innerHTML = `<span class="sc-zip-container">${a ? a.emoji : '♻️'}</span><span class="sc-zip-num">${anchorNum}</span>`;
+        }
+        el.appendChild(cell);
+      }
+    }
+    document.getElementById('sc-zip-status').textContent = 'Waiting for player to start tracing...';
   }
 
   function applyState(playerName, state) {
@@ -696,29 +540,32 @@
     document.getElementById('p-progress').textContent = `${state.progress} / ${state.total}`;
     document.getElementById('p-fact').textContent     = '';
     showScreenContent(gt);
-    updateTimer(state.timeLeft != null ? state.timeLeft : maxTime);
+    updateTimer(state.timeLeft != null ? state.timeLeft : maxTime, state.timeLeft || maxTime);
 
-    if ((gt==='quiz') && state.payload) {
+    if (gt === 'quiz' && state.payload) {
       document.getElementById('p-question').textContent = state.payload.question || '';
-      if (state.payload.options) renderOptions(state.payload.options);
-    }
-    if (gt==='sort' && state.payload) {
-      document.getElementById('p-question').textContent =
-        `${state.payload.item.emoji}  ${state.payload.item.name}\n\nWhich bin?`;
-      const bins = state.payload.bins;
-      document.getElementById('p-options').innerHTML = Object.entries(bins).map(([k,b]) => `
-        <div class="opt" id="bin-${k}">
-          <div class="opt-letter">${b.emoji}</div>
-          <div class="opt-text">${b.label}</div>
+      document.getElementById('p-options').innerHTML = (state.payload.options || []).map((opt, i) => `
+        <div class="opt" id="opt-${i}">
+          <div class="opt-letter">${['A','B','C','D'][i]}</div>
+          <div class="opt-text">${opt}</div>
         </div>`).join('');
     }
-    if (gt==='catch' && state.payload) {
-      document.getElementById('sc-catch-emoji').textContent = state.payload.item.emoji;
-      document.getElementById('sc-catch-name').textContent  = state.payload.item.name;
-      const lives = state.payload.lives, max = state.payload.maxLives;
-      document.getElementById('sc-catch-lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0,max-lives));
+
+    if (gt === 'sort' && state.payload) {
+      const { waveItems, currentItemIndex, bins } = state.payload;
+      document.getElementById('p-question').textContent = `Wave ${state.progress}/${state.total} — sort all 3 items!`;
+      document.getElementById('p-options').innerHTML = waveItems.map((item, i) => `
+        <div class="opt ${i < currentItemIndex ? 'correct' : i === currentItemIndex ? 'active' : ''}" id="wave-item-${i}">
+          <div class="opt-letter">${item.emoji}</div>
+          <div class="opt-text">${item.name}</div>
+        </div>`).join('');
     }
-    if (gt==='memory' && state.payload) {
+
+    if (gt === 'zip' && state.payload) {
+      renderZipGrid(state.payload);
+    }
+
+    if (gt === 'memory' && state.payload) {
       document.getElementById('sc-mem-info').textContent = `Pairs found: ${state.progress} / ${state.total}`;
       renderMemGrid(state.payload.cards);
     }
@@ -726,9 +573,7 @@
 
   function renderMemGrid(cards) {
     document.getElementById('sc-mem-grid').innerHTML = cards.map(c => `
-      <div style="aspect-ratio:1;border-radius:10px;border:2px solid ${c.matched ? 'var(--green)' : 'var(--border)'};
-           background:${c.matched ? 'rgba(34,197,94,.12)' : 'var(--card)'};
-           display:flex;align-items:center;justify-content:center;font-size:1.6rem;">
+      <div class="sc-mem-card ${c.matched ? 'matched' : ''}">
         ${c.matched ? c.emoji : '<span style="color:var(--muted);font-size:1rem">♻️</span>'}
       </div>`).join('');
   }
@@ -748,16 +593,10 @@
 
   socket.on('screen_waiting', () => showWaiting());
 
-  socket.on('player_choosing', ({ playerName }) => {
-    // Briefly show on screen that someone is picking a game
-    document.getElementById('p-name').textContent   = playerName;
-    document.getElementById('p-avatar').textContent = playerName[0].toUpperCase();
-  });
-
-  socket.on('game_started', ({ playerName, gameType, gameInfo }) => {
-    document.getElementById('p-fact').textContent   = '';
-    document.getElementById('p-score').textContent  = '0 pts';
-    document.getElementById('p-name').textContent   = playerName;
+  socket.on('game_started', ({ playerName, gameType }) => {
+    document.getElementById('p-fact').textContent  = '';
+    document.getElementById('p-score').textContent = '0 pts';
+    document.getElementById('p-name').textContent  = playerName;
     document.getElementById('p-avatar').textContent = playerName[0].toUpperCase();
     showScreenContent(gameType);
     showPlaying();
@@ -768,49 +607,56 @@
     document.getElementById('p-fact').textContent = '';
   });
 
-  socket.on('answer_feedback', ({ correct, correctValue, playerName, score, fact, gameType, lives, pos1, pos2 }) => {
+  socket.on('answer_feedback', ({ correct, correctValue, playerName, score, fact, gameType }) => {
     document.getElementById('p-score').textContent = score + ' pts';
     if (fact) document.getElementById('p-fact').textContent = '💡 ' + fact;
 
-    if (gameType === 'quiz') highlightAnswer(correctValue);
+    if (gameType === 'quiz') {
+      document.querySelectorAll('.opt').forEach((el, i) => {
+        if (i === correctValue) el.classList.add('correct');
+      });
+    }
     if (gameType === 'sort') {
       document.getElementById(`bin-${correctValue}`)?.classList.add('correct');
     }
-    if (gameType === 'catch' && lives !== undefined) {
-      document.getElementById('sc-catch-lives').textContent =
-        '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
+    if (gameType === 'zip' && correct) {
+      document.querySelectorAll('[id^="scz-"]').forEach(el => el.classList.add('done'));
+      document.getElementById('sc-zip-status').textContent = `✓ ${playerName} completed the Zip!`;
     }
   });
 
-  socket.on('timer_tick', ({ timeLeft }) => updateTimer(timeLeft));
+  socket.on('sort_item_feedback', ({ itemIndex, correct, playerName, score }) => {
+    document.getElementById('p-score').textContent = score + ' pts';
+    const card = document.getElementById(`wave-item-${itemIndex}`);
+    if (card) card.classList.add(correct ? 'correct' : 'wrong');
+    const next = document.getElementById(`wave-item-${itemIndex + 1}`);
+    if (next) { next.classList.remove('opt'); next.classList.add('opt', 'active'); }
+  });
+
+  socket.on('timer_tick', ({ timeLeft }) => updateTimer(timeLeft, maxTime));
 
   socket.on('queue_updated', ({ queue, counts }) => {
     updateQueue(queue);
-    // Update sidebar queue display with per-game counts
     if (counts) {
       const el = document.getElementById('p-queue');
       const total = Object.values(counts).reduce((a,b)=>a+b,0);
-      if (total === 0) {
-        el.innerHTML = '<span class="queue-empty">Empty</span>';
-      } else {
-        const icons = { quiz:'🧠', sort:'🗑️', catch:'🎯', memory:'🃏' };
-        el.innerHTML = Object.entries(counts).filter(([,n])=>n>0).map(([gt,n]) => `
-          <div class="queue-chip">
-            <span>${icons[gt]}</span>
-            <span>${n} waiting</span>
-          </div>`).join('');
-      }
+      if (total === 0) { el.innerHTML = '<span class="queue-empty">Empty</span>'; return; }
+      el.innerHTML = Object.entries(counts).filter(([,n])=>n>0).map(([gt,n]) => `
+        <div class="queue-chip">
+          <span>${ICONS[gt]||''}</span>
+          <span>${n} waiting</span>
+        </div>`).join('');
     }
   });
 
   socket.on('game_finished', ({ playerName, score, gameType, leaderboard }) => {
     updateWaitingLb(leaderboard);
-    showGameOver(playerName, score, leaderboard);
+    showGameOver(playerName, score, gameType, leaderboard);
   });
 
   socket.on('next_player_soon', ({ countdown }) => {
     const el = document.getElementById('go-next');
-    if (el) el.textContent = countdown > 0 ? `Next player starting in ${countdown}...` : 'Starting now!';
+    if (el) el.textContent = countdown > 0 ? `Next player starting in ${countdown}...` : '🚀 Starting now!';
   });
 </script>
 </body>

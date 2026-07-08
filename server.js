@@ -42,11 +42,10 @@ app.get('/stats', (req, res) => {
   const mgr = getManager(machineId);
   if (!mgr) return res.status(404).json({ error: 'Unknown machine' });
   res.json({
-    totalPlayed:     mgr.leaderboard.length,
-    currentPlayer:   mgr.currentPlayer?.name || null,
-    queueLength:     mgr.queue.length,
-    status:          mgr.status,
-    leaderboard:     mgr.leaderboard
+    totalPlayed:   mgr.totalPlayed,
+    currentPlayer: mgr.currentPlayer?.name || null,
+    status:        mgr.status,
+    leaderboard:   mgr._getLeaderboardPayload()
   });
 });
 
