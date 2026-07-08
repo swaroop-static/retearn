@@ -621,9 +621,11 @@ socket.on('queue_updated', ({ position }) => {
 });
 
 socket.on('next_player_soon', ({ countdown }) => {
-  document.getElementById('yt-count').textContent = countdown;
-  if (countdown > 0) showView('view-yourturn');
+  // Only show to players waiting in queue, not the one who just finished
+  if (!document.getElementById('view-queue').classList.contains('active')) return;
   if (navigator.vibrate) navigator.vibrate(200);
+  document.getElementById('yt-count').textContent = countdown > 0 ? countdown : '🎮';
+  showView('view-yourturn');
 });
 
 socket.on('game_started', ({ playerName, gameType }) => {
