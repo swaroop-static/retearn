@@ -18,6 +18,9 @@
     align-items:center; justify-content:center;
     padding:20px 16px; overscroll-behavior:none;
   }
+  body.slash-active { padding:0; justify-content:flex-start; }
+  body.slash-active #view-game { max-width:100%; height:100dvh; overflow:hidden; }
+
   .view { display:none; width:100%; max-width:420px; flex-direction:column; }
   .view.active { display:flex; }
 
@@ -57,7 +60,7 @@
   }
   .game-card:active { transform:scale(.98); }
   .game-card.quiz-card   { --accent:var(--purple); }
-  .game-card.sort-card   { --accent:var(--blue); }
+  .game-card.slash-card  { --accent:var(--blue); }
   .game-card.zip-card    { --accent:var(--yellow); }
   .game-card.memory-card { --accent:var(--green); }
   .game-card:hover { border-color:var(--accent); }
@@ -94,22 +97,32 @@
   .countdown-big { font-size:7rem; font-weight:900; line-height:1; animation:pulse 1s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 
-  /* ── GAME (shared top) ── */
+  /* ── GAME header ── */
   #view-game { gap:0; }
   .game-header {
     display:flex; justify-content:space-between; align-items:center;
-    padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:16px;
+    padding:12px 16px 12px; border-bottom:1px solid var(--border);
+    flex-shrink:0;
   }
+  body.slash-active .game-header { padding:10px 14px; }
   .g-left { display:flex; flex-direction:column; gap:3px; }
   .g-type-badge { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--purple); }
   .g-progress { font-size:.85rem; color:var(--muted); }
   .g-progress strong { color:var(--text); }
   .g-score { font-size:1.1rem; font-weight:700; color:var(--green); }
-  .timer-bar-wrap { margin-bottom:18px; }
+  .timer-bar-wrap { padding:8px 16px 0; flex-shrink:0; }
+  body.slash-active .timer-bar-wrap { padding:6px 14px 0; }
   .timer-bar-track { height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
   .timer-bar-fill  { height:100%; background:var(--purple); border-radius:3px; transition:width .9s linear, background .3s; }
   .timer-bar-fill.urgent { background:var(--red); }
   .timer-bar-label { text-align:right; font-size:.75rem; color:var(--muted); margin-top:4px; }
+
+  /* ── GAME content area ── */
+  .game-content-area {
+    flex:1; padding:14px 16px 16px; display:flex; flex-direction:column;
+    min-height:0; overflow:hidden;
+  }
+  body.slash-active .game-content-area { padding:8px 10px 10px; }
 
   /* ── QUIZ ── */
   #gc-quiz { display:flex; flex-direction:column; gap:14px; }
@@ -134,46 +147,87 @@
   .answer-btn.correct .ans-letter { background:var(--green); color:#000; }
   .answer-btn.wrong   .ans-letter { background:var(--red);   color:#fff; }
 
-  /* ── SORT wave drag-drop ── */
-  #gc-sort { display:none; flex-direction:column; gap:0; min-height:340px; }
-  .sort-wave-hint { text-align:center; font-size:.78rem; color:var(--muted); margin-bottom:10px; }
-  .sort-wave-row  { display:flex; gap:8px; justify-content:center; margin-bottom:14px; }
-  .sort-wave-card {
-    flex:1; max-width:110px; display:flex; flex-direction:column; align-items:center;
-    gap:6px; border:2px solid var(--border); border-radius:16px; padding:12px 6px;
-    background:var(--card); text-align:center;
-    touch-action:none; user-select:none; transition:all .2s;
+  /* ── SLASH (Fruit Ninja) ── */
+  #gc-slash { display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; }
+
+  #sort-hud {
+    display:flex; justify-content:space-between; align-items:center;
+    flex-shrink:0;
   }
-  .sort-wave-card.active  { border-color:var(--purple); background:rgba(139,47,201,.08); cursor:grab; animation:sortFallIn .4s cubic-bezier(.22,.61,.36,1) both; }
-  .sort-wave-card.pending { opacity:.35; }
-  .sort-wave-card.done-correct { border-color:var(--green); background:rgba(34,197,94,.12); opacity:.6; }
-  .sort-wave-card.done-wrong   { border-color:var(--red);   background:rgba(239,68,68,.12); opacity:.6; }
-  .sort-wave-card.is-dragging  {
-    position:fixed; z-index:1000; cursor:grabbing;
-    box-shadow:0 12px 40px rgba(0,0,0,.6);
-    transform:translate(-50%,-50%) scale(1.07) !important;
-    border-color:var(--purple); animation:none;
+  #sort-lives-display { font-size:1.5rem; letter-spacing:2px; line-height:1; }
+  #sort-wave-info     { font-size:.75rem; color:var(--muted); font-weight:700; }
+
+  #sort-target-banner {
+    border-radius:14px; padding:10px 18px;
+    text-align:center; flex-shrink:0;
+    border:2px solid rgba(59,130,246,.35);
+    background:rgba(59,130,246,.08);
+    transition:border-color .5s, background .5s;
   }
-  @keyframes sortFallIn {
-    from { opacity:0; transform:translateY(-60px) scale(.88); }
-    to   { opacity:1; transform:translateY(0)     scale(1);   }
+  #sort-target-word {
+    display:block; font-size:2rem; font-weight:900;
+    letter-spacing:3px; color:var(--blue);
+    text-shadow:0 0 20px currentColor;
+    transition:color .4s, text-shadow .4s;
   }
-  .sort-wave-emoji { font-size:2.4rem; line-height:1; }
-  .sort-wave-name  { font-size:.68rem; font-weight:700; line-height:1.2; }
-  .sort-bins-row { display:flex; gap:6px; padding:4px 0 0; }
-  .sort-hole {
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
-    border:2px dashed var(--border); border-radius:14px; padding:8px 4px;
-    transition:all .15s;
+  #sort-target-sub {
+    display:block; font-size:.7rem; color:rgba(255,255,255,.45);
+    margin-top:2px; letter-spacing:.5px;
   }
-  .sort-hole.over    { border-color:var(--purple); background:rgba(139,47,201,.12); transform:scale(1.06); }
-  .sort-hole.correct { border-color:var(--green);  background:rgba(34,197,94,.12); }
-  .sort-hole.wrong   { border-color:var(--red);    background:rgba(239,68,68,.12); }
-  .sort-hole-icon  { font-size:1.5rem; }
-  .sort-hole-label { font-size:.6rem; font-weight:700; text-align:center; line-height:1.2; }
+
+  #sort-arena {
+    flex:1; min-height:300px;
+    height:calc(100dvh - 255px); max-height:480px;
+    position:relative; overflow:hidden;
+    background:radial-gradient(ellipse at 50% 10%,#10102a 0%,#060608 100%);
+    border-radius:16px; border:1px solid var(--border);
+    touch-action:none; cursor:crosshair;
+  }
+  #sort-slash-canvas {
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none; z-index:10;
+  }
+  .sort-falling-item {
+    position:absolute; font-size:2.7rem; line-height:1;
+    user-select:none; pointer-events:none;
+    filter:drop-shadow(0 4px 14px rgba(0,0,0,.8));
+    will-change:top,left,transform; z-index:5;
+  }
+  .sort-flash-text {
+    position:absolute; font-weight:900; font-size:.85rem;
+    pointer-events:none; z-index:15; white-space:nowrap;
+    animation:sortFlashUp .7s ease-out forwards;
+  }
+  @keyframes sortFlashUp {
+    0%   { opacity:1; transform:translate(-50%,-50%) scale(1.2); }
+    100% { opacity:0; transform:translate(-50%,-220%) scale(.9); }
+  }
+  .sort-particle {
+    position:absolute; width:8px; height:8px;
+    border-radius:50%; pointer-events:none; z-index:12;
+    animation:sortParticleFly .5s ease-out forwards;
+  }
+  @keyframes sortParticleFly {
+    0%   { opacity:1; transform:translate(0,0) scale(1); }
+    100% { opacity:0; transform:translate(var(--dx),var(--dy)) scale(0); }
+  }
+  .sort-slice-left, .sort-slice-right {
+    position:absolute; font-size:2.7rem; line-height:1;
+    pointer-events:none; z-index:8;
+  }
+  .sort-slice-left  { animation:sliceGoLeft  .4s ease-out forwards; }
+  .sort-slice-right { animation:sliceGoRight .4s ease-out forwards; }
+  @keyframes sliceGoLeft  { 0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}  100%{opacity:0;transform:translate(calc(-50% - 28px),calc(-50% + 20px)) rotate(-35deg) scale(.6)} }
+  @keyframes sliceGoRight { 0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}  100%{opacity:0;transform:translate(calc(-50% + 28px),calc(-50% + 20px)) rotate(35deg)  scale(.6)} }
+  .sort-danger-flash {
+    position:absolute; inset:0; z-index:20; border-radius:16px;
+    background:rgba(239,68,68,.18); pointer-events:none;
+    animation:sortDanger .4s ease-out forwards;
+  }
+  @keyframes sortDanger { 0%{opacity:1} 100%{opacity:0} }
 
   /* ── ZIP ── */
-  #gc-zip { display:none; flex-direction:column; gap:10px; align-items:center; }
+  #gc-zip { display:flex; flex-direction:column; gap:10px; align-items:center; }
   .zip-hint { font-size:.78rem; color:var(--muted); text-align:center; line-height:1.5; }
   .zip-grid { display:grid; gap:5px; touch-action:none; user-select:none; }
   .zip-cell {
@@ -191,13 +245,13 @@
   .zip-status { font-size:.8rem; color:var(--muted); text-align:center; }
 
   /* ── MEMORY ── */
-  #gc-memory { display:none; flex-direction:column; gap:14px; }
+  #gc-memory { display:flex; flex-direction:column; gap:14px; }
   .mem-info   { display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); }
   .memory-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
   .mem-card {
     aspect-ratio:1; border-radius:12px; border:2px solid var(--border);
     background:var(--card); display:flex; align-items:center; justify-content:center;
-    font-size:1.3rem; cursor:pointer; transition:all .25s; user-select:none; position:relative;
+    font-size:1.3rem; cursor:pointer; transition:all .25s; user-select:none;
   }
   .mem-card.flipped     { border-color:var(--purple); background:rgba(139,47,201,.15); }
   .mem-card.matched     { border-color:var(--green);  background:rgba(34,197,94,.15);  cursor:default; }
@@ -207,10 +261,10 @@
 
   /* ── FACT BOX ── */
   .fact-box {
-    margin-top:14px; background:rgba(34,197,94,.07);
+    margin-top:12px; background:rgba(34,197,94,.07);
     border:1px solid rgba(34,197,94,.25); border-radius:12px;
     padding:12px 14px; font-size:.85rem; color:var(--green);
-    line-height:1.5; display:none;
+    line-height:1.5; display:none; flex-shrink:0;
   }
   .fact-box.wrong-fact { background:rgba(239,68,68,.07); border-color:rgba(239,68,68,.25); color:#f87171; }
   .fact-box.show { display:block; }
@@ -252,10 +306,10 @@
     <div class="game-card-body"><div class="game-card-name">Recycling Quiz</div><div class="game-card-desc">8 hard questions about recycling</div></div>
     <div class="queue-badge" id="qb-quiz">0 waiting</div>
   </div>
-  <div class="game-card sort-card"   onclick="selectGame('sort')">
-    <div class="game-card-icon">🗑️</div>
-    <div class="game-card-body"><div class="game-card-name">Sort the Waste</div><div class="game-card-desc">Drag 3 items per wave to the right bin</div></div>
-    <div class="queue-badge" id="qb-sort">0 waiting</div>
+  <div class="game-card slash-card"  onclick="selectGame('slash')">
+    <div class="game-card-icon">✂️</div>
+    <div class="game-card-body"><div class="game-card-name">Slash!</div><div class="game-card-desc">Slice falling items — cut only the right waste!</div></div>
+    <div class="queue-badge" id="qb-slash">0 waiting</div>
   </div>
   <div class="game-card zip-card"    onclick="selectGame('zip')">
     <div class="game-card-icon">⚡</div>
@@ -297,39 +351,49 @@
   </div>
   <div class="timer-bar-wrap">
     <div class="timer-bar-track"><div class="timer-bar-fill" id="timer-fill" style="width:100%"></div></div>
-    <div class="timer-bar-label"><span id="timer-sec">30</span>s</div>
+    <div class="timer-bar-label"><span id="timer-sec">20</span>s</div>
   </div>
 
-  <!-- QUIZ -->
-  <div id="gc-quiz">
-    <div class="question-text" id="g-question">Loading...</div>
-    <div class="answer-list"   id="answer-list"></div>
-  </div>
-
-  <!-- SORT -->
-  <div id="gc-sort">
-    <div class="sort-wave-hint">Hold &amp; drag each item into the correct bin ↓</div>
-    <div class="sort-wave-row"  id="sort-wave-row"></div>
-    <div class="sort-bins-row"  id="sort-bins-row"></div>
-  </div>
-
-  <!-- ZIP -->
-  <div id="gc-zip">
-    <div class="zip-hint">Trace through every cell in order — don't lift your finger!</div>
-    <div class="zip-grid" id="zip-grid"></div>
-    <div class="zip-status" id="zip-status">Place finger on container #1 to begin</div>
-  </div>
-
-  <!-- MEMORY -->
-  <div id="gc-memory">
-    <div class="mem-info">
-      <span>Pairs: <strong id="mem-pairs">0/12</strong></span>
-      <span>Attempts: <span id="mem-attempts">0</span></span>
+  <div class="game-content-area">
+    <!-- QUIZ -->
+    <div id="gc-quiz" style="display:none">
+      <div class="question-text" id="g-question">Loading...</div>
+      <div class="answer-list"   id="answer-list"></div>
     </div>
-    <div class="memory-grid" id="memory-grid"></div>
-  </div>
 
-  <div class="fact-box" id="fact-box"></div>
+    <!-- SLASH (Fruit Ninja) -->
+    <div id="gc-slash" style="display:none">
+      <div id="sort-hud">
+        <div id="sort-lives-display">❤️❤️❤️</div>
+        <div id="sort-wave-info">Wave 1 / 5</div>
+      </div>
+      <div id="sort-target-banner">
+        <span id="sort-target-word">✂️ CUT DRY</span>
+        <span id="sort-target-sub">Slice only DRY waste — avoid the rest!</span>
+      </div>
+      <div id="sort-arena">
+        <canvas id="sort-slash-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- ZIP -->
+    <div id="gc-zip" style="display:none;flex-direction:column;gap:10px;align-items:center;">
+      <div class="zip-hint">Trace through every cell in order — don't lift your finger!</div>
+      <div class="zip-grid" id="zip-grid"></div>
+      <div class="zip-status" id="zip-status">Place finger on container #1 to begin</div>
+    </div>
+
+    <!-- MEMORY -->
+    <div id="gc-memory" style="display:none;flex-direction:column;gap:14px;">
+      <div class="mem-info">
+        <span>Pairs: <strong id="mem-pairs">0/12</strong></span>
+        <span>Attempts: <span id="mem-attempts">0</span></span>
+      </div>
+      <div class="memory-grid" id="memory-grid"></div>
+    </div>
+
+    <div class="fact-box" id="fact-box"></div>
+  </div>
 </div>
 
 <!-- FINAL -->
@@ -356,8 +420,8 @@ let myGameType = '';
 let maxTime    = 20;
 let answered   = false;
 
-const GAME_LABELS = { quiz:'Recycling Quiz', sort:'Sort the Waste', zip:'Zip!', memory:'Memory Match' };
-const ROUND_LABELS = { quiz:'Q', sort:'Wave', zip:'Puzzle', memory:'Pairs' };
+const GAME_LABELS  = { quiz:'Recycling Quiz', slash:'Slash!', zip:'Zip!', memory:'Memory Match' };
+const ROUND_LABELS = { quiz:'Q', slash:'Wave', zip:'Puzzle', memory:'Pairs' };
 
 fetch('/config').then(r=>r.json()).then(cfg => { maxTime = cfg.QUESTION_TIME; });
 
@@ -368,11 +432,18 @@ function showView(id) {
 }
 
 function showGameContent(type) {
-  ['quiz','sort','zip','memory'].forEach(t => {
-    document.getElementById(`gc-${t}`).style.display = t === type ? 'flex' : 'none';
+  ['quiz','slash','zip','memory'].forEach(t => {
+    document.getElementById(`gc-${t}`).style.display = 'none';
   });
-  document.getElementById('g-type-badge').textContent    = GAME_LABELS[type] || type;
-  document.getElementById('g-round-label').textContent   = ROUND_LABELS[type] || 'Round';
+  const el = document.getElementById(`gc-${type}`);
+  if (el) el.style.display = 'flex';
+  document.getElementById('g-type-badge').textContent  = GAME_LABELS[type] || type;
+  document.getElementById('g-round-label').textContent = ROUND_LABELS[type] || 'Round';
+  if (type === 'slash') {
+    document.body.classList.add('slash-active');
+  } else {
+    document.body.classList.remove('slash-active');
+  }
 }
 
 // ── Join ─────────────────────────────────────────────────────
@@ -429,114 +500,338 @@ function submitQuiz(idx) {
   socket.emit('submit_answer', { value: idx });
 }
 
-// ── Sort wave drag-drop ──────────────────────────────────────
-let sortDragging     = false;
-let sortDragEl       = null;
-let sortDragItemIdx  = -1;
-let sortOffX         = 0;
-let sortOffY         = 0;
-let sortHoveredBin   = null;
-let sortBinKeys      = [];
-let sortActiveIdx    = 0;
+// ── SLASH (Fruit Ninja) ──────────────────────────────────────
+let sortItems      = [];
+let sortTarget     = null;
+let sortPtsPerHit  = 5;
+let sortAnimFrame  = null;
+let sortLastTime   = 0;
+let sortArenaEl    = null;
+let sortCanvasEl   = null;
+let sortCtx        = null;
+let sortArenaW     = 0;
+let sortArenaH     = 0;
+let sortSlashPts   = [];
+let sortIsDrawing  = false;
+let sortSpawnTmrs  = [];
+let sortGameActive = false;
+let sortResizeObs  = null;
 
-function renderSortWave(waveItems, bins, currentItemIndex) {
-  sortActiveIdx = currentItemIndex || 0;
-  sortBinKeys   = Object.keys(bins);
+const ITEM_SIZE  = 52;
+const SLICE_DIST = 46;
 
-  document.getElementById('sort-bins-row').innerHTML = sortBinKeys.map(key => {
-    const b = bins[key];
-    return `<div class="sort-hole" id="sh-${key}">
-      <div class="sort-hole-icon">${b.emoji}</div>
-      <div class="sort-hole-label">${b.label}</div>
-    </div>`;
-  }).join('');
+function initSortGame(payload) {
+  clearSortGame();
 
-  document.getElementById('sort-wave-row').innerHTML = waveItems.map((item, i) => `
-    <div class="sort-wave-card ${i < currentItemIndex ? 'done-correct' : i === currentItemIndex ? 'active' : 'pending'}" id="swi-${i}">
-      <div class="sort-wave-emoji">${item.emoji}</div>
-      <div class="sort-wave-name">${item.name}</div>
-    </div>`).join('');
+  sortTarget     = payload.target;
+  sortPtsPerHit  = payload.pts || 5;
+  sortGameActive = true;
+  sortItems      = [];
 
-  attachSortDrag(sortActiveIdx);
-}
+  sortArenaEl  = document.getElementById('sort-arena');
+  sortCanvasEl = document.getElementById('sort-slash-canvas');
+  sortCtx      = sortCanvasEl.getContext('2d');
 
-function attachSortDrag(idx) {
-  const el = document.getElementById(`swi-${idx}`);
-  if (!el || answered) return;
-  sortDragEl = el;
+  updateSortLives(payload.lives != null ? payload.lives : 3);
+  updateSortBanner(payload.target, payload.targetLabel, payload.targetColor);
+  document.getElementById('sort-wave-info').textContent =
+    `Wave ${payload.waveNum || 1} / 5`;
 
-  el.ontouchstart = e => { e.preventDefault(); if (!answered) beginSortDrag(el, idx, e.touches[0].clientX, e.touches[0].clientY); };
-  el.ontouchmove  = e => { e.preventDefault(); if (sortDragging) doDrag(e.touches[0].clientX, e.touches[0].clientY); };
-  el.ontouchend   = e => { e.preventDefault(); endSortDrag(); };
-  el.onmousedown  = e => {
-    if (answered) return;
-    beginSortDrag(el, idx, e.clientX, e.clientY);
-    document.onmousemove = ev => doDrag(ev.clientX, ev.clientY);
-    document.onmouseup   = ()  => { endSortDrag(); document.onmousemove = null; document.onmouseup = null; };
-  };
-}
+  // Size canvas after layout
+  requestAnimationFrame(() => {
+    resizeSortCanvas();
 
-function beginSortDrag(el, itemIdx, cx, cy) {
-  const r = el.getBoundingClientRect();
-  sortOffX = cx - (r.left + r.width  / 2);
-  sortOffY = cy - (r.top  + r.height / 2);
-  sortDragging = true;
-  sortDragItemIdx = itemIdx;
-  el.classList.add('is-dragging');
-  el.style.left = (r.left + r.width  / 2) + 'px';
-  el.style.top  = (r.top  + r.height / 2) + 'px';
-}
+    // Staggered item spawning
+    payload.items.forEach((item, i) => {
+      const h = setTimeout(() => {
+        if (!sortGameActive) return;
+        spawnSortItem(item, payload.baseSpeed || 100);
+      }, i * (payload.spawnDelay || 1200) + 200);
+      sortSpawnTmrs.push(h);
+    });
 
-function doDrag(cx, cy) {
-  if (!sortDragEl || !sortDragging) return;
-  sortDragEl.style.left = (cx - sortOffX) + 'px';
-  sortDragEl.style.top  = (cy - sortOffY) + 'px';
-  const bin = getBinAt(cx, cy);
-  if (bin !== sortHoveredBin) {
-    if (sortHoveredBin) document.getElementById(`sh-${sortHoveredBin}`)?.classList.remove('over');
-    if (bin)            document.getElementById(`sh-${bin}`)?.classList.add('over');
-    sortHoveredBin = bin;
+    sortLastTime  = performance.now();
+    sortAnimFrame = requestAnimationFrame(sortLoop);
+  });
+
+  sortArenaEl.addEventListener('touchstart', onSortTouchStart, { passive: false });
+  sortArenaEl.addEventListener('touchmove',  onSortTouchMove,  { passive: false });
+  sortArenaEl.addEventListener('touchend',   onSortTouchEnd,   { passive: false });
+  sortArenaEl.addEventListener('mousedown',  onSortMouseDown);
+  sortArenaEl.addEventListener('mousemove',  onSortMouseMove);
+  sortArenaEl.addEventListener('mouseup',    onSortMouseUp);
+  sortArenaEl.addEventListener('mouseleave', onSortMouseUp);
+
+  if (window.ResizeObserver) {
+    sortResizeObs = new ResizeObserver(resizeSortCanvas);
+    sortResizeObs.observe(sortArenaEl);
   }
 }
 
-function endSortDrag() {
-  if (!sortDragging) return;
-  sortDragging = false;
-  const el = sortDragEl;
-  if (!el) return;
-  if (sortHoveredBin) document.getElementById(`sh-${sortHoveredBin}`)?.classList.remove('over');
+function resizeSortCanvas() {
+  if (!sortArenaEl || !sortCanvasEl) return;
+  const r = sortArenaEl.getBoundingClientRect();
+  sortArenaW = r.width;
+  sortArenaH = r.height;
+  sortCanvasEl.width  = sortArenaW;
+  sortCanvasEl.height = sortArenaH;
+}
 
-  if (sortHoveredBin && !answered) {
-    const binEl = document.getElementById(`sh-${sortHoveredBin}`);
-    if (binEl) {
-      const r = binEl.getBoundingClientRect();
-      el.style.transition = 'left .18s, top .18s, opacity .18s, transform .18s';
-      el.style.left       = (r.left + r.width  / 2) + 'px';
-      el.style.top        = (r.top  + r.height / 2) + 'px';
-      el.style.opacity    = '0';
-      el.style.transform  = 'translate(-50%,-50%) scale(0.15)';
+function spawnSortItem(itemData, baseSpeed) {
+  const w  = sortArenaW || 340;
+  const x  = ITEM_SIZE + Math.random() * (w - ITEM_SIZE * 2);
+  const vy = baseSpeed * (0.7 + Math.random() * 0.65);
+  const vx = (Math.random() - 0.5) * 35;
+  const rotSpeed = (Math.random() - 0.5) * 130;
+
+  const el = document.createElement('div');
+  el.className   = 'sort-falling-item';
+  el.textContent = itemData.emoji;
+  el.style.left  = (x - ITEM_SIZE / 2) + 'px';
+  el.style.top   = '-64px';
+  sortArenaEl.appendChild(el);
+
+  sortItems.push({
+    id: itemData.id, emoji: itemData.emoji,
+    name: itemData.name, category: itemData.category,
+    x, y: -64, vx, vy,
+    rot: Math.random() * 360, rotSpeed,
+    el, spawned: true, active: true, sliced: false
+  });
+}
+
+function sortLoop(now) {
+  if (!sortGameActive) return;
+  const dt = Math.min((now - sortLastTime) / 1000, 0.1);
+  sortLastTime = now;
+
+  let anyActive = false;
+  sortItems.forEach(item => {
+    if (!item.active || !item.spawned || !item.el) return;
+    anyActive = true;
+    item.y   += item.vy * dt;
+    item.x   += item.vx * dt;
+    item.rot += item.rotSpeed * dt;
+
+    // Wall bounce
+    if (item.x < ITEM_SIZE / 2)            { item.x = ITEM_SIZE / 2;       item.vx =  Math.abs(item.vx); }
+    if (item.x > sortArenaW - ITEM_SIZE/2) { item.x = sortArenaW - ITEM_SIZE/2; item.vx = -Math.abs(item.vx); }
+
+    item.el.style.left      = (item.x - ITEM_SIZE / 2) + 'px';
+    item.el.style.top       = (item.y - ITEM_SIZE / 2) + 'px';
+    item.el.style.transform = `rotate(${item.rot.toFixed(1)}deg)`;
+
+    if (item.y > sortArenaH + 72) {
+      item.active = false;
+      item.el.remove();
+      item.el = null;
+      onSortItemFell(item);
     }
-    const bin = sortHoveredBin;
-    sortHoveredBin = null;
-    setTimeout(() => submitSortItem(bin), 160);
+  });
+
+  drawSortSlash();
+
+  if (anyActive || sortItems.some(i => !i.spawned)) {
+    sortAnimFrame = requestAnimationFrame(sortLoop);
+  }
+  // If all items gone and no pending spawns, nothing more to do.
+  // Server timer or miss events will trigger wave advance.
+}
+
+function onSortItemFell(item) {
+  // Always report falls to server — it decides penalty based on category
+  socket.emit('submit_answer', { value: { type: 'miss', itemId: item.id } });
+  if (item.category === sortTarget) {
+    showSortFlash(sortArenaW / 2, 60, '💔 -life', '#ef4444');
+    showDangerFlash();
+  }
+}
+
+function checkSlice(px, py) {
+  sortItems.forEach(item => {
+    if (!item.active || !item.spawned || item.sliced || !item.el) return;
+    const dx = px - item.x;
+    const dy = py - item.y;
+    if (dx * dx + dy * dy < SLICE_DIST * SLICE_DIST) {
+      sliceSortItem(item, px, py);
+    }
+  });
+}
+
+function sliceSortItem(item, px, py) {
+  if (item.sliced) return;
+  item.sliced = true;
+  item.active = false;
+
+  // Remove original and spawn split halves
+  if (item.el) {
+    const cx = item.x;
+    const cy = item.y;
+    item.el.remove();
+    item.el = null;
+
+    const mkHalf = (cls) => {
+      const h = document.createElement('div');
+      h.className    = cls;
+      h.textContent  = item.emoji;
+      h.style.left   = cx + 'px';
+      h.style.top    = cy + 'px';
+      h.style.filter = 'drop-shadow(0 2px 8px rgba(0,0,0,.7))';
+      sortArenaEl.appendChild(h);
+      setTimeout(() => h.remove(), 420);
+    };
+    mkHalf('sort-slice-left');
+    mkHalf('sort-slice-right');
+  }
+
+  const correct = item.category === sortTarget;
+  showSortParticles(item.x, item.y, correct);
+
+  if (correct) {
+    showSortFlash(item.x, item.y - 16, `+${sortPtsPerHit} ✓`, '#4ade80');
   } else {
-    el.classList.remove('is-dragging');
-    el.style.cssText = '';
+    showSortFlash(item.x, item.y - 16, '✗ -life', '#ef4444');
+    showDangerFlash();
+  }
+
+  socket.emit('submit_answer', { value: { type: 'cut', itemId: item.id } });
+}
+
+function showSortFlash(x, y, text, color) {
+  if (!sortArenaEl) return;
+  const el = document.createElement('div');
+  el.className  = 'sort-flash-text';
+  el.textContent = text;
+  el.style.left  = x + 'px';
+  el.style.top   = y + 'px';
+  el.style.color = color;
+  sortArenaEl.appendChild(el);
+  setTimeout(() => el.remove(), 720);
+}
+
+function showSortParticles(x, y, correct) {
+  if (!sortArenaEl) return;
+  const color = correct ? '#4ade80' : '#f87171';
+  for (let i = 0; i < 9; i++) {
+    const p     = document.createElement('div');
+    p.className = 'sort-particle';
+    p.style.left       = x + 'px';
+    p.style.top        = y + 'px';
+    p.style.background = color;
+    const angle = (i / 9) * Math.PI * 2;
+    const dist  = 22 + Math.random() * 38;
+    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    sortArenaEl.appendChild(p);
+    setTimeout(() => p.remove(), 520);
   }
 }
 
-function getBinAt(x, y) {
-  for (const key of sortBinKeys) {
-    const el = document.getElementById(`sh-${key}`);
-    if (!el) continue;
-    const r = el.getBoundingClientRect();
-    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return key;
-  }
-  return null;
+function showDangerFlash() {
+  if (!sortArenaEl) return;
+  const el = document.createElement('div');
+  el.className = 'sort-danger-flash';
+  sortArenaEl.appendChild(el);
+  setTimeout(() => el.remove(), 420);
 }
 
-function submitSortItem(binKey) {
-  socket.emit('submit_answer', { value: binKey });
+function drawSortSlash() {
+  if (!sortCtx) return;
+  sortCtx.clearRect(0, 0, sortArenaW, sortArenaH);
+  if (sortSlashPts.length < 2) return;
+
+  sortCtx.beginPath();
+  sortCtx.moveTo(sortSlashPts[0].x, sortSlashPts[0].y);
+  for (let i = 1; i < sortSlashPts.length; i++) {
+    sortCtx.lineTo(sortSlashPts[i].x, sortSlashPts[i].y);
+  }
+  sortCtx.strokeStyle   = 'rgba(255,255,255,0.88)';
+  sortCtx.lineWidth     = 4;
+  sortCtx.lineCap       = 'round';
+  sortCtx.lineJoin      = 'round';
+  sortCtx.shadowBlur    = 14;
+  sortCtx.shadowColor   = '#fff';
+  sortCtx.stroke();
+  sortCtx.shadowBlur    = 0;
+}
+
+function getArenaXY(e) {
+  const r = sortArenaEl.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function onSortTouchStart(e) {
+  e.preventDefault();
+  sortIsDrawing = true; sortSlashPts = [];
+  const pt = getArenaXY(e.touches[0]);
+  sortSlashPts.push(pt); checkSlice(pt.x, pt.y);
+}
+function onSortTouchMove(e) {
+  e.preventDefault();
+  if (!sortIsDrawing) return;
+  const pt = getArenaXY(e.touches[0]);
+  sortSlashPts.push(pt);
+  if (sortSlashPts.length > 18) sortSlashPts.shift();
+  checkSlice(pt.x, pt.y);
+}
+function onSortTouchEnd(e)  { e.preventDefault(); sortIsDrawing = false; sortSlashPts = []; }
+function onSortMouseDown(e) { sortIsDrawing = true; sortSlashPts = []; const pt = getArenaXY(e); sortSlashPts.push(pt); checkSlice(pt.x, pt.y); }
+function onSortMouseMove(e) {
+  if (!sortIsDrawing) return;
+  const pt = getArenaXY(e);
+  sortSlashPts.push(pt);
+  if (sortSlashPts.length > 18) sortSlashPts.shift();
+  checkSlice(pt.x, pt.y);
+}
+function onSortMouseUp() { sortIsDrawing = false; sortSlashPts = []; }
+
+function updateSortLives(lives) {
+  const el = document.getElementById('sort-lives-display');
+  if (!el) return;
+  const full  = Math.max(0, lives);
+  const empty = Math.max(0, 3 - full);
+  el.textContent = '❤️'.repeat(full) + '🖤'.repeat(empty);
+}
+
+function updateSortBanner(target, label, color) {
+  const word   = document.getElementById('sort-target-word');
+  const sub    = document.getElementById('sort-target-sub');
+  const banner = document.getElementById('sort-target-banner');
+  if (!word) return;
+  const lbl = label || (target || '').toUpperCase();
+  const col = color || '#3b82f6';
+  word.textContent  = `✂️  CUT ${lbl}`;
+  word.style.color  = col;
+  word.style.textShadow = `0 0 24px ${col}`;
+  if (sub) sub.textContent = `Slice only ${lbl} waste — ignore the rest!`;
+  if (banner) {
+    banner.style.borderColor = col + '55';
+    banner.style.background  = col + '12';
+  }
+}
+
+function clearSortGame() {
+  sortGameActive = false;
+  sortSpawnTmrs.forEach(h => clearTimeout(h));
+  sortSpawnTmrs = [];
+  if (sortAnimFrame) { cancelAnimationFrame(sortAnimFrame); sortAnimFrame = null; }
+  if (sortResizeObs) { sortResizeObs.disconnect(); sortResizeObs = null; }
+  sortItems.forEach(item => item.el?.remove());
+  sortItems    = [];
+  sortSlashPts = [];
+  sortIsDrawing = false;
+  if (sortCtx) sortCtx.clearRect(0, 0, sortArenaW, sortArenaH);
+  if (sortArenaEl) {
+    // Remove all dynamic children except the canvas
+    [...sortArenaEl.children].forEach(c => { if (c.id !== 'sort-slash-canvas') c.remove(); });
+    sortArenaEl.removeEventListener('touchstart', onSortTouchStart);
+    sortArenaEl.removeEventListener('touchmove',  onSortTouchMove);
+    sortArenaEl.removeEventListener('touchend',   onSortTouchEnd);
+    sortArenaEl.removeEventListener('mousedown',  onSortMouseDown);
+    sortArenaEl.removeEventListener('mousemove',  onSortMouseMove);
+    sortArenaEl.removeEventListener('mouseup',    onSortMouseUp);
+    sortArenaEl.removeEventListener('mouseleave', onSortMouseUp);
+  }
 }
 
 // ── Zip ──────────────────────────────────────────────────────
@@ -568,8 +863,7 @@ function renderZipGrid() {
       const cell = document.createElement('div');
       cell.className = 'zip-cell';
       cell.id = `zc-${r}-${c}`;
-      cell.dataset.r = r;
-      cell.dataset.c = c;
+      cell.dataset.r = r; cell.dataset.c = c;
       const anchorNum = zipGridData[r][c];
       if (anchorNum) {
         cell.classList.add('zip-anchor');
@@ -604,14 +898,11 @@ function onZipTouchEnd(e)   { e.preventDefault(); endZipDraw(); }
 function startZipDraw(x, y) {
   if (answered) return;
   const cell = getCellFromPoint(x, y);
-  if (!cell) return;
-  if (zipGridData[cell.r][cell.c] !== 1) {
+  if (!cell || zipGridData[cell.r][cell.c] !== 1) {
     document.getElementById('zip-status').textContent = '⚠ Start from container #1!';
     return;
   }
-  zipPath    = [[cell.r, cell.c]];
-  zipDrawing = true;
-  zipNextAnchor = 2;
+  zipPath = [[cell.r, cell.c]]; zipDrawing = true; zipNextAnchor = 2;
   cell.el.classList.add('zip-visited');
   document.getElementById('zip-status').textContent = `Connected 1/${zipTotalAnchors} — keep going!`;
 }
@@ -622,10 +913,8 @@ function continueZipDraw(x, y) {
   if (!cell) return;
   const { r, c, el } = cell;
   if (zipPath.some(([pr,pc]) => pr===r && pc===c)) return;
-
   const [lastR, lastC] = zipPath[zipPath.length - 1];
   if (Math.abs(r - lastR) + Math.abs(c - lastC) !== 1) { resetZipPath(); return; }
-
   const anchorNum = zipGridData[r][c];
   if (anchorNum !== 0) {
     if (anchorNum !== zipNextAnchor) { resetZipPath(); return; }
@@ -635,21 +924,15 @@ function continueZipDraw(x, y) {
         ? `Fill all ${zipGridSize * zipGridSize} cells to complete!`
         : `Connected ${anchorNum}/${zipTotalAnchors} — keep tracing!`;
   }
-
   zipPath.push([r, c]);
   el.classList.add('zip-visited');
-
-  if (zipPath.length === zipGridSize * zipGridSize && zipNextAnchor > zipTotalAnchors) {
-    submitZipPath();
-  }
+  if (zipPath.length === zipGridSize * zipGridSize && zipNextAnchor > zipTotalAnchors) submitZipPath();
 }
 
 function endZipDraw() {
   if (!zipDrawing) return;
   zipDrawing = false;
-  if (zipPath.length < zipGridSize * zipGridSize) {
-    resetZipPath();
-  }
+  if (zipPath.length < zipGridSize * zipGridSize) resetZipPath();
 }
 
 function resetZipPath() {
@@ -659,8 +942,7 @@ function resetZipPath() {
 }
 
 function submitZipPath() {
-  zipDrawing = false;
-  answered   = true;
+  zipDrawing = false; answered = true;
   document.querySelectorAll('.zip-cell').forEach(el => el.classList.add('zip-done'));
   document.getElementById('zip-status').textContent = '✓ Path complete — submitting!';
   socket.emit('submit_answer', { value: { path: zipPath } });
@@ -672,9 +954,7 @@ let memFlip1   = null;
 let memWaiting = false;
 
 function renderMemoryGrid(cards) {
-  memCards   = cards;
-  memFlip1   = null;
-  memWaiting = false;
+  memCards = cards; memFlip1 = null; memWaiting = false;
   document.getElementById('memory-grid').innerHTML = cards.map((c, i) => `
     <div class="mem-card ${c.matched ? 'matched' : ''}" id="mc-${i}" onclick="tapMemCard(${i})">
       ${c.matched ? c.emoji : '<span class="mem-back">♻️</span>'}
@@ -714,14 +994,19 @@ function applyState(state) {
   document.getElementById('fact-box').className  = 'fact-box';
   document.getElementById('fact-box').textContent = '';
   showGameContent(gt);
-  updateTimerBar(state.timeLeft || maxTime, state.timeLeft || maxTime);
+
+  const waveTime = state.timeLeft || maxTime;
+  if (gt === 'slash') maxTime = waveTime;
+  updateTimerBar(waveTime, waveTime);
 
   if (gt === 'quiz' && state.payload) {
+    answered = false;
     document.getElementById('g-question').textContent = state.payload.question;
     renderQuizOptions(state.payload.options);
   }
-  if (gt === 'sort' && state.payload) {
-    renderSortWave(state.payload.waveItems, state.payload.bins, state.payload.currentItemIndex || 0);
+  if (gt === 'slash' && state.payload) {
+    const p = state.payload;
+    initSortGame({ ...p, waveNum: state.progress });
     answered = false;
   }
   if (gt === 'zip' && state.payload) {
@@ -738,7 +1023,7 @@ function applyState(state) {
 // ── Leaderboard final screen ─────────────────────────────────
 function renderFinalLb(lb) {
   if (!lb) return '';
-  const icons = { quiz:'🧠', sort:'🗑️', zip:'⚡', memory:'🃏' };
+  const icons = { quiz:'🧠', slash:'✂️', zip:'⚡', memory:'🃏' };
   let html = '';
   if (lb.gameBests) {
     html += '<div class="lb-title">🏅 Per-Game Champions</div>';
@@ -794,47 +1079,34 @@ socket.on('game_started', ({ playerName, gameType }) => {
 
 socket.on('question', ({ state }) => {
   if (state.playerName !== myName) return;
-  applyState(state);
   showView('view-game');
+  applyState(state);
 });
 
-socket.on('sort_item_result', ({ itemIndex, correct, correctBin, points, score, state }) => {
-  // Flash the submitted card
-  const card = document.getElementById(`swi-${itemIndex}`);
-  if (card) {
-    card.classList.remove('is-dragging', 'active');
-    card.style.cssText = '';
-    card.classList.add(correct ? 'done-correct' : 'done-wrong');
-  }
-  if (!correct) {
-    const binEl = document.getElementById(`sh-${correctBin}`);
-    if (binEl) { binEl.classList.add('correct'); setTimeout(() => binEl.classList.remove('correct'), 700); }
-  }
+// Slash partial update (lives + score change mid-wave)
+socket.on('sort_item_result', ({ itemId, correct, points, lives, score, state }) => {
+  if (lives !== undefined) updateSortLives(lives);
   document.getElementById('g-score').textContent = (score || 0) + ' pts';
-  // Activate next card
-  sortActiveIdx = itemIndex + 1;
-  const nextCard = document.getElementById(`swi-${sortActiveIdx}`);
-  if (nextCard) {
-    nextCard.classList.remove('pending');
-    nextCard.classList.add('active');
-    attachSortDrag(sortActiveIdx);
-  }
 });
 
 socket.on('answer_result', (data) => {
   const { correct, correctValue, points, state } = data;
   const gt = state?.gameType || myGameType;
 
+  if (gt === 'slash') {
+    clearSortGame();
+    document.body.classList.remove('slash-active');
+    const factEl = document.getElementById('fact-box');
+    factEl.textContent = data.fact || (correct ? '✓ Wave done!' : '✗ Wave failed');
+    factEl.className   = 'fact-box show' + (!correct ? ' wrong-fact' : '');
+    document.getElementById('g-score').textContent = (state?.score || 0) + ' pts';
+    return;
+  }
+
   if (gt === 'quiz') {
     document.querySelectorAll('.answer-btn').forEach((b,i) => {
       b.disabled = true;
       if (i === correctValue) b.classList.add('correct');
-    });
-  }
-  if (gt === 'sort') {
-    sortBinKeys.forEach(key => {
-      const el = document.getElementById(`sh-${key}`);
-      if (el && key === correctValue) el.classList.add('correct');
     });
   }
   if (gt === 'memory') {
@@ -874,18 +1146,19 @@ socket.on('timer_tick', ({ timeLeft }) => {
 });
 
 socket.on('timer_expired', () => {
-  answered = true;
-  memWaiting = false;
-  document.querySelectorAll('.answer-btn, .catch-action-btn').forEach(b => b.disabled = true);
-  if (sortDragging && sortDragEl) {
-    sortDragging = false;
-    sortDragEl.classList.remove('is-dragging');
-    sortDragEl.style.cssText = '';
+  if (myGameType === 'slash') {
+    clearSortGame();
+    return;
   }
+  answered   = true;
+  memWaiting = false;
+  document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
   zipDrawing = false;
 });
 
 socket.on('game_finished', ({ score, leaderboard }) => {
+  clearSortGame();
+  document.body.classList.remove('slash-active');
   document.getElementById('final-name').textContent       = myName;
   document.getElementById('final-score').textContent      = score;
   document.getElementById('final-game-badge').textContent = GAME_LABELS[myGameType] || myGameType;
@@ -897,8 +1170,8 @@ socket.on('game_finished', ({ score, leaderboard }) => {
 
 socket.on('reconnect_ok', ({ state }) => {
   myName = state.playerName;
-  applyState(state);
   showView('view-game');
+  applyState(state);
 });
 </script>
 </body>

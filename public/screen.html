@@ -146,8 +146,25 @@
   .opt.wrong   .opt-letter { background:var(--red);   color:#fff; }
   .opt-text { font-size:1.25rem; font-weight:500; }
 
-  /* SORT wave label */
-  .sort-wave-label { font-size:1.1rem; color:var(--muted); text-align:center; }
+  /* SLASH display */
+  #sc-slash { display:none; flex-direction:column; align-items:center; gap:28px; width:100%; }
+  .sc-slash-target {
+    font-size:4.5rem; font-weight:900; letter-spacing:5px; text-align:center;
+    text-shadow:0 0 40px currentColor; line-height:1.1;
+  }
+  .sc-slash-meta { display:flex; gap:32px; align-items:center; font-size:1.6rem; }
+  .sc-slash-lives { letter-spacing:4px; }
+  .sc-slash-wave  { color:var(--muted); font-size:1rem; font-weight:700; letter-spacing:1px; }
+  .sc-slash-deco-row { position:relative; width:100%; height:140px; overflow:hidden; }
+  .sc-slash-deco-item {
+    position:absolute; font-size:2.4rem; opacity:.55;
+    animation:scSlashFall linear infinite;
+    filter:drop-shadow(0 3px 8px rgba(0,0,0,.6));
+  }
+  @keyframes scSlashFall {
+    from { top:-50px; opacity:.6; }
+    to   { top:160px; opacity:.05; }
+  }
 
   /* ZIP */
   #sc-zip { display:none; flex-direction:column; align-items:center; gap:20px; width:100%; }
@@ -303,10 +320,20 @@
     <div class="main-area">
       <div class="game-type-label" id="p-game-type"></div>
 
-      <!-- QUIZ / SORT -->
+      <!-- QUIZ -->
       <div id="sc-quiz-sort">
         <div class="question-text" id="p-question">Loading...</div>
         <div class="options-grid"  id="p-options"></div>
+      </div>
+
+      <!-- SLASH -->
+      <div id="sc-slash">
+        <div class="sc-slash-target" id="sc-slash-target" style="color:var(--blue)">✂️ CUT DRY</div>
+        <div class="sc-slash-meta">
+          <span class="sc-slash-lives" id="sc-slash-lives">❤️❤️❤️</span>
+          <span class="sc-slash-wave"  id="sc-slash-wave">Wave 1 / 5</span>
+        </div>
+        <div class="sc-slash-deco-row" id="sc-slash-deco"></div>
       </div>
 
       <!-- ZIP -->
@@ -396,8 +423,8 @@
 
   // ── Waiting leaderboard ───────────────────────────────────
 
-  const ICONS   = { quiz:'🧠', sort:'🗑️', zip:'⚡', memory:'🃏' };
-  const LABELS  = { quiz:'Quiz', sort:'Sort', zip:'Zip!', memory:'Memory' };
+  const ICONS   = { quiz:'🧠', slash:'✂️', zip:'⚡', memory:'🃏' };
+  const LABELS  = { quiz:'Quiz', slash:'Slash!', zip:'Zip!', memory:'Memory' };
   const MEDALS  = ['🥇','🥈','🥉'];
 
   function updateWaitingLb(lb) {
@@ -479,14 +506,31 @@
 
   // ── UI helpers ────────────────────────────────────────────
 
-  const ROUND_LABELS = { quiz:'Question', sort:'Wave', zip:'Puzzle', memory:'Pairs' };
+  const ROUND_LABELS = { quiz:'Question', slash:'Wave', zip:'Puzzle', memory:'Pairs' };
 
   function showScreenContent(gt) {
-    document.getElementById('sc-quiz-sort').style.display = (gt==='quiz'||gt==='sort') ? 'flex' : 'none';
+    document.getElementById('sc-quiz-sort').style.display = gt==='quiz'   ? 'flex' : 'none';
+    document.getElementById('sc-slash').style.display     = gt==='slash'  ? 'flex' : 'none';
     document.getElementById('sc-zip').style.display       = gt==='zip'    ? 'flex' : 'none';
     document.getElementById('sc-memory').style.display    = gt==='memory' ? 'flex' : 'none';
     document.getElementById('p-game-type').textContent    = (ICONS[gt]||'') + '  ' + (LABELS[gt]||gt);
     document.getElementById('p-round-label').textContent  = ROUND_LABELS[gt] || 'Round';
+  }
+
+  function spawnSlashDecor(target) {
+    const deco = document.getElementById('sc-slash-deco');
+    if (!deco) return;
+    deco.innerHTML = '';
+    const allEmoji = ['📰','📦','🧴','🥫','🍾','🥤','🍎','🍌','🥦','🍊','📱','🔋','🔌','💡','⌨️','🎧'];
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div');
+      el.className   = 'sc-slash-deco-item';
+      el.textContent = allEmoji[Math.floor(Math.random() * allEmoji.length)];
+      el.style.left  = (Math.random() * 92) + '%';
+      el.style.animationDuration = (2.2 + Math.random() * 2.8) + 's';
+      el.style.animationDelay    = (Math.random() * 3) + 's';
+      deco.appendChild(el);
+    }
   }
 
   function updateTimer(timeLeft, maxT) {
@@ -551,14 +595,19 @@
         </div>`).join('');
     }
 
-    if (gt === 'sort' && state.payload) {
-      const { waveItems, currentItemIndex, bins } = state.payload;
-      document.getElementById('p-question').textContent = `Wave ${state.progress}/${state.total} — sort all 3 items!`;
-      document.getElementById('p-options').innerHTML = waveItems.map((item, i) => `
-        <div class="opt ${i < currentItemIndex ? 'correct' : i === currentItemIndex ? 'active' : ''}" id="wave-item-${i}">
-          <div class="opt-letter">${item.emoji}</div>
-          <div class="opt-text">${item.name}</div>
-        </div>`).join('');
+    if (gt === 'slash' && state.payload) {
+      const { target, targetLabel, targetColor, lives } = state.payload;
+      const tEl = document.getElementById('sc-slash-target');
+      if (tEl) {
+        tEl.textContent  = `✂️  CUT ${targetLabel || target.toUpperCase()}`;
+        tEl.style.color  = targetColor || 'var(--blue)';
+        tEl.style.textShadow = `0 0 40px ${targetColor || '#3b82f6'}`;
+      }
+      const lEl = document.getElementById('sc-slash-lives');
+      if (lEl) lEl.textContent = '❤️'.repeat(Math.max(0,lives||3)) + '🖤'.repeat(Math.max(0,3-(lives||3)));
+      const wEl = document.getElementById('sc-slash-wave');
+      if (wEl) wEl.textContent = `Wave ${state.progress} / ${state.total}`;
+      spawnSlashDecor(target);
     }
 
     if (gt === 'zip' && state.payload) {
@@ -616,8 +665,8 @@
         if (i === correctValue) el.classList.add('correct');
       });
     }
-    if (gameType === 'sort') {
-      document.getElementById(`bin-${correctValue}`)?.classList.add('correct');
+    if (gameType === 'slash' && fact) {
+      document.getElementById('p-fact').textContent = '💡 ' + fact;
     }
     if (gameType === 'zip' && correct) {
       document.querySelectorAll('[id^="scz-"]').forEach(el => el.classList.add('done'));
@@ -625,12 +674,12 @@
     }
   });
 
-  socket.on('sort_item_feedback', ({ itemIndex, correct, playerName, score }) => {
+  socket.on('sort_item_feedback', ({ itemId, correct, lives, playerName, score }) => {
     document.getElementById('p-score').textContent = score + ' pts';
-    const card = document.getElementById(`wave-item-${itemIndex}`);
-    if (card) card.classList.add(correct ? 'correct' : 'wrong');
-    const next = document.getElementById(`wave-item-${itemIndex + 1}`);
-    if (next) { next.classList.remove('opt'); next.classList.add('opt', 'active'); }
+    if (lives !== undefined) {
+      const lEl = document.getElementById('sc-slash-lives');
+      if (lEl) lEl.textContent = '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(Math.max(0,3-lives));
+    }
   });
 
   socket.on('timer_tick', ({ timeLeft }) => updateTimer(timeLeft, maxTime));

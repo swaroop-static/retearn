@@ -4,11 +4,11 @@ const SortGame   = require('./SortGame');
 const ZipGame    = require('./ZipGame');
 const MemoryGame = require('./MemoryGame');
 
-const GAME_MAP = { quiz: QuizGame, sort: SortGame, zip: ZipGame, memory: MemoryGame };
+const GAME_MAP = { quiz: QuizGame, slash: SortGame, zip: ZipGame, memory: MemoryGame };
 
 const GAME_INFO = {
   quiz:   { label: 'Recycling Quiz', emoji: '🧠', description: 'Answer 8 hard recycling questions', color: '#8B2FC9' },
-  sort:   { label: 'Sort the Waste', emoji: '🗑️',  description: 'Drag 3 items per wave to the right bin', color: '#3b82f6' },
+  slash:  { label: 'Slash!',         emoji: '✂️', description: 'Slice falling items — cut only the right waste!', color: '#3b82f6' },
   zip:    { label: 'Zip!',           emoji: '⚡', description: 'Trace a path through all recycling containers', color: '#f59e0b' },
   memory: { label: 'Memory Match',   emoji: '🃏', description: 'Match 12 recycling pairs from memory', color: '#22c55e' },
 };
@@ -29,10 +29,10 @@ class GameManager {
     this.status         = STATUS.WAITING;
     this.currentPlayer  = null;
     this.currentGame    = null;
-    this.queues         = { quiz: [], sort: [], zip: [], memory: [] };
+    this.queues         = { quiz: [], slash: [], zip: [], memory: [] };
     this.selecting      = new Map();
     this.leaderboard    = [];       // legacy sorted list (top 20)
-    this.gameBests      = { quiz: null, sort: null, zip: null, memory: null };
+    this.gameBests      = { quiz: null, slash: null, zip: null, memory: null };
     this.playerScores   = {};       // name → { quiz: N, sort: N, ... }
     this.totalPlayed    = 0;
     this.timerHandle    = null;
@@ -98,17 +98,17 @@ class GameManager {
     // Sort wave partial: keep timer running, just update UI
     if (result.wavePartial) {
       this.io.to(socket.id).emit('sort_item_result', {
-        itemIndex:  result.itemIndex,
-        correct:    result.correct,
-        correctBin: result.correctBin,
-        points:     result.points,
-        score:      this.currentGame.getScore(),
-        state:      { ...result.state, playerName: this.currentPlayer.name }
+        itemId:  result.itemId,
+        correct: result.correct,
+        points:  result.points,
+        lives:   result.lives,
+        score:   this.currentGame.getScore(),
+        state:   { ...result.state, playerName: this.currentPlayer.name }
       });
       this._broadcastToScreen('sort_item_feedback', {
-        itemIndex:  result.itemIndex,
+        itemId:     result.itemId,
         correct:    result.correct,
-        correctBin: result.correctBin,
+        lives:      result.lives,
         playerName: this.currentPlayer.name,
         score:      this.currentGame.getScore(),
       });
