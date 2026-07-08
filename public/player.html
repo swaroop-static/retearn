@@ -18,8 +18,6 @@
     align-items:center; justify-content:center;
     padding:20px 16px; overscroll-behavior:none;
   }
-  body.slash-active { padding:0; justify-content:flex-start; }
-  body.slash-active #view-game { max-width:100%; height:100dvh; overflow:hidden; }
 
   .view { display:none; width:100%; max-width:420px; flex-direction:column; }
   .view.active { display:flex; }
@@ -104,14 +102,12 @@
     padding:12px 16px 12px; border-bottom:1px solid var(--border);
     flex-shrink:0;
   }
-  body.slash-active .game-header { padding:10px 14px; }
   .g-left { display:flex; flex-direction:column; gap:3px; }
   .g-type-badge { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--purple); }
   .g-progress { font-size:.85rem; color:var(--muted); }
   .g-progress strong { color:var(--text); }
   .g-score { font-size:1.1rem; font-weight:700; color:var(--green); }
   .timer-bar-wrap { padding:8px 16px 0; flex-shrink:0; }
-  body.slash-active .timer-bar-wrap { padding:6px 14px 0; }
   .timer-bar-track { height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
   .timer-bar-fill  { height:100%; background:var(--purple); border-radius:3px; transition:width .9s linear, background .3s; }
   .timer-bar-fill.urgent { background:var(--red); }
@@ -121,10 +117,6 @@
   .game-content-area {
     flex:1; padding:14px 16px 16px; display:flex; flex-direction:column;
     min-height:0; overflow:hidden;
-  }
-  body.slash-active .game-content-area {
-    padding:8px 10px 10px;
-    min-height:calc(100dvh - 110px);
   }
 
   /* ── QUIZ ── */
@@ -149,85 +141,6 @@
   }
   .answer-btn.correct .ans-letter { background:var(--green); color:#000; }
   .answer-btn.wrong   .ans-letter { background:var(--red);   color:#fff; }
-
-  /* ── SLASH (Fruit Ninja) ── */
-  #gc-slash { display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; }
-
-  #sort-hud {
-    display:flex; justify-content:space-between; align-items:center;
-    flex-shrink:0;
-  }
-  #sort-lives-display { font-size:1.5rem; letter-spacing:2px; line-height:1; }
-  #sort-wave-info     { font-size:.75rem; color:var(--muted); font-weight:700; }
-
-  #sort-target-banner {
-    border-radius:14px; padding:10px 18px;
-    text-align:center; flex-shrink:0;
-    border:2px solid rgba(59,130,246,.35);
-    background:rgba(59,130,246,.08);
-    transition:border-color .5s, background .5s;
-  }
-  #sort-target-word {
-    display:block; font-size:2rem; font-weight:900;
-    letter-spacing:3px; color:var(--blue);
-    text-shadow:0 0 20px currentColor;
-    transition:color .4s, text-shadow .4s;
-  }
-  #sort-target-sub {
-    display:block; font-size:.7rem; color:rgba(255,255,255,.45);
-    margin-top:2px; letter-spacing:.5px;
-  }
-
-  #sort-arena {
-    position:relative; overflow:hidden;
-    min-height:320px;
-    flex:1;
-    background:radial-gradient(ellipse at 50% 10%,#10102a 0%,#060608 100%);
-    border-radius:16px; border:1px solid var(--border);
-    touch-action:none; cursor:crosshair;
-  }
-  #sort-slash-canvas {
-    position:absolute; inset:0; width:100%; height:100%;
-    pointer-events:none; z-index:10;
-  }
-  .sort-falling-item {
-    position:absolute; font-size:2.7rem; line-height:1;
-    user-select:none; pointer-events:none;
-    filter:drop-shadow(0 4px 14px rgba(0,0,0,.8));
-    will-change:top,left,transform; z-index:5;
-  }
-  .sort-flash-text {
-    position:absolute; font-weight:900; font-size:.85rem;
-    pointer-events:none; z-index:15; white-space:nowrap;
-    animation:sortFlashUp .7s ease-out forwards;
-  }
-  @keyframes sortFlashUp {
-    0%   { opacity:1; transform:translate(-50%,-50%) scale(1.2); }
-    100% { opacity:0; transform:translate(-50%,-220%) scale(.9); }
-  }
-  .sort-particle {
-    position:absolute; width:8px; height:8px;
-    border-radius:50%; pointer-events:none; z-index:12;
-    animation:sortParticleFly .5s ease-out forwards;
-  }
-  @keyframes sortParticleFly {
-    0%   { opacity:1; transform:translate(0,0) scale(1); }
-    100% { opacity:0; transform:translate(var(--dx),var(--dy)) scale(0); }
-  }
-  .sort-slice-left, .sort-slice-right {
-    position:absolute; font-size:2.7rem; line-height:1;
-    pointer-events:none; z-index:8;
-  }
-  .sort-slice-left  { animation:sliceGoLeft  .4s ease-out forwards; }
-  .sort-slice-right { animation:sliceGoRight .4s ease-out forwards; }
-  @keyframes sliceGoLeft  { 0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}  100%{opacity:0;transform:translate(calc(-50% - 28px),calc(-50% + 20px)) rotate(-35deg) scale(.6)} }
-  @keyframes sliceGoRight { 0%{opacity:1;transform:translate(-50%,-50%) rotate(0)}  100%{opacity:0;transform:translate(calc(-50% + 28px),calc(-50% + 20px)) rotate(35deg)  scale(.6)} }
-  .sort-danger-flash {
-    position:absolute; inset:0; z-index:20; border-radius:16px;
-    background:rgba(239,68,68,.18); pointer-events:none;
-    animation:sortDanger .4s ease-out forwards;
-  }
-  @keyframes sortDanger { 0%{opacity:1} 100%{opacity:0} }
 
   /* ── ZIP ── */
   #gc-zip { display:flex; flex-direction:column; gap:10px; align-items:center; }
@@ -285,6 +198,50 @@
   .lb-row:last-child { border-bottom:none; }
   .lb-score-f  { color:var(--green); font-weight:700; }
   .thanks      { color:var(--muted); font-size:.9rem; }
+
+  /* ── SLASH OVERLAY (Fruit Ninja) — fixed fullscreen ── */
+  #slash-overlay { display:none; }
+  #slash-overlay.active { display:flex; flex-direction:column; }
+
+  .slash-item {
+    position:absolute; font-size:3rem; line-height:1; pointer-events:none;
+    filter:drop-shadow(0 4px 16px rgba(0,0,0,.8)); will-change:transform; z-index:5;
+  }
+  .slash-flash {
+    position:absolute; font-size:.9rem; font-weight:900; pointer-events:none;
+    z-index:15; white-space:nowrap;
+    animation:slashFlashUp .7s ease-out forwards;
+  }
+  @keyframes slashFlashUp {
+    0%   { opacity:1; transform:translate(-50%,-50%); }
+    100% { opacity:0; transform:translate(-50%,-300%); }
+  }
+  .slash-particle {
+    position:absolute; width:8px; height:8px; border-radius:50%;
+    pointer-events:none; z-index:12;
+    animation:slashPFly .5s ease-out forwards;
+  }
+  @keyframes slashPFly {
+    0%   { opacity:1; transform:translate(0,0); }
+    100% { opacity:0; transform:translate(var(--dx),var(--dy)); }
+  }
+  .slash-half { position:absolute; font-size:3rem; line-height:1; pointer-events:none; z-index:8; }
+  .slash-half-l { animation:halfLeft  .4s ease-out forwards; }
+  .slash-half-r { animation:halfRight .4s ease-out forwards; }
+  @keyframes halfLeft  {
+    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0); }
+    100% { opacity:0; transform:translate(calc(-50% - 30px),calc(-50% + 25px)) rotate(-40deg) scale(.5); }
+  }
+  @keyframes halfRight {
+    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0); }
+    100% { opacity:0; transform:translate(calc(-50% + 30px),calc(-50% + 25px)) rotate(40deg)  scale(.5); }
+  }
+  .slash-red-flash {
+    position:absolute; inset:0; border-radius:0; background:rgba(239,68,68,.2);
+    pointer-events:none; z-index:20;
+    animation:slashRedFlash .4s ease-out forwards;
+  }
+  @keyframes slashRedFlash { 0%{opacity:1} 100%{opacity:0} }
 </style>
 </head>
 <body>
@@ -364,21 +321,6 @@
       <div class="answer-list"   id="answer-list"></div>
     </div>
 
-    <!-- SLASH (Fruit Ninja) -->
-    <div id="gc-slash" style="display:none">
-      <div id="sort-hud">
-        <div id="sort-lives-display">❤️❤️❤️</div>
-        <div id="sort-wave-info">Wave 1 / 5</div>
-      </div>
-      <div id="sort-target-banner">
-        <span id="sort-target-word">✂️ CUT DRY</span>
-        <span id="sort-target-sub">Slice only DRY waste — avoid the rest!</span>
-      </div>
-      <div id="sort-arena">
-        <canvas id="sort-slash-canvas"></canvas>
-      </div>
-    </div>
-
     <!-- ZIP -->
     <div id="gc-zip" style="display:none;flex-direction:column;gap:10px;align-items:center;">
       <div class="zip-hint">Trace through every cell in order — don't lift your finger!</div>
@@ -413,6 +355,38 @@
   <div class="thanks">Thanks for playing! ♻️</div>
 </div>
 
+<!-- SLASH OVERLAY — fixed fullscreen, shown when playing slash -->
+<div id="slash-overlay" style="position:fixed; inset:0; z-index:100;
+     background:#080810; touch-action:none;">
+  <!-- HUD at top -->
+  <div id="slash-hud" style="display:flex; justify-content:space-between;
+       align-items:center; padding:12px 16px; background:rgba(0,0,0,0.6);
+       flex-shrink:0;">
+    <div id="slash-lives" style="font-size:1.6rem; letter-spacing:3px;">❤️❤️❤️</div>
+    <div id="slash-score-hud" style="font-size:1.1rem; font-weight:700; color:#22c55e;">0 pts</div>
+    <div id="slash-timer-hud" style="font-size:1rem; color:#777; font-weight:700;">20s</div>
+  </div>
+  <!-- Target banner -->
+  <div id="slash-banner" style="text-align:center; padding:10px 16px;
+       background:rgba(59,130,246,0.12); border-bottom:2px solid rgba(59,130,246,0.35);
+       flex-shrink:0;">
+    <div id="slash-target-text" style="font-size:2rem; font-weight:900;
+         letter-spacing:3px; color:#3b82f6; text-shadow:0 0 20px #3b82f6;">✂️ CUT DRY</div>
+    <div id="slash-target-sub" style="font-size:.7rem; color:rgba(255,255,255,.4);
+         margin-top:2px;">Slice only DRY waste!</div>
+  </div>
+  <!-- Arena fills rest -->
+  <div id="slash-arena" style="flex:1; position:relative; overflow:hidden;
+       background:radial-gradient(ellipse at 50% 0%, #0f0f2a 0%, #060608 100%);">
+    <canvas id="slash-canvas" style="position:absolute; inset:0; width:100%;
+            height:100%; pointer-events:none; z-index:10;"></canvas>
+  </div>
+  <!-- Wave info at bottom -->
+  <div id="slash-wave-bar" style="text-align:center; padding:8px;
+       background:rgba(0,0,0,0.5); font-size:.75rem; color:#555;
+       font-weight:700; flex-shrink:0; letter-spacing:1px;">WAVE 1 / 5</div>
+</div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const MACHINE_ID = new URLSearchParams(location.search).get('machine') || 'machine1';
@@ -435,18 +409,16 @@ function showView(id) {
 }
 
 function showGameContent(type) {
-  ['quiz','slash','zip','memory'].forEach(t => {
-    document.getElementById(`gc-${t}`).style.display = 'none';
+  ['quiz','zip','memory'].forEach(t => {
+    const el = document.getElementById(`gc-${t}`);
+    if (el) el.style.display = 'none';
   });
-  const el = document.getElementById(`gc-${type}`);
-  if (el) el.style.display = 'flex';
+  if (type !== 'slash') {
+    const el = document.getElementById(`gc-${type}`);
+    if (el) el.style.display = 'flex';
+  }
   document.getElementById('g-type-badge').textContent  = GAME_LABELS[type] || type;
   document.getElementById('g-round-label').textContent = ROUND_LABELS[type] || 'Round';
-  if (type === 'slash') {
-    document.body.classList.add('slash-active');
-  } else {
-    document.body.classList.remove('slash-active');
-  }
 }
 
 // ── Join ─────────────────────────────────────────────────────
@@ -503,338 +475,267 @@ function submitQuiz(idx) {
   socket.emit('submit_answer', { value: idx });
 }
 
-// ── SLASH (Fruit Ninja) ──────────────────────────────────────
-let sortItems      = [];
-let sortTarget     = null;
-let sortPtsPerHit  = 5;
-let sortAnimFrame  = null;
-let sortLastTime   = 0;
-let sortArenaEl    = null;
-let sortCanvasEl   = null;
-let sortCtx        = null;
-let sortArenaW     = 0;
-let sortArenaH     = 0;
-let sortSlashPts   = [];
-let sortIsDrawing  = false;
-let sortSpawnTmrs  = [];
-let sortGameActive = false;
-let sortResizeObs  = null;
+// ── SLASH GAME (Fruit Ninja) ──────────────────────────────────────
+let SL = {
+  active: false,
+  items: [],
+  target: null,
+  arenaEl: null,
+  canvasEl: null,
+  ctx: null,
+  arenaW: 0,
+  arenaH: 0,
+  rafId: null,
+  lastTime: 0,
+  drawing: false,
+  trail: [],
+  spawnTimers: [],
+  resizeObs: null,
+};
 
-const ITEM_SIZE  = 52;
-const SLICE_DIST = 46;
+const SL_SIZE = 56; // hitbox radius px
+const SL_HIT  = 48; // slice detection radius
 
-function initSortGame(payload) {
-  clearSortGame();
+let slashPts = 5;
 
-  sortTarget     = payload.target;
-  sortPtsPerHit  = payload.pts || 5;
-  sortGameActive = true;
-  sortItems      = [];
+function slashShow(payload, progress, total) {
+  SL.active = true;
+  SL.items  = [];
+  SL.trail  = [];
+  SL.target = payload.target;
+  slashPts  = payload.pts || 5;
 
-  sortArenaEl  = document.getElementById('sort-arena');
-  sortCanvasEl = document.getElementById('sort-slash-canvas');
-  sortCtx      = sortCanvasEl.getContext('2d');
+  // Show overlay
+  const ov = document.getElementById('slash-overlay');
+  ov.classList.add('active');
 
-  updateSortLives(payload.lives != null ? payload.lives : 3);
-  updateSortBanner(payload.target, payload.targetLabel, payload.targetColor);
-  document.getElementById('sort-wave-info').textContent =
-    `Wave ${payload.waveNum || 1} / 5`;
+  // Update banner
+  const col = payload.targetColor || '#3b82f6';
+  const lbl = payload.targetLabel || payload.target.toUpperCase();
+  const tEl = document.getElementById('slash-target-text');
+  tEl.textContent = '✂️  CUT ' + lbl;
+  tEl.style.color = col;
+  tEl.style.textShadow = '0 0 24px ' + col;
+  document.getElementById('slash-target-sub').textContent = 'Slice only ' + lbl + ' waste!';
+  document.getElementById('slash-banner').style.borderBottomColor = col + '55';
+  document.getElementById('slash-banner').style.background = col + '12';
+  document.getElementById('slash-wave-bar').textContent = 'WAVE ' + progress + ' / ' + total;
+  document.getElementById('slash-score-hud').textContent = '0 pts';
 
-  // Size canvas after layout
-  requestAnimationFrame(() => {
-    resizeSortCanvas();
+  slashUpdateLives(payload.lives != null ? payload.lives : 3);
 
-    // Staggered item spawning
-    payload.items.forEach((item, i) => {
-      const h = setTimeout(() => {
-        if (!sortGameActive) return;
-        spawnSortItem(item, payload.baseSpeed || 100);
-      }, i * (payload.spawnDelay || 1200) + 200);
-      sortSpawnTmrs.push(h);
-    });
+  SL.arenaEl  = document.getElementById('slash-arena');
+  SL.canvasEl = document.getElementById('slash-canvas');
+  SL.ctx      = SL.canvasEl.getContext('2d');
 
-    sortLastTime  = performance.now();
-    sortAnimFrame = requestAnimationFrame(sortLoop);
-  });
+  // Attach events
+  SL.arenaEl.addEventListener('touchstart', slashTS, { passive: false });
+  SL.arenaEl.addEventListener('touchmove',  slashTM, { passive: false });
+  SL.arenaEl.addEventListener('touchend',   slashTE, { passive: false });
+  SL.arenaEl.addEventListener('mousedown',  slashMD);
+  SL.arenaEl.addEventListener('mousemove',  slashMV);
+  SL.arenaEl.addEventListener('mouseup',    slashMU);
+  SL.arenaEl.addEventListener('mouseleave', slashMU);
 
-  sortArenaEl.addEventListener('touchstart', onSortTouchStart, { passive: false });
-  sortArenaEl.addEventListener('touchmove',  onSortTouchMove,  { passive: false });
-  sortArenaEl.addEventListener('touchend',   onSortTouchEnd,   { passive: false });
-  sortArenaEl.addEventListener('mousedown',  onSortMouseDown);
-  sortArenaEl.addEventListener('mousemove',  onSortMouseMove);
-  sortArenaEl.addEventListener('mouseup',    onSortMouseUp);
-  sortArenaEl.addEventListener('mouseleave', onSortMouseUp);
-
+  // Resize observer — use fallback if not supported
   if (window.ResizeObserver) {
-    sortResizeObs = new ResizeObserver(resizeSortCanvas);
-    sortResizeObs.observe(sortArenaEl);
+    SL.resizeObs = new ResizeObserver(slashResize);
+    SL.resizeObs.observe(SL.arenaEl);
   }
+
+  // Size canvas after layout settles, then spawn items and start loop
+  setTimeout(function() {
+    slashResize();
+    // Schedule item spawns
+    payload.items.forEach(function(item, i) {
+      var h = setTimeout(function() {
+        if (!SL.active) return;
+        slashSpawn(item, payload.baseSpeed || 100);
+      }, i * (payload.spawnDelay || 1200) + 300);
+      SL.spawnTimers.push(h);
+    });
+    // Start loop
+    SL.lastTime = performance.now();
+    SL.rafId    = requestAnimationFrame(slashLoop);
+  }, 80);
 }
 
-function resizeSortCanvas() {
-  if (!sortArenaEl || !sortCanvasEl) return;
-  const r = sortArenaEl.getBoundingClientRect();
-  sortArenaW = r.width  || 340;
-  sortArenaH = r.height || 320;
-  sortCanvasEl.width  = sortArenaW;
-  sortCanvasEl.height = sortArenaH;
-  sortCanvasEl.style.width  = sortArenaW + 'px';
-  sortCanvasEl.style.height = sortArenaH + 'px';
+function slashHide() {
+  SL.active = false;
+  SL.spawnTimers.forEach(clearTimeout);
+  SL.spawnTimers = [];
+  if (SL.rafId) { cancelAnimationFrame(SL.rafId); SL.rafId = null; }
+  if (SL.resizeObs) { SL.resizeObs.disconnect(); SL.resizeObs = null; }
+  SL.items.forEach(function(it) { if (it.el) it.el.remove(); });
+  SL.items = [];
+  SL.trail = [];
+  if (SL.ctx) SL.ctx.clearRect(0, 0, SL.arenaW, SL.arenaH);
+  if (SL.arenaEl) {
+    Array.from(SL.arenaEl.children).forEach(function(c) { if (c !== SL.canvasEl) c.remove(); });
+    SL.arenaEl.removeEventListener('touchstart', slashTS);
+    SL.arenaEl.removeEventListener('touchmove',  slashTM);
+    SL.arenaEl.removeEventListener('touchend',   slashTE);
+    SL.arenaEl.removeEventListener('mousedown',  slashMD);
+    SL.arenaEl.removeEventListener('mousemove',  slashMV);
+    SL.arenaEl.removeEventListener('mouseup',    slashMU);
+    SL.arenaEl.removeEventListener('mouseleave', slashMU);
+  }
+  var ov = document.getElementById('slash-overlay');
+  if (ov) ov.classList.remove('active');
 }
 
-function spawnSortItem(itemData, baseSpeed) {
-  const w  = sortArenaW || 340;
-  const x  = ITEM_SIZE + Math.random() * (w - ITEM_SIZE * 2);
-  const vy = baseSpeed * (0.7 + Math.random() * 0.65);
-  const vx = (Math.random() - 0.5) * 35;
-  const rotSpeed = (Math.random() - 0.5) * 130;
+function slashResize() {
+  if (!SL.arenaEl || !SL.canvasEl) return;
+  var r = SL.arenaEl.getBoundingClientRect();
+  SL.arenaW = r.width  > 10 ? r.width  : window.innerWidth;
+  SL.arenaH = r.height > 10 ? r.height : window.innerHeight - 160;
+  SL.canvasEl.width  = SL.arenaW;
+  SL.canvasEl.height = SL.arenaH;
+}
 
-  const el = document.createElement('div');
-  el.className   = 'sort-falling-item';
+function slashSpawn(itemData, baseSpeed) {
+  var x  = SL_SIZE + Math.random() * (SL.arenaW - SL_SIZE * 2);
+  var vy = baseSpeed * (0.7 + Math.random() * 0.65);
+  var vx = (Math.random() - 0.5) * 40;
+  var rs = (Math.random() - 0.5) * 140;
+  var el = document.createElement('div');
+  el.className   = 'slash-item';
   el.textContent = itemData.emoji;
-  el.style.left  = (x - ITEM_SIZE / 2) + 'px';
-  el.style.top   = '-64px';
-  sortArenaEl.appendChild(el);
-
-  sortItems.push({
-    id: itemData.id, emoji: itemData.emoji,
-    name: itemData.name, category: itemData.category,
-    x, y: -64, vx, vy,
-    rot: Math.random() * 360, rotSpeed,
-    el, spawned: true, active: true, sliced: false
+  el.style.left  = (x - SL_SIZE / 2) + 'px';
+  el.style.top   = '-70px';
+  SL.arenaEl.appendChild(el);
+  SL.items.push({
+    id: itemData.id, emoji: itemData.emoji, category: itemData.category,
+    x: x, y: -70, vx: vx, vy: vy, rot: Math.random()*360, rs: rs,
+    el: el, active: true, hit: false
   });
 }
 
-function sortLoop(now) {
-  if (!sortGameActive) return;
-  const dt = Math.min((now - sortLastTime) / 1000, 0.1);
-  sortLastTime = now;
+function slashLoop(now) {
+  if (!SL.active) return;
+  var dt = Math.min((now - SL.lastTime) / 1000, 0.1);
+  SL.lastTime = now;
+  var aW = SL.arenaW || window.innerWidth;
+  var aH = SL.arenaH || window.innerHeight - 160;
 
-  sortItems.forEach(item => {
-    if (!item.active || !item.el) return;
-    item.y   += item.vy * dt;
-    item.x   += item.vx * dt;
-    item.rot += item.rotSpeed * dt;
-
-    // Wall bounce
-    const aW = sortArenaW || sortArenaEl?.getBoundingClientRect().width || 340;
-    if (item.x < ITEM_SIZE / 2)   { item.x = ITEM_SIZE / 2;   item.vx =  Math.abs(item.vx); }
-    if (item.x > aW - ITEM_SIZE/2){ item.x = aW - ITEM_SIZE/2; item.vx = -Math.abs(item.vx); }
-
-    item.el.style.left      = (item.x - ITEM_SIZE / 2) + 'px';
-    item.el.style.top       = (item.y - ITEM_SIZE / 2) + 'px';
-    item.el.style.transform = `rotate(${item.rot.toFixed(1)}deg)`;
-
-    const aH = sortArenaH || sortArenaEl?.getBoundingClientRect().height || 340;
-    if (item.y > aH + 72) {
-      item.active = false;
-      item.el.remove();
-      item.el = null;
-      onSortItemFell(item);
+  SL.items.forEach(function(it) {
+    if (!it.active || !it.el) return;
+    it.y += it.vy * dt;
+    it.x += it.vx * dt;
+    it.rot += it.rs * dt;
+    if (it.x < SL_SIZE/2)    { it.x = SL_SIZE/2;    it.vx =  Math.abs(it.vx); }
+    if (it.x > aW-SL_SIZE/2) { it.x = aW-SL_SIZE/2; it.vx = -Math.abs(it.vx); }
+    it.el.style.left      = (it.x - SL_SIZE/2) + 'px';
+    it.el.style.top       = (it.y - SL_SIZE/2) + 'px';
+    it.el.style.transform = 'rotate(' + it.rot.toFixed(1) + 'deg)';
+    if (it.y > aH + 80) {
+      it.active = false; it.el.remove(); it.el = null;
+      slashFell(it);
     }
   });
 
-  drawSortSlash();
-
-  // Always keep loop running until clearSortGame() stops it
-  sortAnimFrame = requestAnimationFrame(sortLoop);
+  slashDrawTrail();
+  SL.rafId = requestAnimationFrame(slashLoop);
 }
 
-function onSortItemFell(item) {
-  // Always report falls to server — it decides penalty based on category
-  socket.emit('submit_answer', { value: { type: 'miss', itemId: item.id } });
-  if (item.category === sortTarget) {
-    showSortFlash(sortArenaW / 2, 60, '💔 -life', '#ef4444');
-    showDangerFlash();
+function slashFell(it) {
+  socket.emit('submit_answer', { value: { type: 'miss', itemId: it.id } });
+  if (it.category === SL.target) {
+    slashFlash(SL.arenaW/2, 50, '💔 −1 life', '#ef4444');
+    slashRedFlash();
   }
 }
 
-function checkSlice(px, py) {
-  sortItems.forEach(item => {
-    if (!item.active || !item.spawned || item.sliced || !item.el) return;
-    const dx = px - item.x;
-    const dy = py - item.y;
-    if (dx * dx + dy * dy < SLICE_DIST * SLICE_DIST) {
-      sliceSortItem(item, px, py);
-    }
+function slashCheck(px, py) {
+  SL.items.forEach(function(it) {
+    if (!it.active || it.hit || !it.el) return;
+    var dx = px - it.x, dy = py - it.y;
+    if (dx*dx + dy*dy < SL_HIT*SL_HIT) slashCut(it, px, py);
   });
 }
 
-function sliceSortItem(item, px, py) {
-  if (item.sliced) return;
-  item.sliced = true;
-  item.active = false;
-
-  // Remove original and spawn split halves
-  if (item.el) {
-    const cx = item.x;
-    const cy = item.y;
-    item.el.remove();
-    item.el = null;
-
-    const mkHalf = (cls) => {
-      const h = document.createElement('div');
-      h.className    = cls;
-      h.textContent  = item.emoji;
-      h.style.left   = cx + 'px';
-      h.style.top    = cy + 'px';
-      h.style.filter = 'drop-shadow(0 2px 8px rgba(0,0,0,.7))';
-      sortArenaEl.appendChild(h);
-      setTimeout(() => h.remove(), 420);
-    };
-    mkHalf('sort-slice-left');
-    mkHalf('sort-slice-right');
+function slashCut(it, px, py) {
+  if (it.hit) return;
+  it.hit = true; it.active = false;
+  if (it.el) {
+    var cx = it.x, cy = it.y;
+    var emoji = it.emoji;
+    it.el.remove(); it.el = null;
+    ['slash-half-l','slash-half-r'].forEach(function(cls) {
+      var h = document.createElement('div');
+      h.className = 'slash-half ' + cls;
+      h.textContent = emoji;
+      h.style.left = cx + 'px'; h.style.top = cy + 'px';
+      SL.arenaEl.appendChild(h);
+      setTimeout(function() { h.remove(); }, 420);
+    });
   }
-
-  const correct = item.category === sortTarget;
-  showSortParticles(item.x, item.y, correct);
-
-  if (correct) {
-    showSortFlash(item.x, item.y - 16, `+${sortPtsPerHit} ✓`, '#4ade80');
-  } else {
-    showSortFlash(item.x, item.y - 16, '✗ -life', '#ef4444');
-    showDangerFlash();
-  }
-
-  socket.emit('submit_answer', { value: { type: 'cut', itemId: item.id } });
+  var correct = it.category === SL.target;
+  slashParticles(it.x, it.y, correct);
+  slashFlash(it.x, it.y - 20, correct ? ('+' + slashPts + ' ✓') : '✗ −1life', correct ? '#4ade80' : '#f87171');
+  if (!correct) slashRedFlash();
+  socket.emit('submit_answer', { value: { type: 'cut', itemId: it.id } });
 }
 
-function showSortFlash(x, y, text, color) {
-  if (!sortArenaEl) return;
-  const el = document.createElement('div');
-  el.className  = 'sort-flash-text';
-  el.textContent = text;
-  el.style.left  = x + 'px';
-  el.style.top   = y + 'px';
-  el.style.color = color;
-  sortArenaEl.appendChild(el);
-  setTimeout(() => el.remove(), 720);
+function slashFlash(x, y, txt, color) {
+  var el = document.createElement('div');
+  el.className = 'slash-flash'; el.textContent = txt;
+  el.style.left = x+'px'; el.style.top = y+'px'; el.style.color = color;
+  if (SL.arenaEl) SL.arenaEl.appendChild(el);
+  setTimeout(function() { el.remove(); }, 720);
 }
 
-function showSortParticles(x, y, correct) {
-  if (!sortArenaEl) return;
-  const color = correct ? '#4ade80' : '#f87171';
-  for (let i = 0; i < 9; i++) {
-    const p     = document.createElement('div');
-    p.className = 'sort-particle';
-    p.style.left       = x + 'px';
-    p.style.top        = y + 'px';
-    p.style.background = color;
-    const angle = (i / 9) * Math.PI * 2;
-    const dist  = 22 + Math.random() * 38;
-    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
-    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
-    sortArenaEl.appendChild(p);
-    setTimeout(() => p.remove(), 520);
+function slashParticles(x, y, ok) {
+  var col = ok ? '#4ade80' : '#f87171';
+  for (var i = 0; i < 10; i++) {
+    var p = document.createElement('div');
+    p.className = 'slash-particle';
+    p.style.left = x+'px'; p.style.top = y+'px';
+    p.style.background = col;
+    var a = (i/10)*Math.PI*2, d = 20+Math.random()*40;
+    p.style.setProperty('--dx', Math.cos(a)*d+'px');
+    p.style.setProperty('--dy', Math.sin(a)*d+'px');
+    if (SL.arenaEl) SL.arenaEl.appendChild(p);
+    setTimeout(function() { p.remove(); }, 520);
   }
 }
 
-function showDangerFlash() {
-  if (!sortArenaEl) return;
-  const el = document.createElement('div');
-  el.className = 'sort-danger-flash';
-  sortArenaEl.appendChild(el);
-  setTimeout(() => el.remove(), 420);
+function slashRedFlash() {
+  var el = document.createElement('div');
+  el.className = 'slash-red-flash';
+  if (SL.arenaEl) SL.arenaEl.appendChild(el);
+  setTimeout(function() { el.remove(); }, 420);
 }
 
-function drawSortSlash() {
-  if (!sortCtx) return;
-  sortCtx.clearRect(0, 0, sortArenaW, sortArenaH);
-  if (sortSlashPts.length < 2) return;
-
-  sortCtx.beginPath();
-  sortCtx.moveTo(sortSlashPts[0].x, sortSlashPts[0].y);
-  for (let i = 1; i < sortSlashPts.length; i++) {
-    sortCtx.lineTo(sortSlashPts[i].x, sortSlashPts[i].y);
-  }
-  sortCtx.strokeStyle   = 'rgba(255,255,255,0.88)';
-  sortCtx.lineWidth     = 4;
-  sortCtx.lineCap       = 'round';
-  sortCtx.lineJoin      = 'round';
-  sortCtx.shadowBlur    = 14;
-  sortCtx.shadowColor   = '#fff';
-  sortCtx.stroke();
-  sortCtx.shadowBlur    = 0;
+function slashUpdateLives(lives) {
+  var el = document.getElementById('slash-lives');
+  if (el) el.textContent = '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(Math.max(0,3-lives));
 }
 
-function getArenaXY(e) {
-  const r = sortArenaEl.getBoundingClientRect();
+function slashDrawTrail() {
+  if (!SL.ctx) return;
+  SL.ctx.clearRect(0, 0, SL.arenaW, SL.arenaH);
+  if (SL.trail.length < 2) return;
+  SL.ctx.beginPath();
+  SL.ctx.moveTo(SL.trail[0].x, SL.trail[0].y);
+  for (var i = 1; i < SL.trail.length; i++) SL.ctx.lineTo(SL.trail[i].x, SL.trail[i].y);
+  SL.ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  SL.ctx.lineWidth = 4; SL.ctx.lineCap = 'round'; SL.ctx.lineJoin = 'round';
+  SL.ctx.shadowBlur = 16; SL.ctx.shadowColor = '#fff';
+  SL.ctx.stroke(); SL.ctx.shadowBlur = 0;
+}
+
+function slashXY(e) {
+  var r = SL.arenaEl.getBoundingClientRect();
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
-function onSortTouchStart(e) {
-  e.preventDefault();
-  sortIsDrawing = true; sortSlashPts = [];
-  const pt = getArenaXY(e.touches[0]);
-  sortSlashPts.push(pt); checkSlice(pt.x, pt.y);
-}
-function onSortTouchMove(e) {
-  e.preventDefault();
-  if (!sortIsDrawing) return;
-  const pt = getArenaXY(e.touches[0]);
-  sortSlashPts.push(pt);
-  if (sortSlashPts.length > 18) sortSlashPts.shift();
-  checkSlice(pt.x, pt.y);
-}
-function onSortTouchEnd(e)  { e.preventDefault(); sortIsDrawing = false; sortSlashPts = []; }
-function onSortMouseDown(e) { sortIsDrawing = true; sortSlashPts = []; const pt = getArenaXY(e); sortSlashPts.push(pt); checkSlice(pt.x, pt.y); }
-function onSortMouseMove(e) {
-  if (!sortIsDrawing) return;
-  const pt = getArenaXY(e);
-  sortSlashPts.push(pt);
-  if (sortSlashPts.length > 18) sortSlashPts.shift();
-  checkSlice(pt.x, pt.y);
-}
-function onSortMouseUp() { sortIsDrawing = false; sortSlashPts = []; }
-
-function updateSortLives(lives) {
-  const el = document.getElementById('sort-lives-display');
-  if (!el) return;
-  const full  = Math.max(0, lives);
-  const empty = Math.max(0, 3 - full);
-  el.textContent = '❤️'.repeat(full) + '🖤'.repeat(empty);
-}
-
-function updateSortBanner(target, label, color) {
-  const word   = document.getElementById('sort-target-word');
-  const sub    = document.getElementById('sort-target-sub');
-  const banner = document.getElementById('sort-target-banner');
-  if (!word) return;
-  const lbl = label || (target || '').toUpperCase();
-  const col = color || '#3b82f6';
-  word.textContent  = `✂️  CUT ${lbl}`;
-  word.style.color  = col;
-  word.style.textShadow = `0 0 24px ${col}`;
-  if (sub) sub.textContent = `Slice only ${lbl} waste — ignore the rest!`;
-  if (banner) {
-    banner.style.borderColor = col + '55';
-    banner.style.background  = col + '12';
-  }
-}
-
-function clearSortGame() {
-  sortGameActive = false;
-  sortSpawnTmrs.forEach(h => clearTimeout(h));
-  sortSpawnTmrs = [];
-  if (sortAnimFrame) { cancelAnimationFrame(sortAnimFrame); sortAnimFrame = null; }
-  if (sortResizeObs) { sortResizeObs.disconnect(); sortResizeObs = null; }
-  sortItems.forEach(item => item.el?.remove());
-  sortItems    = [];
-  sortSlashPts = [];
-  sortIsDrawing = false;
-  if (sortCtx) sortCtx.clearRect(0, 0, sortArenaW, sortArenaH);
-  if (sortArenaEl) {
-    // Remove all dynamic children except the canvas
-    [...sortArenaEl.children].forEach(c => { if (c.id !== 'sort-slash-canvas') c.remove(); });
-    sortArenaEl.removeEventListener('touchstart', onSortTouchStart);
-    sortArenaEl.removeEventListener('touchmove',  onSortTouchMove);
-    sortArenaEl.removeEventListener('touchend',   onSortTouchEnd);
-    sortArenaEl.removeEventListener('mousedown',  onSortMouseDown);
-    sortArenaEl.removeEventListener('mousemove',  onSortMouseMove);
-    sortArenaEl.removeEventListener('mouseup',    onSortMouseUp);
-    sortArenaEl.removeEventListener('mouseleave', onSortMouseUp);
-  }
-}
+function slashTS(e) { e.preventDefault(); SL.drawing=true; SL.trail=[]; var p=slashXY(e.touches[0]); SL.trail.push(p); slashCheck(p.x,p.y); }
+function slashTM(e) { e.preventDefault(); if(!SL.drawing)return; var p=slashXY(e.touches[0]); SL.trail.push(p); if(SL.trail.length>20)SL.trail.shift(); slashCheck(p.x,p.y); }
+function slashTE(e) { e.preventDefault(); SL.drawing=false; SL.trail=[]; }
+function slashMD(e) { SL.drawing=true; SL.trail=[]; var p=slashXY(e); SL.trail.push(p); slashCheck(p.x,p.y); }
+function slashMV(e) { if(!SL.drawing)return; var p=slashXY(e); SL.trail.push(p); if(SL.trail.length>20)SL.trail.shift(); slashCheck(p.x,p.y); }
+function slashMU()  { SL.drawing=false; SL.trail=[]; }
 
 // ── Zip ──────────────────────────────────────────────────────
 let zipDrawing      = false;
@@ -985,6 +886,9 @@ function updateTimerBar(timeLeft, maxT) {
   fill.style.width = pct + '%';
   fill.className   = 'timer-bar-fill' + (timeLeft <= 5 ? ' urgent' : '');
   document.getElementById('timer-sec').textContent = timeLeft;
+  // Mirror timer in slash overlay hud
+  const slashTimer = document.getElementById('slash-timer-hud');
+  if (slashTimer) slashTimer.textContent = timeLeft + 's';
 }
 
 // ── Apply state ──────────────────────────────────────────────
@@ -1007,8 +911,7 @@ function applyState(state) {
     renderQuizOptions(state.payload.options);
   }
   if (gt === 'slash' && state.payload) {
-    const p = state.payload;
-    initSortGame({ ...p, waveNum: state.progress });
+    slashShow(state.payload, state.progress, state.total);
     answered = false;
   }
   if (gt === 'zip' && state.payload) {
@@ -1087,8 +990,11 @@ socket.on('question', ({ state }) => {
 
 // Slash partial update (lives + score change mid-wave)
 socket.on('sort_item_result', ({ itemId, correct, points, lives, score, state }) => {
-  if (lives !== undefined) updateSortLives(lives);
-  document.getElementById('g-score').textContent = (score || 0) + ' pts';
+  if (lives !== undefined) slashUpdateLives(lives);
+  var pts = score || 0;
+  document.getElementById('g-score').textContent = pts + ' pts';
+  var slashScoreEl = document.getElementById('slash-score-hud');
+  if (slashScoreEl) slashScoreEl.textContent = pts + ' pts';
 });
 
 socket.on('answer_result', (data) => {
@@ -1096,8 +1002,7 @@ socket.on('answer_result', (data) => {
   const gt = state?.gameType || myGameType;
 
   if (gt === 'slash') {
-    clearSortGame();
-    document.body.classList.remove('slash-active');
+    slashHide();
     const factEl = document.getElementById('fact-box');
     factEl.textContent = data.fact || (correct ? '✓ Wave done!' : '✗ Wave failed');
     factEl.className   = 'fact-box show' + (!correct ? ' wrong-fact' : '');
@@ -1149,7 +1054,7 @@ socket.on('timer_tick', ({ timeLeft }) => {
 
 socket.on('timer_expired', () => {
   if (myGameType === 'slash') {
-    clearSortGame();
+    slashHide();
     return;
   }
   answered   = true;
@@ -1159,8 +1064,7 @@ socket.on('timer_expired', () => {
 });
 
 socket.on('game_finished', ({ score, leaderboard }) => {
-  clearSortGame();
-  document.body.classList.remove('slash-active');
+  slashHide();
   document.getElementById('final-name').textContent       = myName;
   document.getElementById('final-score').textContent      = score;
   document.getElementById('final-game-badge').textContent = GAME_LABELS[myGameType] || myGameType;
