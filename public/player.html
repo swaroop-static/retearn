@@ -122,7 +122,10 @@
     flex:1; padding:14px 16px 16px; display:flex; flex-direction:column;
     min-height:0; overflow:hidden;
   }
-  body.slash-active .game-content-area { padding:8px 10px 10px; }
+  body.slash-active .game-content-area {
+    padding:8px 10px 10px;
+    min-height:calc(100dvh - 110px);
+  }
 
   /* ── QUIZ ── */
   #gc-quiz { display:flex; flex-direction:column; gap:14px; }
@@ -176,9 +179,9 @@
   }
 
   #sort-arena {
-    flex:1; min-height:300px;
-    height:calc(100dvh - 255px); max-height:480px;
     position:relative; overflow:hidden;
+    min-height:320px;
+    flex:1;
     background:radial-gradient(ellipse at 50% 10%,#10102a 0%,#060608 100%);
     border-radius:16px; border:1px solid var(--border);
     touch-action:none; cursor:crosshair;
@@ -571,10 +574,12 @@ function initSortGame(payload) {
 function resizeSortCanvas() {
   if (!sortArenaEl || !sortCanvasEl) return;
   const r = sortArenaEl.getBoundingClientRect();
-  sortArenaW = r.width;
-  sortArenaH = r.height;
+  sortArenaW = r.width  || 340;
+  sortArenaH = r.height || 320;
   sortCanvasEl.width  = sortArenaW;
   sortCanvasEl.height = sortArenaH;
+  sortCanvasEl.style.width  = sortArenaW + 'px';
+  sortCanvasEl.style.height = sortArenaH + 'px';
 }
 
 function spawnSortItem(itemData, baseSpeed) {
@@ -605,23 +610,23 @@ function sortLoop(now) {
   const dt = Math.min((now - sortLastTime) / 1000, 0.1);
   sortLastTime = now;
 
-  let anyActive = false;
   sortItems.forEach(item => {
-    if (!item.active || !item.spawned || !item.el) return;
-    anyActive = true;
+    if (!item.active || !item.el) return;
     item.y   += item.vy * dt;
     item.x   += item.vx * dt;
     item.rot += item.rotSpeed * dt;
 
     // Wall bounce
-    if (item.x < ITEM_SIZE / 2)            { item.x = ITEM_SIZE / 2;       item.vx =  Math.abs(item.vx); }
-    if (item.x > sortArenaW - ITEM_SIZE/2) { item.x = sortArenaW - ITEM_SIZE/2; item.vx = -Math.abs(item.vx); }
+    const aW = sortArenaW || sortArenaEl?.getBoundingClientRect().width || 340;
+    if (item.x < ITEM_SIZE / 2)   { item.x = ITEM_SIZE / 2;   item.vx =  Math.abs(item.vx); }
+    if (item.x > aW - ITEM_SIZE/2){ item.x = aW - ITEM_SIZE/2; item.vx = -Math.abs(item.vx); }
 
     item.el.style.left      = (item.x - ITEM_SIZE / 2) + 'px';
     item.el.style.top       = (item.y - ITEM_SIZE / 2) + 'px';
     item.el.style.transform = `rotate(${item.rot.toFixed(1)}deg)`;
 
-    if (item.y > sortArenaH + 72) {
+    const aH = sortArenaH || sortArenaEl?.getBoundingClientRect().height || 340;
+    if (item.y > aH + 72) {
       item.active = false;
       item.el.remove();
       item.el = null;
@@ -631,11 +636,8 @@ function sortLoop(now) {
 
   drawSortSlash();
 
-  if (anyActive || sortItems.some(i => !i.spawned)) {
-    sortAnimFrame = requestAnimationFrame(sortLoop);
-  }
-  // If all items gone and no pending spawns, nothing more to do.
-  // Server timer or miss events will trigger wave advance.
+  // Always keep loop running until clearSortGame() stops it
+  sortAnimFrame = requestAnimationFrame(sortLoop);
 }
 
 function onSortItemFell(item) {
