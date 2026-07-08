@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retearn — RVM Display</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:     #0d0d0d;
+    --purple: #8B2FC9;
+    --green:  #22c55e;
+    --red:    #ef4444;
+    --text:   #ffffff;
+    --muted:  #777;
+    --card:   #161616;
+    --border: #252525;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ═══════════════════════════════════════
+     WAITING STATE — full screen, big QR
+  ═══════════════════════════════════════ */
+  #waiting {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    background: radial-gradient(ellipse at 50% 60%, #1a0a2e 0%, #0d0d0d 65%);
+    z-index: 10;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+
+  #waiting.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-icon {
+    width: 52px; height: 52px;
+    background: var(--purple);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+
+  .brand-name {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+
+  .brand-name span { color: var(--purple); }
+
+  .qr-big-wrap {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 0 80px rgba(139, 47, 201, 0.5);
+  }
+
+  #qr-big {
+    width: 280px;
+    height: 280px;
+    display: block;
+  }
+
+  .scan-label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .scan-sub {
+    font-size: 1rem;
+    color: var(--muted);
+  }
+
+  .scan-sub strong { color: var(--green); }
+
+  /* ═══════════════════════════════════════
+     PLAYING STATE — game + small QR corner
+  ═══════════════════════════════════════ */
+  #playing {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  #playing.visible { opacity: 1; }
+
+  /* Top bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    height: 72px;
+  }
+
+  .player-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .player-name-top { font-size: 1.5rem; font-weight: 700; }
+  .player-score-top { font-size: 0.9rem; color: var(--green); font-weight: 600; margin-top: 2px; }
+
+  .q-progress {
+    text-align: center;
+  }
+
+  .q-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .q-num { font-size: 1.8rem; font-weight: 900; }
+
+  .timer-wrap {
+    position: relative;
+    width: 64px; height: 64px;
+  }
+
+  .timer-svg {
+    width: 64px; height: 64px;
+    transform: rotate(-90deg);
+  }
+
+  .timer-track { fill: none; stroke: var(--border); stroke-width: 5; }
+  .timer-fill  { fill: none; stroke: var(--purple); stroke-width: 5; stroke-linecap: round;
+                 stroke-dasharray: 163; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s linear, stroke 0.3s; }
+  .timer-fill.urgent { stroke: var(--red); }
+
+  .timer-num {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+
+  .timer-num.urgent { color: var(--red); }
+
+  /* Body: main area + QR sidebar */
+  .body-row {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Main game area */
+  .main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 48px;
+    gap: 32px;
+  }
+
+  .question-text {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+    max-width: 820px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    max-width: 820px;
+  }
+
+  .opt {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .opt.correct { background: rgba(34,197,94,0.12); border-color: var(--green); }
+  .opt.wrong   { background: rgba(239,68,68,0.12);  border-color: var(--red); }
+
+  .opt-letter {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--purple);
+    flex-shrink: 0;
+  }
+
+  .opt.correct .opt-letter { background: var(--green); color: #000; }
+  .opt.wrong   .opt-letter { background: var(--red);   color: #fff; }
+
+  .opt-text { font-size: 1.25rem; font-weight: 500; }
+
+  .fact-strip {
+    font-size: 0.95rem;
+    color: var(--green);
+    font-style: italic;
+    text-align: center;
+    min-height: 22px;
+    max-width: 820px;
+  }
+
+  /* QR sidebar */
+  .qr-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  .qr-small-wrap {
+    background: #fff;
+    border-radius: 12px;
+    padding: 8px;
+  }
+
+  #qr-small {
+    width: 140px;
+    height: 140px;
+    display: block;
+  }
+
+  .scan-next {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+  }
+
+  .divider {
+    width: 100%;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .queue-title {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    align-self: flex-start;
+  }
+
+  .queue-names {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .queue-chip {
+    background: var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .queue-chip-num {
+    color: var(--purple);
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+
+  .queue-empty { color: var(--muted); font-size: 0.85rem; }
+
+  /* Game over overlay inside playing */
+  #gameover-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    background: rgba(0,0,0,0.85);
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  #gameover-panel.show { display: flex; }
+
+  .go-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    min-width: 440px;
+  }
+
+  .go-label { color: var(--muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; }
+  .go-name  { font-size: 2.2rem; font-weight: 800; }
+  .go-score { font-size: 5.5rem; font-weight: 900; color: var(--green); line-height: 1; }
+  .go-pts   { color: var(--muted); font-size: 1.1rem; }
+
+  .lb-wrap { width: 100%; margin-top: 8px; }
+  .lb-head { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+
+  .lb-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+  }
+
+  .lb-row:last-child { border-bottom: none; }
+  .lb-r { color: var(--purple); font-weight: 700; width: 28px; }
+  .lb-s { color: var(--green); font-weight: 700; }
+
+  .go-next { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+
+  /* QR in gameover corner */
+  .go-qr-corner {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 6;
+  }
+
+  .go-qr-corner .qr-small-wrap {
+    box-shadow: 0 0 24px rgba(139,47,201,0.4);
+  }
+
+  .go-scan-text { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ WAITING STATE ═══ -->
+<div id="waiting">
+  <div class="brand">
+    <div class="brand-icon">♻️</div>
+    <div class="brand-name">re<span>tearn</span></div>
+  </div>
+  <div class="qr-big-wrap">
+    <img id="qr-big" src="" alt="Loading QR...">
+  </div>
+  <div class="scan-label">Scan to Play</div>
+  <div class="scan-sub">Answer <strong>5 recycling questions</strong> · Earn up to <strong>100 points</strong></div>
+</div>
+
+<!-- ═══ PLAYING STATE ═══ -->
+<div id="playing">
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="player-chip">
+      <div class="avatar" id="p-avatar">?</div>
+      <div>
+        <div class="player-name-top" id="p-name">Player</div>
+        <div class="player-score-top" id="p-score">0 pts</div>
+      </div>
+    </div>
+
+    <div class="q-progress">
+      <div class="q-label">Question</div>
+      <div class="q-num" id="p-progress">1 / 5</div>
+    </div>
+
+    <div class="timer-wrap">
+      <svg class="timer-svg" viewBox="0 0 56 56">
+        <circle class="timer-track" cx="28" cy="28" r="26"/>
+        <circle class="timer-fill" id="timer-arc" cx="28" cy="28" r="26"/>
+      </svg>
+      <div class="timer-num" id="timer-num">30</div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body-row">
+
+    <!-- Game area -->
+    <div class="main-area">
+      <div class="question-text" id="p-question">Loading...</div>
+      <div class="options-grid" id="p-options"></div>
+      <div class="fact-strip" id="p-fact"></div>
+    </div>
+
+    <!-- QR sidebar -->
+    <div class="qr-sidebar">
+      <div class="qr-small-wrap">
+        <img id="qr-small" src="" alt="QR">
+      </div>
+      <div class="scan-next">Scan to play next</div>
+      <hr class="divider">
+      <div class="queue-title">Queue</div>
+      <div class="queue-names" id="p-queue">
+        <span class="queue-empty">Empty</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ GAME OVER OVERLAY ═══ -->
+<div id="gameover-panel">
+  <div class="go-card">
+    <div class="go-label">Game Over</div>
+    <div class="go-name" id="go-name">Player</div>
+    <div class="go-score" id="go-score">0</div>
+    <div class="go-pts">points</div>
+    <div class="lb-wrap">
+      <div class="lb-head">🏆 Today's Top Scores</div>
+      <div id="go-lb"></div>
+    </div>
+    <div class="go-next" id="go-next">Next player starting soon...</div>
+  </div>
+
+  <div class="go-qr-corner">
+    <div class="qr-small-wrap">
+      <img id="qr-corner" src="" style="width:120px;height:120px;display:block;">
+    </div>
+    <div class="go-scan-text">Scan to play next</div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const MACHINE_ID = new URLSearchParams(location.search).get('machine') || 'machine1';
+  const socket = io();
+
+  let maxTime = 30;
+  let totalQ  = 5;
+  let qrDataUrl = '';
+
+  // Load config + QR together
+  Promise.all([
+    fetch('/config').then(r => r.json()),
+    fetch(`/qr?machine=${MACHINE_ID}`).then(r => r.json())
+  ]).then(([cfg, qr]) => {
+    maxTime = cfg.QUESTION_TIME;
+    totalQ  = cfg.TOTAL_QUESTIONS;
+    qrDataUrl = qr.qr;
+    document.getElementById('qr-big').src    = qr.qr;
+    document.getElementById('qr-small').src  = qr.qr;
+    document.getElementById('qr-corner').src = qr.qr;
+  });
+
+  socket.emit('screen_connect', { machineId: MACHINE_ID });
+
+  // ── State transitions ─────────────────────────────────────
+
+  function showWaiting() {
+    document.getElementById('waiting').classList.remove('hidden');
+    document.getElementById('playing').classList.remove('visible');
+    document.getElementById('gameover-panel').classList.remove('show');
+  }
+
+  function showPlaying() {
+    document.getElementById('waiting').classList.add('hidden');
+    document.getElementById('playing').classList.add('visible');
+    document.getElementById('gameover-panel').classList.remove('show');
+  }
+
+  function showGameOver(playerName, score, leaderboard) {
+    document.getElementById('go-name').textContent  = playerName;
+    document.getElementById('go-score').textContent = score;
+    const medals = ['🥇','🥈','🥉'];
+    document.getElementById('go-lb').innerHTML = leaderboard.slice(0, 5).map((e, i) => `
+      <div class="lb-row">
+        <span class="lb-r">${medals[i] || '#'+(i+1)}</span>
+        <span>${e.name}</span>
+        <span class="lb-s">${e.score} pts</span>
+      </div>`).join('');
+    document.getElementById('gameover-panel').classList.add('show');
+  }
+
+  // ── UI helpers ────────────────────────────────────────────
+
+  const LABELS = ['A','B','C','D'];
+
+  function renderOptions(options) {
+    document.getElementById('p-options').innerHTML = options.map((opt, i) => `
+      <div class="opt" id="opt-${i}">
+        <div class="opt-letter">${LABELS[i]}</div>
+        <div class="opt-text">${opt}</div>
+      </div>`).join('');
+  }
+
+  function highlightAnswer(correctIdx, wrongIdx = -1) {
+    document.querySelectorAll('.opt').forEach((el, i) => {
+      if (i === correctIdx) el.classList.add('correct');
+      if (i === wrongIdx)   el.classList.add('wrong');
+    });
+  }
+
+  function updateTimer(timeLeft) {
+    const circumference = 163;
+    const offset = circumference - (timeLeft / maxTime) * circumference;
+    const arc = document.getElementById('timer-arc');
+    const num = document.getElementById('timer-num');
+    arc.style.strokeDashoffset = offset;
+    arc.className = 'timer-fill' + (timeLeft <= 10 ? ' urgent' : '');
+    num.textContent = timeLeft;
+    num.className   = 'timer-num' + (timeLeft <= 10 ? ' urgent' : '');
+  }
+
+  function updateQueue(queue) {
+    const el = document.getElementById('p-queue');
+    if (!queue || queue.length === 0) {
+      el.innerHTML = '<span class="queue-empty">Empty</span>';
+    } else {
+      el.innerHTML = queue.map((p, i) => `
+        <div class="queue-chip">
+          <span class="queue-chip-num">#${i+1}</span>
+          <span>${p.name}</span>
+        </div>`).join('');
+    }
+  }
+
+  function applyState(playerName, state) {
+    document.getElementById('p-name').textContent     = playerName;
+    document.getElementById('p-avatar').textContent   = playerName[0].toUpperCase();
+    document.getElementById('p-score').textContent    = (state.score || 0) + ' pts';
+    document.getElementById('p-progress').textContent = `${state.progress} / ${state.total}`;
+    document.getElementById('p-question').textContent = state.payload?.question || '';
+    document.getElementById('p-fact').textContent     = '';
+    if (state.payload?.options) renderOptions(state.payload.options);
+    updateTimer(state.timeLeft != null ? state.timeLeft : maxTime);
+  }
+
+  // ── Socket events ─────────────────────────────────────────
+
+  socket.on('screen_state', ({ machine }) => {
+    updateQueue(machine.queue);
+    if (machine.status === 'WAITING' || !machine.currentPlayer) {
+      showWaiting();
+    } else if (machine.gameState) {
+      applyState(machine.currentPlayer.name, machine.gameState);
+      showPlaying();
+    }
+  });
+
+  socket.on('screen_waiting', () => showWaiting());
+
+  socket.on('game_started', ({ playerName }) => {
+    document.getElementById('p-fact').textContent  = '';
+    document.getElementById('p-score').textContent = '0 pts';
+    document.getElementById('p-name').textContent  = playerName;
+    document.getElementById('p-avatar').textContent = playerName[0].toUpperCase();
+    showPlaying();
+  });
+
+  socket.on('question_changed', ({ state }) => {
+    applyState(state.playerName, state);
+    document.getElementById('p-fact').textContent = '';
+  });
+
+  socket.on('answer_feedback', ({ correct, correctValue, playerName, score, fact }) => {
+    highlightAnswer(correctValue);
+    document.getElementById('p-score').textContent = score + ' pts';
+    if (fact) document.getElementById('p-fact').textContent = '💡 ' + fact;
+  });
+
+  socket.on('timer_tick', ({ timeLeft }) => updateTimer(timeLeft));
+
+  socket.on('queue_updated', ({ queue }) => updateQueue(queue));
+
+  socket.on('game_finished', ({ playerName, score, leaderboard }) => {
+    showGameOver(playerName, score, leaderboard);
+  });
+
+  socket.on('next_player_soon', ({ countdown }) => {
+    const el = document.getElementById('go-next');
+    if (el) el.textContent = countdown > 0
+      ? `Next player starting in ${countdown}...`
+      : 'Starting now!';
+  });
+</script>
+</body>
+</html>

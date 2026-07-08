@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Retearn Quiz</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg:     #0d0d0d;
+    --purple: #8B2FC9;
+    --green:  #22c55e;
+    --red:    #ef4444;
+    --text:   #ffffff;
+    --muted:  #888;
+    --card:   #1a1a1a;
+    --border: #2a2a2a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    overscroll-behavior: none;
+  }
+
+  .view { display: none; width: 100%; max-width: 420px; }
+  .view.active { display: flex; flex-direction: column; }
+
+  /* ── JOIN ───────────────────────────────────────────────── */
+  #view-join { gap: 32px; align-items: center; text-align: center; }
+
+  .logo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+  .logo span { color: var(--purple); }
+
+  .join-sub {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .join-sub strong { color: var(--green); }
+
+  .input-wrap { width: 100%; position: relative; }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    font-size: 1.1rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+
+  input[type="text"]:focus { border-color: var(--purple); }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .btn {
+    width: 100%;
+    background: var(--purple);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 18px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-family: inherit;
+  }
+
+  .btn:active { transform: scale(0.97); background: #7B1FB9; }
+  .btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+
+  .error-msg {
+    color: var(--red);
+    font-size: 0.9rem;
+    text-align: center;
+    min-height: 20px;
+  }
+
+  /* ── QUEUE ──────────────────────────────────────────────── */
+  #view-queue { gap: 28px; align-items: center; text-align: center; }
+
+  .spinner {
+    width: 60px; height: 60px;
+    border: 4px solid var(--border);
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .queue-pos {
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--purple);
+    line-height: 1;
+  }
+
+  .queue-label { font-size: 1.2rem; color: var(--muted); }
+  .queue-name { font-size: 1.4rem; font-weight: 700; }
+  .queue-hint { font-size: 0.9rem; color: var(--muted); }
+
+  /* ── YOUR TURN ──────────────────────────────────────────── */
+  #view-yourturn { gap: 24px; align-items: center; text-align: center; }
+
+  .yourturn-text {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--green);
+  }
+
+  .countdown-big {
+    font-size: 8rem;
+    font-weight: 900;
+    line-height: 1;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+  /* ── GAME ───────────────────────────────────────────────── */
+  #view-game { gap: 0; }
+
+  .game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .g-progress { font-size: 0.9rem; color: var(--muted); }
+  .g-progress strong { color: var(--text); font-size: 1.1rem; }
+
+  .g-score { font-size: 1rem; color: var(--green); font-weight: 700; }
+
+  .timer-bar-wrap { margin-bottom: 24px; }
+
+  .timer-bar-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .timer-bar-fill {
+    height: 100%;
+    background: var(--purple);
+    border-radius: 3px;
+    transition: width 0.9s linear, background 0.3s;
+  }
+
+  .timer-bar-fill.urgent { background: var(--red); }
+
+  .timer-bar-label {
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .question-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 28px;
+  }
+
+  .answer-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .answer-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1rem;
+    min-height: 64px;
+  }
+
+  .answer-btn:active { transform: scale(0.98); }
+
+  .answer-btn.selected { border-color: var(--purple); background: rgba(139,47,201,0.15); }
+  .answer-btn.correct  { border-color: var(--green);  background: rgba(34,197,94,0.15); }
+  .answer-btn.wrong    { border-color: var(--red);    background: rgba(239,68,68,0.15); }
+  .answer-btn:disabled { cursor: default; }
+
+  .ans-letter {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    color: var(--purple);
+  }
+
+  .answer-btn.correct .ans-letter { background: var(--green); color: #000; }
+  .answer-btn.wrong .ans-letter { background: var(--red); color: #fff; }
+
+  .fact-box {
+    margin-top: 16px;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    color: var(--green);
+    line-height: 1.5;
+    display: none;
+  }
+
+  .fact-box.show { display: block; }
+
+  /* ── FINAL ──────────────────────────────────────────────── */
+  #view-final { gap: 24px; align-items: center; text-align: center; }
+
+  .final-emoji { font-size: 4rem; }
+
+  .final-score {
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+  }
+
+  .final-pts { color: var(--muted); font-size: 1.1rem; }
+  .final-name { font-size: 1.4rem; font-weight: 700; }
+
+  .lb-card {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .lb-title { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+
+  .lb-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+  }
+
+  .lb-row:last-child { border-bottom: none; }
+  .lb-rank-f { color: var(--purple); font-weight: 700; width: 28px; }
+  .lb-score-f { color: var(--green); font-weight: 700; }
+
+  .thanks { color: var(--muted); font-size: 0.95rem; }
+</style>
+</head>
+<body>
+
+<!-- JOIN -->
+<div id="view-join" class="view active">
+  <div class="logo">re<span>tearn</span></div>
+  <div class="join-sub">Answer <strong>5 recycling questions</strong> and earn up to <strong>100 points</strong>!</div>
+  <div class="input-wrap">
+    <input id="name-input" type="text" placeholder="Enter your name" maxlength="30" autocomplete="off">
+  </div>
+  <div class="error-msg" id="join-error"></div>
+  <button class="btn" id="join-btn" onclick="joinGame()">Join Game</button>
+</div>
+
+<!-- QUEUE -->
+<div id="view-queue" class="view">
+  <div class="spinner"></div>
+  <div class="queue-name" id="q-name">Player</div>
+  <div class="queue-pos" id="q-pos">2</div>
+  <div class="queue-label">in queue</div>
+  <div class="queue-hint">Get ready! You'll be notified when it's your turn.</div>
+</div>
+
+<!-- YOUR TURN -->
+<div id="view-yourturn" class="view">
+  <div class="yourturn-text">It's your turn!</div>
+  <div class="countdown-big" id="yt-count">3</div>
+  <div style="color:var(--muted)">Get ready...</div>
+</div>
+
+<!-- GAME -->
+<div id="view-game" class="view">
+  <div class="game-top">
+    <div class="g-progress">Question <strong id="g-prog">1</strong> of <span id="g-total">5</span></div>
+    <div class="g-score" id="g-score">0 pts</div>
+  </div>
+  <div class="timer-bar-wrap">
+    <div class="timer-bar-track">
+      <div class="timer-bar-fill" id="timer-fill" style="width:100%"></div>
+    </div>
+    <div class="timer-bar-label"><span id="timer-sec">30</span>s</div>
+  </div>
+  <div class="question-text" id="g-question">Loading...</div>
+  <div class="answer-list" id="answer-list"></div>
+  <div class="fact-box" id="fact-box"></div>
+</div>
+
+<!-- FINAL -->
+<div id="view-final" class="view">
+  <div class="final-emoji" id="final-emoji">🎉</div>
+  <div class="final-name" id="final-name">Player</div>
+  <div class="final-score" id="final-score">0</div>
+  <div class="final-pts">points earned</div>
+  <div class="lb-card">
+    <div class="lb-title">🏆 Leaderboard</div>
+    <div id="final-lb"></div>
+  </div>
+  <div class="thanks">Thanks for playing! ♻️</div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const MACHINE_ID = new URLSearchParams(location.search).get('machine') || 'machine1';
+  const socket = io();
+
+  let myName    = '';
+  let myId      = null;
+  let answered  = false;
+  let maxTime   = 30;
+
+  fetch('/config').then(r => r.json()).then(cfg => { maxTime = cfg.QUESTION_TIME; });
+
+  // ── View helpers ──────────────────────────────────────────
+
+  function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── Join ──────────────────────────────────────────────────
+
+  const nameInput = document.getElementById('name-input');
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinGame(); });
+
+  function joinGame() {
+    const name = nameInput.value.trim();
+    if (!name) { showError('Please enter your name'); return; }
+
+    myName = name;
+    document.getElementById('join-btn').disabled = true;
+    socket.emit('join_game', { machineId: MACHINE_ID, name });
+  }
+
+  function showError(msg) {
+    document.getElementById('join-error').textContent = msg;
+    document.getElementById('join-btn').disabled = false;
+    setTimeout(() => document.getElementById('join-error').textContent = '', 3000);
+  }
+
+  // ── Answer ────────────────────────────────────────────────
+
+  function submitAnswer(idx) {
+    if (answered) return;
+    answered = true;
+
+    // Mark selected
+    document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === idx) btn.classList.add('selected');
+    });
+
+    socket.emit('submit_answer', { value: idx });
+  }
+
+  function renderAnswers(options) {
+    const labels = ['A', 'B', 'C', 'D'];
+    answered = false;
+    document.getElementById('fact-box').classList.remove('show');
+    document.getElementById('answer-list').innerHTML = options.map((opt, i) => `
+      <button class="answer-btn" onclick="submitAnswer(${i})">
+        <div class="ans-letter">${labels[i]}</div>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+  }
+
+  function applyState(state) {
+    document.getElementById('g-prog').textContent  = state.progress;
+    document.getElementById('g-total').textContent = state.total;
+    document.getElementById('g-score').textContent = (state.score || 0) + ' pts';
+    document.getElementById('g-question').textContent = state.payload?.question || '';
+    if (state.payload?.options) renderAnswers(state.payload.options);
+    updateTimerBar(state.timeLeft || maxTime);
+  }
+
+  function updateTimerBar(timeLeft) {
+    document.getElementById('timer-sec').textContent = timeLeft;
+    const fill = document.getElementById('timer-fill');
+    fill.style.width = (timeLeft / maxTime * 100) + '%';
+    fill.className = 'timer-bar-fill' + (timeLeft <= 10 ? ' urgent' : '');
+  }
+
+  // ── Socket events ─────────────────────────────────────────
+
+  socket.on('error', ({ message }) => showError(message));
+
+  socket.on('maintenance', ({ message }) => {
+    document.body.innerHTML = `<div style="text-align:center;padding:40px;color:#888"><div style="font-size:3rem">🔧</div><p style="margin-top:16px">${message}</p></div>`;
+  });
+
+  socket.on('joined_queue', ({ position, playerId }) => {
+    myId = playerId;
+    document.getElementById('q-name').textContent = myName;
+    document.getElementById('q-pos').textContent  = position;
+    showView('view-queue');
+  });
+
+  socket.on('queue_updated', ({ position }) => {
+    document.getElementById('q-pos').textContent = position;
+  });
+
+  socket.on('game_started', ({ playerName }) => {
+    if (playerName !== myName) return;
+    // My game — show countdown via next_player_soon or just go straight to game
+  });
+
+  socket.on('next_player_soon', ({ countdown }) => {
+    // Only show "your turn" countdown if I'm next (we infer from queue position 1 already shown)
+    document.getElementById('yt-count').textContent = countdown;
+    if (countdown > 0) showView('view-yourturn');
+    if (countdown <= 0) showView('view-yourturn'); // game_started/question will take over
+    if (navigator.vibrate) navigator.vibrate(200);
+  });
+
+  socket.on('question', ({ state }) => {
+    if (state.playerName !== myName) return;
+    document.getElementById('g-score').textContent = (state.score || 0) + ' pts';
+    applyState(state);
+    showView('view-game');
+  });
+
+  socket.on('answer_result', ({ correct, correctValue, points, state }) => {
+    // Highlight correct/wrong
+    document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correctValue) btn.classList.add('correct');
+    });
+
+    // Show fact
+    const factEl = document.getElementById('fact-box');
+    if (state?.payload?.fact || correct !== undefined) {
+      factEl.textContent = correct ? `✓ Correct! +${points} pts` : `✗ Wrong — the correct answer was highlighted above`;
+      factEl.classList.add('show');
+    }
+
+    document.getElementById('g-score').textContent = (state?.score || 0) + ' pts';
+  });
+
+  socket.on('timer_tick', ({ timeLeft }) => {
+    if (document.getElementById('view-game').classList.contains('active')) {
+      updateTimerBar(timeLeft);
+    }
+  });
+
+  socket.on('timer_expired', () => {
+    document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+    answered = true;
+  });
+
+  socket.on('game_finished', ({ score, leaderboard }) => {
+    document.getElementById('final-name').textContent  = myName;
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-emoji').textContent = score >= 80 ? '🏆' : score >= 60 ? '🎉' : score >= 40 ? '👍' : '♻️';
+
+    const medals = ['🥇','🥈','🥉'];
+    document.getElementById('final-lb').innerHTML = leaderboard.slice(0, 5).map((e, i) => `
+      <div class="lb-row">
+        <span class="lb-rank-f">${medals[i] || '#' + (i+1)}</span>
+        <span>${e.name}</span>
+        <span class="lb-score-f">${e.score}</span>
+      </div>
+    `).join('');
+
+    showView('view-final');
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+  });
+
+  socket.on('reconnect_ok', ({ state }) => {
+    myName = state.playerName;
+    applyState(state);
+    showView('view-game');
+  });
+</script>
+</body>
+</html>
