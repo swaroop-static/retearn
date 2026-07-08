@@ -27,17 +27,14 @@
   }
 
   /* ═══════════════════════════════════════
-     WAITING STATE — full screen, big QR
+     WAITING STATE — QR left, leaderboard right
   ═══════════════════════════════════════ */
   #waiting {
     position: fixed;
     inset: 0;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-    background: radial-gradient(ellipse at 50% 60%, #1a0a2e 0%, #0d0d0d 65%);
+    align-items: stretch;
+    background: radial-gradient(ellipse at 30% 60%, #1a0a2e 0%, #0d0d0d 65%);
     z-index: 10;
     transition: opacity 0.6s ease, visibility 0.6s ease;
   }
@@ -46,6 +43,28 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+  }
+
+  .waiting-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 48px;
+  }
+
+  .waiting-right {
+    width: 340px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    background: rgba(22,22,22,0.7);
+    display: flex;
+    flex-direction: column;
+    padding: 40px 32px;
+    gap: 0;
+    justify-content: center;
   }
 
   .brand {
@@ -97,6 +116,38 @@
   }
 
   .scan-sub strong { color: var(--green); }
+
+  /* Waiting leaderboard */
+  .wlb-title {
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .wlb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .wlb-row:last-child { border-bottom: none; }
+
+  .wlb-rank  { width: 28px; font-weight: 900; font-size: 1.1rem; flex-shrink: 0; }
+  .wlb-name  { flex: 1; font-size: 1rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wlb-game  { font-size: 1rem; flex-shrink: 0; }
+  .wlb-score { color: var(--green); font-weight: 800; font-size: 1rem; flex-shrink: 0; }
+
+  .wlb-empty {
+    color: var(--muted);
+    font-size: .95rem;
+    text-align: center;
+    padding: 32px 0;
+    line-height: 1.8;
+  }
 
   /* ═══════════════════════════════════════
      PLAYING STATE — game + small QR corner
@@ -393,15 +444,22 @@
 
 <!-- ═══ WAITING STATE ═══ -->
 <div id="waiting">
-  <div class="brand">
-    <div class="brand-icon">♻️</div>
-    <div class="brand-name">re<span>tearn</span></div>
+  <div class="waiting-left">
+    <div class="brand">
+      <div class="brand-icon">♻️</div>
+      <div class="brand-name">re<span>tearn</span></div>
+    </div>
+    <div class="qr-big-wrap">
+      <img id="qr-big" src="" alt="Loading QR...">
+    </div>
+    <div class="scan-label">Scan to Play</div>
+    <div class="scan-sub">4 games · Quiz, Sort, Catch &amp; Memory · Earn up to <strong>120 pts</strong></div>
   </div>
-  <div class="qr-big-wrap">
-    <img id="qr-big" src="" alt="Loading QR...">
+
+  <div class="waiting-right">
+    <div class="wlb-title">🏆 Leaderboard</div>
+    <div id="w-lb"></div>
   </div>
-  <div class="scan-label">Scan to Play</div>
-  <div class="scan-sub">Answer <strong>5 recycling questions</strong> · Earn up to <strong>100 points</strong></div>
 </div>
 
 <!-- ═══ PLAYING STATE ═══ -->
@@ -521,6 +579,27 @@
   });
 
   socket.emit('screen_connect', { machineId: MACHINE_ID });
+
+  // ── Waiting leaderboard ───────────────────────────────────
+
+  const GAME_ICONS_W = { quiz:'🧠', sort:'🗑️', catch:'🎯', memory:'🃏' };
+  const MEDALS = ['🥇','🥈','🥉'];
+
+  function updateWaitingLb(leaderboard) {
+    const el = document.getElementById('w-lb');
+    if (!el) return;
+    if (!leaderboard || leaderboard.length === 0) {
+      el.innerHTML = '<div class="wlb-empty">No scores yet.<br>Be the first to play! 🎮</div>';
+      return;
+    }
+    el.innerHTML = leaderboard.slice(0, 8).map((e, i) => `
+      <div class="wlb-row">
+        <span class="wlb-rank">${MEDALS[i] || '#'+(i+1)}</span>
+        <span class="wlb-name">${e.name}</span>
+        <span class="wlb-game">${GAME_ICONS_W[e.gameType] || ''}</span>
+        <span class="wlb-score">${e.score}</span>
+      </div>`).join('');
+  }
 
   // ── State transitions ─────────────────────────────────────
 
@@ -658,6 +737,7 @@
 
   socket.on('screen_state', ({ machine }) => {
     updateQueue(machine.queue);
+    updateWaitingLb(machine.leaderboard);
     if (machine.status === 'WAITING' || !machine.currentPlayer) {
       showWaiting();
     } else if (machine.gameState) {
@@ -724,6 +804,7 @@
   });
 
   socket.on('game_finished', ({ playerName, score, gameType, leaderboard }) => {
+    updateWaitingLb(leaderboard);
     showGameOver(playerName, score, leaderboard);
   });
 
