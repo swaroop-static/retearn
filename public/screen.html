@@ -238,6 +238,8 @@
 
   .opt-text { font-size: 1.25rem; font-weight: 500; }
 
+  @keyframes catchPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
   .fact-strip {
     font-size: 0.95rem;
     color: var(--green);
@@ -434,8 +436,27 @@
 
     <!-- Game area -->
     <div class="main-area">
-      <div class="question-text" id="p-question">Loading...</div>
-      <div class="options-grid" id="p-options"></div>
+      <div class="game-type-label" id="p-game-type" style="font-size:.9rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;"></div>
+
+      <!-- QUIZ / SORT share this layout -->
+      <div id="sc-quiz-sort">
+        <div class="question-text" id="p-question">Loading...</div>
+        <div class="options-grid" id="p-options"></div>
+      </div>
+
+      <!-- CATCH -->
+      <div id="sc-catch" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%">
+        <div id="sc-catch-emoji" style="font-size:7rem;line-height:1;animation:catchPulse 1s ease-in-out infinite"></div>
+        <div id="sc-catch-name" style="font-size:2rem;font-weight:700;text-align:center"></div>
+        <div id="sc-catch-lives" style="font-size:1.8rem;letter-spacing:6px"></div>
+      </div>
+
+      <!-- MEMORY -->
+      <div id="sc-memory" style="display:none;flex-direction:column;align-items:center;gap:16px;width:100%">
+        <div id="sc-mem-info" style="font-size:1.1rem;color:var(--muted)">Pairs: 0/8</div>
+        <div id="sc-mem-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:600px"></div>
+      </div>
+
       <div class="fact-strip" id="p-fact"></div>
     </div>
 
@@ -571,15 +592,66 @@
     }
   }
 
+  const GAME_LABELS = { quiz:'Recycling Quiz', sort:'Sort the Waste', catch:'Catch It!', memory:'Memory Match' };
+  const GAME_ICONS  = { quiz:'🧠', sort:'🗑️', catch:'🎯', memory:'🃏' };
+
+  function showScreenContent(gt) {
+    document.getElementById('sc-quiz-sort').style.display = (gt==='quiz'||gt==='sort') ? 'flex' : 'none';
+    document.getElementById('sc-catch').style.display     = gt==='catch'  ? 'flex' : 'none';
+    document.getElementById('sc-memory').style.display    = gt==='memory' ? 'flex' : 'none';
+    document.getElementById('p-game-type').textContent    = (GAME_ICONS[gt]||'') + '  ' + (GAME_LABELS[gt]||'');
+
+    // flex-direction fix
+    ['sc-quiz-sort','sc-catch','sc-memory'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.style.display === 'flex') el.style.flexDirection = 'column';
+    });
+    document.getElementById('sc-quiz-sort').style.display === 'flex' && (document.getElementById('sc-quiz-sort').style.flexDirection = 'column');
+  }
+
   function applyState(playerName, state) {
+    const gt = state.gameType || 'quiz';
     document.getElementById('p-name').textContent     = playerName;
     document.getElementById('p-avatar').textContent   = playerName[0].toUpperCase();
     document.getElementById('p-score').textContent    = (state.score || 0) + ' pts';
     document.getElementById('p-progress').textContent = `${state.progress} / ${state.total}`;
-    document.getElementById('p-question').textContent = state.payload?.question || '';
     document.getElementById('p-fact').textContent     = '';
-    if (state.payload?.options) renderOptions(state.payload.options);
+    showScreenContent(gt);
     updateTimer(state.timeLeft != null ? state.timeLeft : maxTime);
+
+    if ((gt==='quiz') && state.payload) {
+      document.getElementById('p-question').textContent = state.payload.question || '';
+      if (state.payload.options) renderOptions(state.payload.options);
+    }
+    if (gt==='sort' && state.payload) {
+      document.getElementById('p-question').textContent =
+        `${state.payload.item.emoji}  ${state.payload.item.name}\n\nWhich bin?`;
+      const bins = state.payload.bins;
+      document.getElementById('p-options').innerHTML = Object.entries(bins).map(([k,b]) => `
+        <div class="opt" id="bin-${k}">
+          <div class="opt-letter">${b.emoji}</div>
+          <div class="opt-text">${b.label}</div>
+        </div>`).join('');
+    }
+    if (gt==='catch' && state.payload) {
+      document.getElementById('sc-catch-emoji').textContent = state.payload.item.emoji;
+      document.getElementById('sc-catch-name').textContent  = state.payload.item.name;
+      const lives = state.payload.lives, max = state.payload.maxLives;
+      document.getElementById('sc-catch-lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0,max-lives));
+    }
+    if (gt==='memory' && state.payload) {
+      document.getElementById('sc-mem-info').textContent = `Pairs found: ${state.progress} / ${state.total}`;
+      renderMemGrid(state.payload.cards);
+    }
+  }
+
+  function renderMemGrid(cards) {
+    document.getElementById('sc-mem-grid').innerHTML = cards.map(c => `
+      <div style="aspect-ratio:1;border-radius:10px;border:2px solid ${c.matched ? 'var(--green)' : 'var(--border)'};
+           background:${c.matched ? 'rgba(34,197,94,.12)' : 'var(--card)'};
+           display:flex;align-items:center;justify-content:center;font-size:1.6rem;">
+        ${c.matched ? c.emoji : '<span style="color:var(--muted);font-size:1rem">♻️</span>'}
+      </div>`).join('');
   }
 
   // ── Socket events ─────────────────────────────────────────
@@ -596,11 +668,18 @@
 
   socket.on('screen_waiting', () => showWaiting());
 
-  socket.on('game_started', ({ playerName }) => {
-    document.getElementById('p-fact').textContent  = '';
-    document.getElementById('p-score').textContent = '0 pts';
-    document.getElementById('p-name').textContent  = playerName;
+  socket.on('player_choosing', ({ playerName }) => {
+    // Briefly show on screen that someone is picking a game
+    document.getElementById('p-name').textContent   = playerName;
     document.getElementById('p-avatar').textContent = playerName[0].toUpperCase();
+  });
+
+  socket.on('game_started', ({ playerName, gameType, gameInfo }) => {
+    document.getElementById('p-fact').textContent   = '';
+    document.getElementById('p-score').textContent  = '0 pts';
+    document.getElementById('p-name').textContent   = playerName;
+    document.getElementById('p-avatar').textContent = playerName[0].toUpperCase();
+    showScreenContent(gameType);
     showPlaying();
   });
 
@@ -609,25 +688,48 @@
     document.getElementById('p-fact').textContent = '';
   });
 
-  socket.on('answer_feedback', ({ correct, correctValue, playerName, score, fact }) => {
-    highlightAnswer(correctValue);
+  socket.on('answer_feedback', ({ correct, correctValue, playerName, score, fact, gameType, lives, pos1, pos2 }) => {
     document.getElementById('p-score').textContent = score + ' pts';
     if (fact) document.getElementById('p-fact').textContent = '💡 ' + fact;
+
+    if (gameType === 'quiz') highlightAnswer(correctValue);
+    if (gameType === 'sort') {
+      document.getElementById(`bin-${correctValue}`)?.classList.add('correct');
+    }
+    if (gameType === 'catch' && lives !== undefined) {
+      document.getElementById('sc-catch-lives').textContent =
+        '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
+    }
   });
 
   socket.on('timer_tick', ({ timeLeft }) => updateTimer(timeLeft));
 
-  socket.on('queue_updated', ({ queue }) => updateQueue(queue));
+  socket.on('queue_updated', ({ queue, counts }) => {
+    updateQueue(queue);
+    // Update sidebar queue display with per-game counts
+    if (counts) {
+      const el = document.getElementById('p-queue');
+      const total = Object.values(counts).reduce((a,b)=>a+b,0);
+      if (total === 0) {
+        el.innerHTML = '<span class="queue-empty">Empty</span>';
+      } else {
+        const icons = { quiz:'🧠', sort:'🗑️', catch:'🎯', memory:'🃏' };
+        el.innerHTML = Object.entries(counts).filter(([,n])=>n>0).map(([gt,n]) => `
+          <div class="queue-chip">
+            <span>${icons[gt]}</span>
+            <span>${n} waiting</span>
+          </div>`).join('');
+      }
+    }
+  });
 
-  socket.on('game_finished', ({ playerName, score, leaderboard }) => {
+  socket.on('game_finished', ({ playerName, score, gameType, leaderboard }) => {
     showGameOver(playerName, score, leaderboard);
   });
 
   socket.on('next_player_soon', ({ countdown }) => {
     const el = document.getElementById('go-next');
-    if (el) el.textContent = countdown > 0
-      ? `Next player starting in ${countdown}...`
-      : 'Starting now!';
+    if (el) el.textContent = countdown > 0 ? `Next player starting in ${countdown}...` : 'Starting now!';
   });
 </script>
 </body>

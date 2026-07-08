@@ -76,10 +76,16 @@ io.on('connection', (socket) => {
   socket.on('join_game', ({ machineId, name }) => {
     const mgr = getManager(machineId);
     if (!mgr) { socket.emit('error', { message: 'Unknown machine' }); return; }
-
     socket.join(`machine:${machineId}`);
     socket.data.machineId = machineId;
     mgr.joinPlayer(socket, name);
+  });
+
+  socket.on('select_game', ({ gameType }) => {
+    const machineId = socket.data.machineId;
+    if (!machineId) return;
+    const mgr = getManager(machineId);
+    if (mgr) mgr.selectGame(socket, gameType);
   });
 
   socket.on('submit_answer', ({ value }) => {
