@@ -35,18 +35,18 @@ const ITEMS = {
 };
 
 // Each round: correct = target items to slice, total = all items (target + decoys)
-// Short 5-7s waves cycle the target rapidly: dry → ewaste → wet → dry → ewaste → wet → …
+// baseSpeed and spawn rate at 50% of previous values; waveTime extended to match
 const ROUNDS = [
-  { target: 'dry',    correct: 4, total: 12, waveTime: 7, baseSpeed: 200, spawnDelay: 370, pts: 6  },
-  { target: 'ewaste', correct: 4, total: 12, waveTime: 7, baseSpeed: 215, spawnDelay: 350, pts: 6  },
-  { target: 'wet',    correct: 5, total: 13, waveTime: 6, baseSpeed: 232, spawnDelay: 330, pts: 7  },
-  { target: 'dry',    correct: 5, total: 13, waveTime: 6, baseSpeed: 248, spawnDelay: 310, pts: 7  },
-  { target: 'ewaste', correct: 5, total: 14, waveTime: 6, baseSpeed: 265, spawnDelay: 290, pts: 8  },
-  { target: 'wet',    correct: 6, total: 14, waveTime: 5, baseSpeed: 282, spawnDelay: 270, pts: 8  },
-  { target: 'dry',    correct: 6, total: 15, waveTime: 5, baseSpeed: 300, spawnDelay: 250, pts: 9  },
-  { target: 'ewaste', correct: 7, total: 15, waveTime: 5, baseSpeed: 318, spawnDelay: 230, pts: 10 },
-  { target: 'wet',    correct: 7, total: 16, waveTime: 5, baseSpeed: 336, spawnDelay: 210, pts: 10 },
-  { target: 'dry',    correct: 8, total: 16, waveTime: 5, baseSpeed: 355, spawnDelay: 190, pts: 12 },
+  { target: 'dry',    correct: 4, total: 12, waveTime: 12, baseSpeed: 100, spawnDelay: 740, pts: 6  },
+  { target: 'ewaste', correct: 4, total: 12, waveTime: 12, baseSpeed: 108, spawnDelay: 700, pts: 6  },
+  { target: 'wet',    correct: 5, total: 13, waveTime: 11, baseSpeed: 116, spawnDelay: 660, pts: 7  },
+  { target: 'dry',    correct: 5, total: 13, waveTime: 11, baseSpeed: 124, spawnDelay: 620, pts: 7  },
+  { target: 'ewaste', correct: 5, total: 14, waveTime: 10, baseSpeed: 133, spawnDelay: 580, pts: 8  },
+  { target: 'wet',    correct: 6, total: 14, waveTime: 10, baseSpeed: 141, spawnDelay: 540, pts: 8  },
+  { target: 'dry',    correct: 6, total: 15, waveTime: 9,  baseSpeed: 150, spawnDelay: 500, pts: 9  },
+  { target: 'ewaste', correct: 7, total: 15, waveTime: 9,  baseSpeed: 159, spawnDelay: 460, pts: 10 },
+  { target: 'wet',    correct: 7, total: 16, waveTime: 8,  baseSpeed: 168, spawnDelay: 420, pts: 10 },
+  { target: 'dry',    correct: 8, total: 16, waveTime: 8,  baseSpeed: 178, spawnDelay: 380, pts: 12 },
 ];
 
 const LIVES_START = 3;
