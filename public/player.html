@@ -143,37 +143,106 @@
   .answer-btn.wrong   .ans-letter { background:var(--red);   color:#fff; }
 
   /* ── ZIP ── */
-  #gc-zip { display:flex; flex-direction:column; gap:10px; align-items:center; }
+  #gc-zip { display:flex; flex-direction:column; gap:12px; align-items:center; }
   .zip-hint { font-size:.78rem; color:var(--muted); text-align:center; line-height:1.5; }
-  .zip-grid { display:grid; gap:5px; touch-action:none; user-select:none; }
-  .zip-cell {
-    width:66px; height:66px; border-radius:11px;
-    background:var(--card); border:2px solid var(--border);
-    display:flex; align-items:center; justify-content:center;
-    position:relative; transition:background .12s, border-color .12s;
+  .zip-grid {
+    display:grid; gap:6px; touch-action:none; user-select:none;
+    position:relative;
+    background:radial-gradient(ellipse at 50% 40%, #0f0a1e 0%, #0a0a0f 100%);
+    padding:14px; border-radius:18px; border:1px solid #1a1a2e;
   }
-  .zip-cell.zip-anchor  { border-color:var(--purple); background:rgba(139,47,201,.1); }
-  .zip-cell.zip-visited { background:rgba(139,47,201,.18); border-color:var(--purple); }
-  .zip-cell.zip-done    { background:rgba(34,197,94,.2);  border-color:var(--green); }
-  .zip-cell.zip-fail    { background:rgba(239,68,68,.15); border-color:var(--red); }
-  .zip-container { font-size:1.9rem; line-height:1; }
-  .zip-num { position:absolute; top:2px; right:5px; font-size:.65rem; font-weight:900; color:var(--purple); }
-  .zip-status { font-size:.8rem; color:var(--muted); text-align:center; }
+  .zip-cell {
+    width:68px; height:68px; border-radius:50%;
+    background:rgba(255,255,255,.03); border:2px solid rgba(255,255,255,.08);
+    display:flex; align-items:center; justify-content:center;
+    position:relative; transition:background .12s, border-color .12s, box-shadow .15s;
+  }
+  .zip-cell.zip-anchor {
+    background:radial-gradient(circle, rgba(139,47,201,.3) 0%, rgba(139,47,201,.08) 100%);
+    border:2px solid var(--purple);
+    box-shadow:0 0 18px rgba(139,47,201,.4), inset 0 0 10px rgba(139,47,201,.1);
+  }
+  .zip-cell.zip-visited {
+    background:rgba(139,47,201,.22); border-color:var(--purple);
+    box-shadow:0 0 12px rgba(139,47,201,.3);
+  }
+  .zip-cell.zip-done {
+    background:rgba(34,197,94,.22); border-color:var(--green);
+    box-shadow:0 0 16px rgba(34,197,94,.45);
+    animation:zipDonePop .3s ease-out;
+  }
+  @keyframes zipDonePop {
+    0%   { transform:scale(1); }
+    50%  { transform:scale(1.15); }
+    100% { transform:scale(1); }
+  }
+  .zip-cell.zip-fail { background:rgba(239,68,68,.15); border-color:var(--red); }
+  .zip-container { font-size:1.8rem; line-height:1; filter:drop-shadow(0 0 6px rgba(139,47,201,.5)); }
+  .zip-num {
+    position:absolute; top:-4px; right:-4px;
+    width:20px; height:20px; background:var(--purple); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.62rem; font-weight:900; color:#fff;
+    box-shadow:0 2px 8px rgba(139,47,201,.6);
+  }
+  #zip-svg-overlay {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index:5; overflow:visible;
+  }
+  .zip-path-line {
+    fill:none; stroke:url(#zipPathGrad); stroke-width:6;
+    stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 0 8px rgba(139,47,201,.7));
+  }
+  .zip-status { font-size:.8rem; color:var(--muted); text-align:center; min-height:18px; }
 
   /* ── MEMORY ── */
   #gc-memory { display:flex; flex-direction:column; gap:14px; }
   .mem-info   { display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); }
-  .memory-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
-  .mem-card {
-    aspect-ratio:1; border-radius:12px; border:2px solid var(--border);
-    background:var(--card); display:flex; align-items:center; justify-content:center;
-    font-size:1.3rem; cursor:pointer; transition:all .25s; user-select:none;
+  .memory-grid {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    perspective:900px;
   }
-  .mem-card.flipped     { border-color:var(--purple); background:rgba(139,47,201,.15); }
-  .mem-card.matched     { border-color:var(--green);  background:rgba(34,197,94,.15);  cursor:default; }
-  .mem-card.wrong-flash { border-color:var(--red);    background:rgba(239,68,68,.15); }
-  .mem-card:active:not(.matched):not(.flipped) { transform:scale(.93); }
-  .mem-back { font-size:1.1rem; color:var(--muted); }
+  .mem-card {
+    aspect-ratio:1; border-radius:14px; cursor:pointer;
+    position:relative; transform-style:preserve-3d;
+    transition:transform .42s cubic-bezier(.4,0,.2,1);
+    user-select:none;
+  }
+  .mem-card.flipped, .mem-card.matched { transform:rotateY(180deg); }
+  .mem-card.matched { cursor:default; }
+  .mem-card.mem-locked { pointer-events:none; }
+  .mem-front, .mem-back {
+    position:absolute; inset:0; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    backface-visibility:hidden; font-size:1.45rem;
+  }
+  .mem-front {
+    background:var(--card); border:2px solid var(--border); color:var(--muted);
+  }
+  .mem-front:active { transform:scale(.94); }
+  .mem-back {
+    background:rgba(139,47,201,.12); border:2px solid rgba(139,47,201,.45);
+    transform:rotateY(180deg);
+  }
+  .mem-card.matched .mem-back {
+    background:rgba(34,197,94,.15); border-color:var(--green);
+    animation:memMatchPop .42s ease-out both;
+  }
+  @keyframes memMatchPop {
+    0%   { transform:rotateY(180deg) scale(1); }
+    45%  { transform:rotateY(180deg) scale(1.2); }
+    100% { transform:rotateY(180deg) scale(1); }
+  }
+  .mem-card.mem-wrong .mem-back {
+    border-color:var(--red); background:rgba(239,68,68,.15);
+    animation:memWrongShake .38s ease-in-out;
+  }
+  @keyframes memWrongShake {
+    0%,100% { transform:rotateY(180deg) translateX(0); }
+    20%     { transform:rotateY(180deg) translateX(-9px); }
+    60%     { transform:rotateY(180deg) translateX(9px); }
+  }
 
   /* ── FACT BOX ── */
   .fact-box {
@@ -257,6 +326,33 @@
     animation:slashRedFlash .4s ease-out forwards;
   }
   @keyframes slashRedFlash { 0%{opacity:1} 100%{opacity:0} }
+  .slash-combo-txt {
+    position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
+    font-size:2.2rem; font-weight:900; pointer-events:none; z-index:25;
+    color:#fbbf24; text-shadow:0 0 30px #fbbf24, 0 0 60px #f59e0b;
+    white-space:nowrap;
+    animation:slashComboAnim .75s ease-out forwards;
+  }
+  @keyframes slashComboAnim {
+    0%   { opacity:0; transform:translate(-50%,-50%) scale(.5); }
+    25%  { opacity:1; transform:translate(-50%,-50%) scale(1.25); }
+    70%  { opacity:1; transform:translate(-50%,-50%) scale(1.05); }
+    100% { opacity:0; transform:translate(-50%,-65%); }
+  }
+  .slash-screen-shake { animation:slashShake .32s ease-out; }
+  @keyframes slashShake {
+    0%,100% { transform:translate(0,0) rotate(0); }
+    20%     { transform:translate(-6px,4px) rotate(-.5deg); }
+    40%     { transform:translate(6px,-4px) rotate(.5deg); }
+    65%     { transform:translate(-4px,3px) rotate(-.3deg); }
+    85%     { transform:translate(4px,-2px) rotate(.2deg); }
+  }
+  .slash-wave-complete {
+    position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
+    font-size:2.4rem; font-weight:900; pointer-events:none; z-index:30;
+    white-space:nowrap;
+    animation:slashComboAnim .9s ease-out forwards;
+  }
 </style>
 </head>
 <body>
@@ -417,6 +513,50 @@ const ROUND_LABELS = { quiz:'Q', slash:'Wave', zip:'Puzzle', memory:'Pairs' };
 
 fetch('/config').then(r=>r.json()).then(cfg => { maxTime = cfg.QUESTION_TIME; });
 
+// ── Sound ────────────────────────────────────────────────────
+const _AC = window.AudioContext || window.webkitAudioContext;
+let _ac = null;
+function _ctx() { if (!_ac) _ac = new _AC(); return _ac; }
+function playSound(type) {
+  try {
+    const c = _ctx(), o = c.createOscillator(), g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    const t = c.currentTime;
+    if (type === 'flip') {
+      o.type='sine'; o.frequency.setValueAtTime(900,t); o.frequency.exponentialRampToValueAtTime(500,t+.09);
+      g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+.1); o.start(t); o.stop(t+.1);
+    } else if (type === 'match') {
+      o.frequency.setValueAtTime(523,t); o.frequency.setValueAtTime(659,t+.08); o.frequency.setValueAtTime(784,t+.16);
+      g.gain.setValueAtTime(.22,t); g.gain.exponentialRampToValueAtTime(.001,t+.5); o.start(t); o.stop(t+.5);
+    } else if (type === 'wrong') {
+      o.type='sawtooth'; o.frequency.setValueAtTime(220,t); o.frequency.setValueAtTime(160,t+.15);
+      g.gain.setValueAtTime(.18,t); g.gain.exponentialRampToValueAtTime(.001,t+.3); o.start(t); o.stop(t+.3);
+    } else if (type === 'slash') {
+      o.type='sawtooth'; o.frequency.setValueAtTime(350,t); o.frequency.exponentialRampToValueAtTime(60,t+.13);
+      g.gain.setValueAtTime(.22,t); g.gain.exponentialRampToValueAtTime(.001,t+.15); o.start(t); o.stop(t+.15);
+    } else if (type === 'combo') {
+      [523,659,784,1047].forEach((f,i) => {
+        const o2=c.createOscillator(), g2=c.createGain();
+        o2.connect(g2); g2.connect(c.destination);
+        o2.frequency.value=f; g2.gain.setValueAtTime(.18,t+i*.09);
+        g2.gain.exponentialRampToValueAtTime(.001,t+i*.09+.22);
+        o2.start(t+i*.09); o2.stop(t+i*.09+.22);
+      }); return;
+    } else if (type === 'zip') {
+      o.type='sine'; o.frequency.setValueAtTime(500,t); o.frequency.exponentialRampToValueAtTime(700,t+.06);
+      g.gain.setValueAtTime(.1,t); g.gain.exponentialRampToValueAtTime(.001,t+.08); o.start(t); o.stop(t+.08);
+    } else if (type === 'zipwin') {
+      [400,500,600,800].forEach((f,i) => {
+        const o2=c.createOscillator(), g2=c.createGain();
+        o2.connect(g2); g2.connect(c.destination);
+        o2.frequency.value=f; g2.gain.setValueAtTime(.18,t+i*.07);
+        g2.gain.exponentialRampToValueAtTime(.001,t+i*.07+.18);
+        o2.start(t+i*.07); o2.stop(t+i*.07+.18);
+      }); return;
+    }
+  } catch(e) {}
+}
+
 // ── Views ────────────────────────────────────────────────────
 function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -493,6 +633,9 @@ function submitQuiz(idx) {
 }
 
 // ── SLASH GAME (Fruit Ninja) ──────────────────────────────────────
+let slashCombo = 0;
+let slashComboTimer = null;
+
 let SL = {
   active: false,
   items: [],
@@ -516,15 +659,20 @@ const SL_HIT  = 48; // slice detection radius
 let slashPts = 5;
 
 function slashShow(payload, progress, total) {
-  SL.active = true;
-  SL.items  = [];
-  SL.trail  = [];
-  SL.target = payload.target;
-  slashPts  = payload.pts || 5;
+  SL.active   = true;
+  SL.drawing  = false;
+  SL.trail    = [];
+  SL.items    = [];
+  SL.target   = payload.target;
+  slashPts    = payload.pts || 5;
+  slashCombo  = 0;
+  clearTimeout(slashComboTimer);
 
-  // Show overlay
-  const ov = document.getElementById('slash-overlay');
-  ov.classList.add('active');
+  // Remove any inter-wave transition messages left in arena
+  document.querySelectorAll('.slash-wave-complete').forEach(function(e) { e.remove(); });
+
+  // Show overlay (safe to call even if already visible)
+  document.getElementById('slash-overlay').classList.add('active');
 
   // Update banner
   const col = payload.targetColor || '#3b82f6';
@@ -537,13 +685,22 @@ function slashShow(payload, progress, total) {
   document.getElementById('slash-banner').style.borderBottomColor = col + '55';
   document.getElementById('slash-banner').style.background = col + '12';
   document.getElementById('slash-wave-bar').textContent = 'WAVE ' + progress + ' / ' + total;
-  document.getElementById('slash-score-hud').textContent = '0 pts';
+  document.getElementById('slash-score-hud').textContent = (payload.score || 0) + ' pts';
 
   slashUpdateLives(payload.lives != null ? payload.lives : 3);
 
   SL.arenaEl  = document.getElementById('slash-arena');
   SL.canvasEl = document.getElementById('slash-canvas');
   SL.ctx      = SL.canvasEl.getContext('2d');
+
+  // Remove any stale listeners before re-attaching (prevents accumulation across waves)
+  SL.arenaEl.removeEventListener('touchstart', slashTS);
+  SL.arenaEl.removeEventListener('touchmove',  slashTM);
+  SL.arenaEl.removeEventListener('touchend',   slashTE);
+  SL.arenaEl.removeEventListener('mousedown',  slashMD);
+  SL.arenaEl.removeEventListener('mousemove',  slashMV);
+  SL.arenaEl.removeEventListener('mouseup',    slashMU);
+  SL.arenaEl.removeEventListener('mouseleave', slashMU);
 
   // Attach events
   SL.arenaEl.addEventListener('touchstart', slashTS, { passive: false });
@@ -560,15 +717,29 @@ function slashShow(payload, progress, total) {
     SL.resizeObs.observe(SL.arenaEl);
   }
 
-  // Size canvas after layout settles, then spawn items and start loop
+  // Size canvas after layout settles, then spawn items in bursts and start loop
   setTimeout(function() {
     slashResize();
-    // Schedule item spawns
-    payload.items.forEach(function(item, i) {
+    var items     = payload.items;
+    var spd       = payload.baseSpeed || 180;
+    var burstSize = 3;
+    var itemGap   = 150;  // ms between items inside a burst
+    var burstGap  = Math.max(480, (payload.spawnDelay || 350) * 1.45);
+    var numBursts = Math.ceil(items.length / burstSize);
+    // Pre-compute a cluster centre X per burst (safe now that arenaW is known)
+    var clusterXs = [];
+    for (var b = 0; b < numBursts; b++) {
+      clusterXs.push(SL_SIZE + Math.random() * Math.max(10, SL.arenaW - SL_SIZE * 2));
+    }
+    items.forEach(function(item, i) {
+      var burst = Math.floor(i / burstSize);
+      var posIn = i % burstSize;
+      var delay = burst * burstGap + posIn * itemGap;
+      var cx = clusterXs[burst];
       var h = setTimeout(function() {
         if (!SL.active) return;
-        slashSpawn(item, payload.baseSpeed || 100);
-      }, i * (payload.spawnDelay || 1200) + 300);
+        slashSpawn(item, spd, cx);
+      }, delay);
       SL.spawnTimers.push(h);
     });
     // Start loop
@@ -577,8 +748,33 @@ function slashShow(payload, progress, total) {
   }, 80);
 }
 
+// Between waves — keep overlay alive, just clear items and flash a message
+function slashWaveEnd(data) {
+  SL.active  = false;
+  SL.drawing = false;
+  SL.trail   = [];
+  SL.spawnTimers.forEach(clearTimeout); SL.spawnTimers = [];
+  if (SL.rafId) { cancelAnimationFrame(SL.rafId); SL.rafId = null; }
+  SL.items.forEach(function(it) { if (it.el) it.el.remove(); });
+  SL.items = [];
+  if (SL.ctx) SL.ctx.clearRect(0, 0, SL.arenaW, SL.arenaH);
+  // Flash result inside the arena so overlay never disappears
+  if (SL.arenaEl) {
+    var fl = document.createElement('div');
+    fl.className = 'slash-wave-complete';
+    fl.textContent = data.correct ? '✓ WAVE CLEAR!' : '💔 WAVE FAILED';
+    fl.style.color = data.correct ? '#4ade80' : '#f87171';
+    fl.style.textShadow = '0 0 30px ' + (data.correct ? '#4ade80' : '#f87171');
+    SL.arenaEl.appendChild(fl);
+    setTimeout(function() { fl.remove(); }, 1800);
+  }
+}
+
+// Full teardown — only called when the game is truly over
 function slashHide() {
-  SL.active = false;
+  SL.active  = false;
+  SL.drawing = false;
+  slashCombo = 0; clearTimeout(slashComboTimer);
   SL.spawnTimers.forEach(clearTimeout);
   SL.spawnTimers = [];
   if (SL.rafId) { cancelAnimationFrame(SL.rafId); SL.rafId = null; }
@@ -610,11 +806,19 @@ function slashResize() {
   SL.canvasEl.height = SL.arenaH;
 }
 
-function slashSpawn(itemData, baseSpeed) {
-  var x  = SL_SIZE + Math.random() * (SL.arenaW - SL_SIZE * 2);
-  var vy = baseSpeed * (0.7 + Math.random() * 0.65);
-  var vx = (Math.random() - 0.5) * 40;
-  var rs = (Math.random() - 0.5) * 140;
+function slashSpawn(itemData, baseSpeed, clusterX) {
+  var aW = SL.arenaW || window.innerWidth;
+  var x;
+  if (clusterX != null) {
+    // Spawn within ~110px of cluster centre — makes items feel grouped
+    x = clusterX + (Math.random() - 0.5) * 110;
+    x = Math.max(SL_SIZE, Math.min(aW - SL_SIZE, x));
+  } else {
+    x = SL_SIZE + Math.random() * Math.max(10, aW - SL_SIZE * 2);
+  }
+  var vy = baseSpeed * (0.75 + Math.random() * 0.55);
+  var vx = (Math.random() - 0.5) * 60;
+  var rs = (Math.random() - 0.5) * 160;
   var el = document.createElement('div');
   el.className   = 'slash-item';
   el.textContent = itemData.emoji;
@@ -689,8 +893,29 @@ function slashCut(it, px, py) {
   }
   var correct = it.category === SL.target;
   slashParticles(it.x, it.y, correct);
-  slashFlash(it.x, it.y - 20, correct ? ('+' + slashPts + ' ✓') : '✗ −1life', correct ? '#4ade80' : '#f87171');
-  if (!correct) slashRedFlash();
+  if (correct) {
+    slashCombo++;
+    clearTimeout(slashComboTimer);
+    slashComboTimer = setTimeout(function() { slashCombo = 0; }, 1600);
+    playSound(slashCombo >= 3 ? 'combo' : 'slash');
+    slashFlash(it.x, it.y - 20, '+' + slashPts + ' ✓', '#4ade80');
+    if (slashCombo >= 3 && SL.arenaEl) {
+      var comboEl = document.createElement('div');
+      comboEl.className = 'slash-combo-txt';
+      comboEl.textContent = slashCombo + 'x COMBO!';
+      SL.arenaEl.appendChild(comboEl);
+      setTimeout(function() { comboEl.remove(); }, 750);
+      if (slashCombo >= 5) {
+        SL.arenaEl.classList.add('slash-screen-shake');
+        setTimeout(function() { if (SL.arenaEl) SL.arenaEl.classList.remove('slash-screen-shake'); }, 320);
+      }
+    }
+  } else {
+    slashCombo = 0;
+    playSound('wrong');
+    slashFlash(it.x, it.y - 20, '✗ −1life', '#f87171');
+    slashRedFlash();
+  }
   socket.emit('submit_answer', { value: { type: 'cut', itemId: it.id } });
 }
 
@@ -786,8 +1011,26 @@ function initZipGame(payload) {
 
 function renderZipGrid() {
   const grid = document.getElementById('zip-grid');
-  grid.style.gridTemplateColumns = `repeat(${zipGridSize}, 66px)`;
+  grid.style.gridTemplateColumns = `repeat(${zipGridSize}, 68px)`;
   grid.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.id = 'zip-svg-overlay';
+  const defs = document.createElementNS(ns, 'defs');
+  const grad = document.createElementNS(ns, 'linearGradient');
+  grad.id = 'zipPathGrad';
+  grad.setAttribute('x1','0%'); grad.setAttribute('y1','0%');
+  grad.setAttribute('x2','100%'); grad.setAttribute('y2','100%');
+  const s1 = document.createElementNS(ns, 'stop');
+  s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#8B2FC9'); s1.setAttribute('stop-opacity','0.85');
+  const s2 = document.createElementNS(ns, 'stop');
+  s2.setAttribute('offset','100%'); s2.setAttribute('stop-color','#a78bfa'); s2.setAttribute('stop-opacity','0.98');
+  grad.appendChild(s1); grad.appendChild(s2); defs.appendChild(grad); svg.appendChild(defs);
+  const pathEl = document.createElementNS(ns, 'path');
+  pathEl.id = 'zip-svg-path'; pathEl.classList.add('zip-path-line');
+  pathEl.setAttribute('d', '');
+  svg.appendChild(pathEl);
+  grid.appendChild(svg);
   for (let r = 0; r < zipGridSize; r++) {
     for (let c = 0; c < zipGridSize; c++) {
       const cell = document.createElement('div');
@@ -813,6 +1056,26 @@ function renderZipGrid() {
   };
 }
 
+function _zipCellCenter(r, c) {
+  const el = document.getElementById(`zc-${r}-${c}`);
+  const grid = document.getElementById('zip-grid');
+  if (!el || !grid) return null;
+  const gr = grid.getBoundingClientRect();
+  const er = el.getBoundingClientRect();
+  return { x: er.left - gr.left + er.width / 2, y: er.top - gr.top + er.height / 2 };
+}
+
+function updateZipSVGPath() {
+  const pathEl = document.getElementById('zip-svg-path');
+  if (!pathEl) return;
+  if (zipPath.length < 2) { pathEl.setAttribute('d', ''); return; }
+  const pts = zipPath.map(([r,c]) => _zipCellCenter(r,c)).filter(Boolean);
+  if (pts.length < 2) return;
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) d += ` L ${pts[i].x} ${pts[i].y}`;
+  pathEl.setAttribute('d', d);
+}
+
 function getCellFromPoint(x, y) {
   const el = document.elementFromPoint(x, y);
   if (!el) return null;
@@ -834,6 +1097,8 @@ function startZipDraw(x, y) {
   }
   zipPath = [[cell.r, cell.c]]; zipDrawing = true; zipNextAnchor = 2;
   cell.el.classList.add('zip-visited');
+  playSound('zip');
+  updateZipSVGPath();
   socket.emit('zip_trace', { cells: zipPath });
   document.getElementById('zip-status').textContent = `Connected 1/${zipTotalAnchors} — keep going!`;
 }
@@ -857,6 +1122,8 @@ function continueZipDraw(x, y) {
   }
   zipPath.push([r, c]);
   el.classList.add('zip-visited');
+  playSound('zip');
+  updateZipSVGPath();
   socket.emit('zip_trace', { cells: zipPath });
   if (zipPath.length === zipGridSize * zipGridSize && zipNextAnchor > zipTotalAnchors) submitZipPath();
 }
@@ -871,6 +1138,7 @@ function resetZipPath() {
   zipPath = []; zipNextAnchor = 1; zipDrawing = false;
   document.querySelectorAll('.zip-visited').forEach(el => el.classList.remove('zip-visited'));
   document.getElementById('zip-status').textContent = 'Place finger on container #1 to begin';
+  updateZipSVGPath();
   socket.emit('zip_trace', { cells: [] });
 }
 
@@ -878,6 +1146,7 @@ function submitZipPath() {
   zipDrawing = false; answered = true;
   document.querySelectorAll('.zip-cell').forEach(el => el.classList.add('zip-done'));
   document.getElementById('zip-status').textContent = '✓ Path complete — submitting!';
+  playSound('zipwin');
   socket.emit('submit_answer', { value: { path: zipPath } });
 }
 
@@ -890,7 +1159,8 @@ function renderMemoryGrid(cards) {
   memCards = cards; memFlip1 = null; memWaiting = false;
   document.getElementById('memory-grid').innerHTML = cards.map((c, i) => `
     <div class="mem-card ${c.matched ? 'matched' : ''}" id="mc-${i}" onclick="tapMemCard(${i})">
-      ${c.matched ? c.emoji : '<span class="mem-back">♻️</span>'}
+      <div class="mem-front">♻️</div>
+      <div class="mem-back">${c.emoji}</div>
     </div>`).join('');
 }
 
@@ -899,7 +1169,7 @@ function tapMemCard(pos) {
   const card = document.getElementById(`mc-${pos}`);
   if (!card || card.classList.contains('matched') || card.classList.contains('flipped')) return;
   card.classList.add('flipped');
-  card.innerHTML = memCards[pos].emoji;
+  playSound('flip');
   if (memFlip1 === null) {
     memFlip1 = pos;
   } else {
@@ -1033,10 +1303,14 @@ socket.on('answer_result', (data) => {
   const gt = state?.gameType || myGameType;
 
   if (gt === 'slash' || gt === 'sort') {
-    slashHide();
-    const factEl = document.getElementById('fact-box');
-    factEl.textContent = data.fact || (correct ? '✓ Wave done!' : '✗ Wave failed');
-    factEl.className   = 'fact-box show' + (!correct ? ' wrong-fact' : '');
+    const lives   = data.state?.lives ?? data.lives ?? 1;
+    const allDone = data.correctValue === 'done';
+    const isDead  = lives <= 0;
+    if (isDead || allDone) {
+      slashHide(); // game is ending — full teardown
+    } else {
+      slashWaveEnd(data); // wave transition — keep overlay alive
+    }
     document.getElementById('g-score').textContent = (state?.score || 0) + ' pts';
     return;
   }
@@ -1052,16 +1326,21 @@ socket.on('answer_result', (data) => {
     if (correct) {
       document.getElementById(`mc-${pos1}`)?.classList.replace('flipped','matched');
       document.getElementById(`mc-${pos2}`)?.classList.replace('flipped','matched');
+      playSound('match');
       if (state.payload) {
         document.getElementById('mem-pairs').textContent    = `${state.progress}/${state.total}`;
         document.getElementById('mem-attempts').textContent = state.payload.attempts;
       }
     } else {
-      [pos1, pos2].forEach(p => document.getElementById(`mc-${p}`)?.classList.add('wrong-flash'));
+      [pos1, pos2].forEach(p => {
+        const el = document.getElementById(`mc-${p}`);
+        if (el) el.classList.add('mem-wrong');
+      });
+      playSound('wrong');
       setTimeout(() => {
         [pos1, pos2].forEach(p => {
           const el = document.getElementById(`mc-${p}`);
-          if (el) { el.className = 'mem-card'; el.innerHTML = '<span class="mem-back">♻️</span>'; }
+          if (el) el.className = 'mem-card';
         });
         if (state.payload) document.getElementById('mem-attempts').textContent = state.payload.attempts;
         memWaiting = false;
@@ -1085,7 +1364,12 @@ socket.on('timer_tick', ({ timeLeft }) => {
 
 socket.on('timer_expired', () => {
   if (myGameType === 'slash' || myGameType === 'sort') {
-    slashHide();
+    // Clear items but keep overlay — answer_result will decide hide vs. wave-transition
+    SL.active = false; SL.drawing = false; SL.trail = [];
+    SL.spawnTimers.forEach(clearTimeout); SL.spawnTimers = [];
+    if (SL.rafId) { cancelAnimationFrame(SL.rafId); SL.rafId = null; }
+    SL.items.forEach(function(it) { if (it.el) it.el.remove(); }); SL.items = [];
+    if (SL.ctx) SL.ctx.clearRect(0, 0, SL.arenaW, SL.arenaH);
     return;
   }
   answered   = true;

@@ -35,12 +35,18 @@ const ITEMS = {
 };
 
 // Each round: correct = target items to slice, total = all items (target + decoys)
+// Short 5-7s waves cycle the target rapidly: dry → ewaste → wet → dry → ewaste → wet → …
 const ROUNDS = [
-  { target: 'dry',    correct: 4, total: 7,  waveTime: 20, baseSpeed: 85,  spawnDelay: 1800, pts: 5  },
-  { target: 'wet',    correct: 4, total: 8,  waveTime: 18, baseSpeed: 105, spawnDelay: 1500, pts: 6  },
-  { target: 'ewaste', correct: 5, total: 10, waveTime: 16, baseSpeed: 130, spawnDelay: 1200, pts: 7  },
-  { target: 'dry',    correct: 6, total: 11, waveTime: 14, baseSpeed: 155, spawnDelay: 1000, pts: 8  },
-  { target: 'ewaste', correct: 6, total: 12, waveTime: 12, baseSpeed: 175, spawnDelay: 850,  pts: 10 },
+  { target: 'dry',    correct: 4, total: 12, waveTime: 7, baseSpeed: 200, spawnDelay: 370, pts: 6  },
+  { target: 'ewaste', correct: 4, total: 12, waveTime: 7, baseSpeed: 215, spawnDelay: 350, pts: 6  },
+  { target: 'wet',    correct: 5, total: 13, waveTime: 6, baseSpeed: 232, spawnDelay: 330, pts: 7  },
+  { target: 'dry',    correct: 5, total: 13, waveTime: 6, baseSpeed: 248, spawnDelay: 310, pts: 7  },
+  { target: 'ewaste', correct: 5, total: 14, waveTime: 6, baseSpeed: 265, spawnDelay: 290, pts: 8  },
+  { target: 'wet',    correct: 6, total: 14, waveTime: 5, baseSpeed: 282, spawnDelay: 270, pts: 8  },
+  { target: 'dry',    correct: 6, total: 15, waveTime: 5, baseSpeed: 300, spawnDelay: 250, pts: 9  },
+  { target: 'ewaste', correct: 7, total: 15, waveTime: 5, baseSpeed: 318, spawnDelay: 230, pts: 10 },
+  { target: 'wet',    correct: 7, total: 16, waveTime: 5, baseSpeed: 336, spawnDelay: 210, pts: 10 },
+  { target: 'dry',    correct: 8, total: 16, waveTime: 5, baseSpeed: 355, spawnDelay: 190, pts: 12 },
 ];
 
 const LIVES_START = 3;
@@ -161,13 +167,9 @@ class SortGame {
   }
 
   _waveTimeout() {
-    const round = ROUNDS[this.roundIndex];
-    this.waveItems.forEach(item => {
-      if (!item.processed && item.category === round.target) {
-        item.processed = true;
-        this.lives = Math.max(0, this.lives - 1);
-      }
-    });
+    // Timer expired — just advance. Lives are already deducted when items fall
+    // off screen via _handleMiss(), so we don't double-penalise here.
+    this.waveItems.forEach(item => { item.processed = true; });
     if (this.lives <= 0) this.finished = true;
     return this._advanceWave();
   }

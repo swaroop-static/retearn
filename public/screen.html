@@ -731,11 +731,26 @@
       const sEl = document.getElementById('scsl-score');
       if (sEl) sEl.textContent = '0 pts';
 
-      payload.items.forEach((item, i) => {
+      // Burst spawning: groups of 3 close together, matching player timing
+      const items    = payload.items;
+      const spd      = payload.baseSpeed || 180;
+      const burstSz  = 3;
+      const itemGap  = 150;
+      const burstGap = Math.max(480, (payload.spawnDelay || 350) * 1.45);
+      const numBursts = Math.ceil(items.length / burstSz);
+      const clusterXs = [];
+      for (let b = 0; b < numBursts; b++) {
+        clusterXs.push(64 + Math.random() * Math.max(10, SCSL.arenaW - 128));
+      }
+      items.forEach((item, i) => {
+        const burst = Math.floor(i / burstSz);
+        const posIn = i % burstSz;
+        const delay = burst * burstGap + posIn * itemGap;
+        const cx = clusterXs[burst];
         const h = setTimeout(() => {
           if (!SCSL.active) return;
-          scslSpawn(item, payload.baseSpeed || 100);
-        }, i * (payload.spawnDelay || 1200) + 300);
+          scslSpawn(item, spd, cx);
+        }, delay);
         SCSL.spawnTimers.push(h);
       });
 
@@ -744,12 +759,18 @@
     }, 80);
   }
 
-  function scslSpawn(itemData, baseSpeed) {
+  function scslSpawn(itemData, baseSpeed, clusterX) {
     const sz = 64;
-    const x  = sz + Math.random() * (SCSL.arenaW - sz * 2);
-    const vy = baseSpeed * (0.7 + Math.random() * 0.65);
-    const vx = (Math.random() - 0.5) * 45;
-    const rs = (Math.random() - 0.5) * 150;
+    let x;
+    if (clusterX != null) {
+      x = clusterX + (Math.random() - 0.5) * 120;
+      x = Math.max(sz, Math.min(SCSL.arenaW - sz, x));
+    } else {
+      x = sz + Math.random() * Math.max(10, SCSL.arenaW - sz * 2);
+    }
+    const vy = baseSpeed * (0.75 + Math.random() * 0.55);
+    const vx = (Math.random() - 0.5) * 65;
+    const rs = (Math.random() - 0.5) * 160;
     const el = document.createElement('div');
     el.className = 'scsl-item'; el.textContent = itemData.emoji;
     el.style.left = (x - sz/2) + 'px'; el.style.top = '-80px';
