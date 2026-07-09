@@ -35,18 +35,20 @@ const ITEMS = {
 };
 
 // Each round: correct = target items to slice, total = all items (target + decoys)
-// baseSpeed and spawn rate at 50% of previous values; waveTime extended to match
-const ROUNDS = [
-  { target: 'dry',    correct: 4, total: 12, waveTime: 12, baseSpeed: 100, spawnDelay: 740, pts: 6  },
-  { target: 'ewaste', correct: 4, total: 12, waveTime: 12, baseSpeed: 108, spawnDelay: 700, pts: 6  },
-  { target: 'wet',    correct: 5, total: 13, waveTime: 11, baseSpeed: 116, spawnDelay: 660, pts: 7  },
-  { target: 'dry',    correct: 5, total: 13, waveTime: 11, baseSpeed: 124, spawnDelay: 620, pts: 7  },
-  { target: 'ewaste', correct: 5, total: 14, waveTime: 10, baseSpeed: 133, spawnDelay: 580, pts: 8  },
-  { target: 'wet',    correct: 6, total: 14, waveTime: 10, baseSpeed: 141, spawnDelay: 540, pts: 8  },
-  { target: 'dry',    correct: 6, total: 15, waveTime: 9,  baseSpeed: 150, spawnDelay: 500, pts: 9  },
-  { target: 'ewaste', correct: 7, total: 15, waveTime: 9,  baseSpeed: 159, spawnDelay: 460, pts: 10 },
-  { target: 'wet',    correct: 7, total: 16, waveTime: 8,  baseSpeed: 168, spawnDelay: 420, pts: 10 },
-  { target: 'dry',    correct: 8, total: 16, waveTime: 8,  baseSpeed: 178, spawnDelay: 380, pts: 12 },
+// Target is assigned randomly each game (no hardcoded order).
+// baseSpeed = initial upward throw speed (px/s); spawnDelay = ms between throws.
+// Items arc upward then fall back — gravity applied client-side.
+const ROUND_CONFIGS = [
+  { correct: 3,  total: 3,  waveTime: 14, baseSpeed: 440, spawnDelay: 1100, pts: 5  },
+  { correct: 4,  total: 5,  waveTime: 16, baseSpeed: 460, spawnDelay: 1000, pts: 6  },
+  { correct: 5,  total: 7,  waveTime: 18, baseSpeed: 480, spawnDelay: 900,  pts: 7  },
+  { correct: 5,  total: 8,  waveTime: 18, baseSpeed: 500, spawnDelay: 820,  pts: 7  },
+  { correct: 6,  total: 9,  waveTime: 19, baseSpeed: 520, spawnDelay: 750,  pts: 8  },
+  { correct: 6,  total: 9,  waveTime: 19, baseSpeed: 545, spawnDelay: 680,  pts: 8  },
+  { correct: 7,  total: 10, waveTime: 20, baseSpeed: 570, spawnDelay: 610,  pts: 9  },
+  { correct: 7,  total: 11, waveTime: 20, baseSpeed: 595, spawnDelay: 550,  pts: 10 },
+  { correct: 8,  total: 11, waveTime: 21, baseSpeed: 620, spawnDelay: 490,  pts: 10 },
+  { correct: 9,  total: 12, waveTime: 22, baseSpeed: 650, spawnDelay: 440,  pts: 12 },
 ];
 
 const LIVES_START = 3;
@@ -64,6 +66,16 @@ function shuffle(arr) {
 
 class SortGame {
   constructor() {
+    // Assign a random target to each round — never the same category twice in a row
+    const cats = ['dry', 'wet', 'ewaste'];
+    let last   = null;
+    const targets = ROUND_CONFIGS.map(() => {
+      const pool = cats.filter(c => c !== last);
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      last = pick;
+      return pick;
+    });
+    this.rounds     = ROUND_CONFIGS.map((cfg, i) => ({ ...cfg, target: targets[i] }));
     this.roundIndex = 0;
     this.score      = 0;
     this.lives      = LIVES_START;
@@ -74,7 +86,7 @@ class SortGame {
   }
 
   _buildWave() {
-    const { target, correct, total } = ROUNDS[this.roundIndex];
+    const { target, correct, total } = this.rounds[this.roundIndex];
     const decoyCats = Object.keys(ITEMS).filter(c => c !== target);
     const items     = [];
 
@@ -94,13 +106,13 @@ class SortGame {
   }
 
   showNext() {
-    const round = ROUNDS[this.roundIndex];
+    const round = this.rounds[this.roundIndex];
     return {
       score:    this.score,
       lives:    this.lives,
       timeLeft: round.waveTime,
       progress: this.roundIndex + 1,
-      total:    ROUNDS.length,
+      total:    this.rounds.length,
       gameType: 'slash',
       payload: {
         target:      round.target,
@@ -128,7 +140,7 @@ class SortGame {
     if (!item || item.processed) return null;
     item.processed = true;
 
-    const round   = ROUNDS[this.roundIndex];
+    const round   = this.rounds[this.roundIndex];
     const correct = item.category === round.target;
     let   points  = 0;
 
@@ -153,7 +165,7 @@ class SortGame {
     if (!item || item.processed) return null;
     item.processed = true;
 
-    const round     = ROUNDS[this.roundIndex];
+    const round     = this.rounds[this.roundIndex];
     const wasTarget = item.category === round.target;
     if (wasTarget) this.lives = Math.max(0, this.lives - 1);
 
@@ -175,10 +187,10 @@ class SortGame {
   }
 
   _advanceWave() {
-    const prevRound = ROUNDS[this.roundIndex];
+    const prevRound = this.rounds[this.roundIndex];
     this.roundIndex++;
 
-    if (this.finished || this.roundIndex >= ROUNDS.length) {
+    if (this.finished || this.roundIndex >= this.rounds.length) {
       this.finished = true;
       return {
         wavePartial:  false,
@@ -193,7 +205,7 @@ class SortGame {
     }
 
     this._buildWave();
-    const next = ROUNDS[this.roundIndex];
+    const next = this.rounds[this.roundIndex];
     return {
       wavePartial:  false,
       correct:      true,
@@ -216,13 +228,13 @@ class SortGame {
   }
 
   getState() {
-    const ri    = Math.min(this.roundIndex, ROUNDS.length - 1);
-    const round = ROUNDS[ri];
+    const ri    = Math.min(this.roundIndex, this.rounds.length - 1);
+    const round = this.rounds[ri];
     return {
       score:    this.score,
       lives:    this.lives,
-      progress: Math.min(this.roundIndex + 1, ROUNDS.length),
-      total:    ROUNDS.length,
+      progress: Math.min(this.roundIndex + 1, this.rounds.length),
+      total:    this.rounds.length,
       gameType: 'slash',
       payload: {
         target:      round.target,

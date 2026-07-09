@@ -653,8 +653,9 @@ let SL = {
   resizeObs: null,
 };
 
-const SL_SIZE = 56; // hitbox radius px
-const SL_HIT  = 48; // slice detection radius
+const SL_SIZE    = 56;  // hitbox radius px
+const SL_HIT     = 48;  // slice detection radius
+const SL_GRAVITY = 350; // px/s² — pulls thrown items back down
 
 let slashPts = 5;
 
@@ -717,32 +718,19 @@ function slashShow(payload, progress, total) {
     SL.resizeObs.observe(SL.arenaEl);
   }
 
-  // Size canvas after layout settles, then spawn items in bursts and start loop
+  // Size canvas after layout settles, then throw items one by one
   setTimeout(function() {
     slashResize();
-    var items     = payload.items;
-    var spd       = payload.baseSpeed || 180;
-    var burstSize = 3;
-    var itemGap   = 150;  // ms between items inside a burst
-    var burstGap  = Math.max(480, (payload.spawnDelay || 350) * 1.45);
-    var numBursts = Math.ceil(items.length / burstSize);
-    // Pre-compute a cluster centre X per burst (safe now that arenaW is known)
-    var clusterXs = [];
-    for (var b = 0; b < numBursts; b++) {
-      clusterXs.push(SL_SIZE + Math.random() * Math.max(10, SL.arenaW - SL_SIZE * 2));
-    }
+    var items = payload.items;
+    var spd   = payload.baseSpeed || 450;
+    var gap   = payload.spawnDelay || 1000;
     items.forEach(function(item, i) {
-      var burst = Math.floor(i / burstSize);
-      var posIn = i % burstSize;
-      var delay = burst * burstGap + posIn * itemGap;
-      var cx = clusterXs[burst];
       var h = setTimeout(function() {
         if (!SL.active) return;
-        slashSpawn(item, spd, cx);
-      }, delay);
+        slashSpawn(item, spd);
+      }, i * gap);
       SL.spawnTimers.push(h);
     });
-    // Start loop
     SL.lastTime = performance.now();
     SL.rafId    = requestAnimationFrame(slashLoop);
   }, 80);
@@ -806,50 +794,57 @@ function slashResize() {
   SL.canvasEl.height = SL.arenaH;
 }
 
-function slashSpawn(itemData, baseSpeed, clusterX) {
+function slashSpawn(itemData, baseSpeed) {
   var aW = SL.arenaW || window.innerWidth;
-  var x;
-  if (clusterX != null) {
-    // Spawn within ~110px of cluster centre — makes items feel grouped
-    x = clusterX + (Math.random() - 0.5) * 110;
-    x = Math.max(SL_SIZE, Math.min(aW - SL_SIZE, x));
+  var aH = SL.arenaH || (window.innerHeight - 160);
+  // Alternate throw origin: left third, right third, or centre — adds variety
+  var zone = Math.random();
+  var x, vx;
+  if (zone < 0.33) {
+    x  = SL_SIZE + Math.random() * (aW * 0.3);
+    vx = 20 + Math.random() * 50;               // drifts right
+  } else if (zone < 0.66) {
+    x  = aW * 0.7 + Math.random() * (aW * 0.3 - SL_SIZE);
+    vx = -(20 + Math.random() * 50);            // drifts left
   } else {
-    x = SL_SIZE + Math.random() * Math.max(10, aW - SL_SIZE * 2);
+    x  = aW * 0.25 + Math.random() * (aW * 0.5);
+    vx = (Math.random() - 0.5) * 60;
   }
-  var vy = baseSpeed * (0.75 + Math.random() * 0.55);
-  var vx = (Math.random() - 0.5) * 60;
-  var rs = (Math.random() - 0.5) * 160;
+  var vy = -(baseSpeed * (0.88 + Math.random() * 0.24)); // upward throw
+  var rs = (Math.random() - 0.5) * 280;
+  var startY = aH + SL_SIZE + 10; // spawn below arena, enters from bottom
   var el = document.createElement('div');
   el.className   = 'slash-item';
   el.textContent = itemData.emoji;
   el.style.left  = (x - SL_SIZE / 2) + 'px';
-  el.style.top   = '-70px';
+  el.style.top   = (startY - SL_SIZE / 2) + 'px';
   SL.arenaEl.appendChild(el);
   SL.items.push({
     id: itemData.id, emoji: itemData.emoji, category: itemData.category,
-    x: x, y: -70, vx: vx, vy: vy, rot: Math.random()*360, rs: rs,
+    x: x, y: startY, vx: vx, vy: vy, rot: Math.random()*360, rs: rs,
     el: el, active: true, hit: false
   });
 }
 
 function slashLoop(now) {
   if (!SL.active) return;
-  var dt = Math.min((now - SL.lastTime) / 1000, 0.1);
+  var dt = Math.min((now - SL.lastTime) / 1000, 0.08);
   SL.lastTime = now;
   var aW = SL.arenaW || window.innerWidth;
   var aH = SL.arenaH || window.innerHeight - 160;
 
   SL.items.forEach(function(it) {
     if (!it.active || !it.el) return;
-    it.y += it.vy * dt;
-    it.x += it.vx * dt;
+    it.vy += SL_GRAVITY * dt;    // gravity pulls item back down
+    it.y  += it.vy * dt;
+    it.x  += it.vx * dt;
     it.rot += it.rs * dt;
     if (it.x < SL_SIZE/2)    { it.x = SL_SIZE/2;    it.vx =  Math.abs(it.vx); }
     if (it.x > aW-SL_SIZE/2) { it.x = aW-SL_SIZE/2; it.vx = -Math.abs(it.vx); }
     it.el.style.left      = (it.x - SL_SIZE/2) + 'px';
     it.el.style.top       = (it.y - SL_SIZE/2) + 'px';
     it.el.style.transform = 'rotate(' + it.rot.toFixed(1) + 'deg)';
-    if (it.y > aH + 80) {
+    if (it.y > aH + 100) {
       it.active = false; it.el.remove(); it.el = null;
       slashFell(it);
     }

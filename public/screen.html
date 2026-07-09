@@ -731,26 +731,15 @@
       const sEl = document.getElementById('scsl-score');
       if (sEl) sEl.textContent = '0 pts';
 
-      // Burst spawning: groups of 3 close together, matching player timing
-      const items    = payload.items;
-      const spd      = payload.baseSpeed || 180;
-      const burstSz  = 3;
-      const itemGap  = 150;
-      const burstGap = Math.max(480, (payload.spawnDelay || 350) * 1.45);
-      const numBursts = Math.ceil(items.length / burstSz);
-      const clusterXs = [];
-      for (let b = 0; b < numBursts; b++) {
-        clusterXs.push(64 + Math.random() * Math.max(10, SCSL.arenaW - 128));
-      }
+      // Sequential throw — one item at a time with throwDelay gap
+      const items = payload.items;
+      const spd   = payload.baseSpeed || 450;
+      const gap   = payload.spawnDelay || 1000;
       items.forEach((item, i) => {
-        const burst = Math.floor(i / burstSz);
-        const posIn = i % burstSz;
-        const delay = burst * burstGap + posIn * itemGap;
-        const cx = clusterXs[burst];
         const h = setTimeout(() => {
           if (!SCSL.active) return;
-          scslSpawn(item, spd, cx);
-        }, delay);
+          scslSpawn(item, spd);
+        }, i * gap);
         SCSL.spawnTimers.push(h);
       });
 
@@ -759,42 +748,53 @@
     }, 80);
   }
 
-  function scslSpawn(itemData, baseSpeed, clusterX) {
+  const SCSL_GRAVITY = 350;
+
+  function scslSpawn(itemData, baseSpeed) {
     const sz = 64;
-    let x;
-    if (clusterX != null) {
-      x = clusterX + (Math.random() - 0.5) * 120;
-      x = Math.max(sz, Math.min(SCSL.arenaW - sz, x));
+    const aW = SCSL.arenaW || (window.innerWidth - 200);
+    const aH = SCSL.arenaH || (window.innerHeight - 72);
+    // Throw from bottom — same zone logic as player
+    const zone = Math.random();
+    let x, vx;
+    if (zone < 0.33) {
+      x = sz + Math.random() * (aW * 0.3);
+      vx = 25 + Math.random() * 55;
+    } else if (zone < 0.66) {
+      x = aW * 0.7 + Math.random() * (aW * 0.3 - sz);
+      vx = -(25 + Math.random() * 55);
     } else {
-      x = sz + Math.random() * Math.max(10, SCSL.arenaW - sz * 2);
+      x = aW * 0.25 + Math.random() * (aW * 0.5);
+      vx = (Math.random() - 0.5) * 70;
     }
-    const vy = baseSpeed * (0.75 + Math.random() * 0.55);
-    const vx = (Math.random() - 0.5) * 65;
-    const rs = (Math.random() - 0.5) * 160;
+    const vy = -(baseSpeed * (0.88 + Math.random() * 0.24));
+    const rs = (Math.random() - 0.5) * 280;
+    const startY = aH + sz + 10;
     const el = document.createElement('div');
     el.className = 'scsl-item'; el.textContent = itemData.emoji;
-    el.style.left = (x - sz/2) + 'px'; el.style.top = '-80px';
+    el.style.left = (x - sz/2) + 'px'; el.style.top = (startY - sz/2) + 'px';
     SCSL.arenaEl.appendChild(el);
     SCSL.items.push({
       id:itemData.id, emoji:itemData.emoji, category:itemData.category,
-      x, y:-80, vx, vy, rot:Math.random()*360, rs,
+      x, y:startY, vx, vy, rot:Math.random()*360, rs,
       el, active:true, hit:false
     });
   }
 
   function scslLoop(now) {
     if (!SCSL.active) return;
-    const dt = Math.min((now - SCSL.lastTime) / 1000, 0.1);
+    const dt = Math.min((now - SCSL.lastTime) / 1000, 0.08);
     SCSL.lastTime = now;
     SCSL.items.forEach(it => {
       if (!it.active || !it.el) return;
-      it.y += it.vy * dt; it.x += it.vx * dt; it.rot += it.rs * dt;
+      it.vy += SCSL_GRAVITY * dt;  // gravity
+      it.y  += it.vy * dt; it.x += it.vx * dt; it.rot += it.rs * dt;
       if (it.x < 48)             { it.x = 48;             it.vx =  Math.abs(it.vx); }
       if (it.x > SCSL.arenaW-48) { it.x = SCSL.arenaW-48; it.vx = -Math.abs(it.vx); }
       it.el.style.left      = (it.x - 48) + 'px';
       it.el.style.top       = (it.y - 48) + 'px';
       it.el.style.transform = `rotate(${it.rot.toFixed(1)}deg)`;
-      if (it.y > SCSL.arenaH + 100) { it.active=false; it.el.remove(); it.el=null; }
+      if (it.y > SCSL.arenaH + 120) { it.active=false; it.el.remove(); it.el=null; }
     });
     SCSL.rafId = requestAnimationFrame(scslLoop);
   }
