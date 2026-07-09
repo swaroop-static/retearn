@@ -94,6 +94,12 @@ io.on('connection', (socket) => {
     if (mgr) mgr.submitAnswer(socket, value);
   });
 
+  socket.on('zip_trace', ({ cells }) => {
+    const machineId = socket.data.machineId;
+    if (!machineId) return;
+    io.to(`screen:${machineId}`).emit('zip_trace', { cells });
+  });
+
   socket.on('reconnect_player', ({ machineId, playerId }) => {
     const mgr = getManager(machineId);
     if (!mgr) return;

@@ -809,6 +809,7 @@ function startZipDraw(x, y) {
   }
   zipPath = [[cell.r, cell.c]]; zipDrawing = true; zipNextAnchor = 2;
   cell.el.classList.add('zip-visited');
+  socket.emit('zip_trace', { cells: zipPath });
   document.getElementById('zip-status').textContent = `Connected 1/${zipTotalAnchors} — keep going!`;
 }
 
@@ -831,6 +832,7 @@ function continueZipDraw(x, y) {
   }
   zipPath.push([r, c]);
   el.classList.add('zip-visited');
+  socket.emit('zip_trace', { cells: zipPath });
   if (zipPath.length === zipGridSize * zipGridSize && zipNextAnchor > zipTotalAnchors) submitZipPath();
 }
 
@@ -844,6 +846,7 @@ function resetZipPath() {
   zipPath = []; zipNextAnchor = 1; zipDrawing = false;
   document.querySelectorAll('.zip-visited').forEach(el => el.classList.remove('zip-visited'));
   document.getElementById('zip-status').textContent = 'Place finger on container #1 to begin';
+  socket.emit('zip_trace', { cells: [] });
 }
 
 function submitZipPath() {
