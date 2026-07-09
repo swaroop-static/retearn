@@ -409,16 +409,18 @@ function showView(id) {
 }
 
 function showGameContent(type) {
+  const isSlash = (type === 'slash' || type === 'sort');
   ['quiz','zip','memory'].forEach(t => {
     const el = document.getElementById(`gc-${t}`);
     if (el) el.style.display = 'none';
   });
-  if (type !== 'slash') {
+  if (!isSlash) {
     const el = document.getElementById(`gc-${type}`);
     if (el) el.style.display = 'flex';
   }
-  document.getElementById('g-type-badge').textContent  = GAME_LABELS[type] || type;
-  document.getElementById('g-round-label').textContent = ROUND_LABELS[type] || 'Round';
+  const displayType = isSlash ? 'slash' : type;
+  document.getElementById('g-type-badge').textContent  = GAME_LABELS[displayType] || displayType;
+  document.getElementById('g-round-label').textContent = ROUND_LABELS[displayType] || 'Wave';
 }
 
 // ── Join ─────────────────────────────────────────────────────
@@ -901,8 +903,9 @@ function applyState(state) {
   document.getElementById('fact-box').textContent = '';
   showGameContent(gt);
 
+  const isSlash = (gt === 'slash' || gt === 'sort');
   const waveTime = state.timeLeft || maxTime;
-  if (gt === 'slash') maxTime = waveTime;
+  if (isSlash) maxTime = waveTime;
   updateTimerBar(waveTime, waveTime);
 
   if (gt === 'quiz' && state.payload) {
@@ -910,7 +913,7 @@ function applyState(state) {
     document.getElementById('g-question').textContent = state.payload.question;
     renderQuizOptions(state.payload.options);
   }
-  if (gt === 'slash' && state.payload) {
+  if (isSlash && state.payload) {
     slashShow(state.payload, state.progress, state.total);
     answered = false;
   }
@@ -1001,7 +1004,7 @@ socket.on('answer_result', (data) => {
   const { correct, correctValue, points, state } = data;
   const gt = state?.gameType || myGameType;
 
-  if (gt === 'slash') {
+  if (gt === 'slash' || gt === 'sort') {
     slashHide();
     const factEl = document.getElementById('fact-box');
     factEl.textContent = data.fact || (correct ? '✓ Wave done!' : '✗ Wave failed');
@@ -1053,7 +1056,7 @@ socket.on('timer_tick', ({ timeLeft }) => {
 });
 
 socket.on('timer_expired', () => {
-  if (myGameType === 'slash') {
+  if (myGameType === 'slash' || myGameType === 'sort') {
     slashHide();
     return;
   }
@@ -1067,7 +1070,7 @@ socket.on('game_finished', ({ score, leaderboard }) => {
   slashHide();
   document.getElementById('final-name').textContent       = myName;
   document.getElementById('final-score').textContent      = score;
-  document.getElementById('final-game-badge').textContent = GAME_LABELS[myGameType] || myGameType;
+  document.getElementById('final-game-badge').textContent = GAME_LABELS[myGameType] || GAME_LABELS['slash'] || myGameType;
   document.getElementById('final-emoji').textContent      = score >= 150 ? '🏆' : score >= 80 ? '🎉' : '👍';
   document.getElementById('final-lb').innerHTML           = renderFinalLb(leaderboard);
   showView('view-final');

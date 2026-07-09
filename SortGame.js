@@ -95,7 +95,7 @@ class SortGame {
       timeLeft: round.waveTime,
       progress: this.roundIndex + 1,
       total:    ROUNDS.length,
-      gameType: 'sort',
+      gameType: 'slash',
       payload: {
         target:      round.target,
         targetLabel: CAT_LABELS[round.target],
@@ -221,7 +221,7 @@ class SortGame {
       lives:    this.lives,
       progress: Math.min(this.roundIndex + 1, ROUNDS.length),
       total:    ROUNDS.length,
-      gameType: 'sort',
+      gameType: 'slash',
       payload: {
         target:      round.target,
         targetLabel: CAT_LABELS[round.target],
