@@ -204,8 +204,21 @@
   #slash-overlay.active { display:flex; flex-direction:column; }
 
   .slash-item {
-    position:absolute; font-size:3rem; line-height:1; pointer-events:none;
-    filter:drop-shadow(0 4px 16px rgba(0,0,0,.8)); will-change:transform; z-index:5;
+    position:absolute; font-size:3.5rem; line-height:1; pointer-events:none;
+    filter:drop-shadow(0 0 14px rgba(255,255,255,.35)) drop-shadow(0 4px 18px rgba(0,0,0,.85));
+    will-change:transform; z-index:5;
+  }
+  #slash-arena::before {
+    content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+    background-image:
+      radial-gradient(1px 1px at 12% 20%, rgba(255,255,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 12%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 65%, rgba(255,255,255,.35) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 80%, rgba(255,255,255,.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 88%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(2px 2px at 92% 45%, rgba(255,255,255,.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 8% 55%, rgba(255,255,255,.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 35%, rgba(255,255,255,.2) 0%, transparent 100%);
   }
   .slash-flash {
     position:absolute; font-size:.9rem; font-weight:900; pointer-events:none;
@@ -216,25 +229,27 @@
     0%   { opacity:1; transform:translate(-50%,-50%); }
     100% { opacity:0; transform:translate(-50%,-300%); }
   }
+  #slash-target-text { animation:slashTargetPulse 2s ease-in-out infinite; }
+  @keyframes slashTargetPulse { 0%,100%{opacity:1} 50%{opacity:.7} }
   .slash-particle {
-    position:absolute; width:8px; height:8px; border-radius:50%;
+    position:absolute; width:var(--sz,8px); height:var(--sz,8px); border-radius:50%;
     pointer-events:none; z-index:12;
-    animation:slashPFly .5s ease-out forwards;
+    animation:slashPFly .58s ease-out forwards;
   }
   @keyframes slashPFly {
-    0%   { opacity:1; transform:translate(0,0); }
-    100% { opacity:0; transform:translate(var(--dx),var(--dy)); }
+    0%   { opacity:1; transform:translate(0,0) scale(1); }
+    100% { opacity:0; transform:translate(var(--dx),var(--dy)) scale(.25); }
   }
   .slash-half { position:absolute; font-size:3rem; line-height:1; pointer-events:none; z-index:8; }
   .slash-half-l { animation:halfLeft  .4s ease-out forwards; }
   .slash-half-r { animation:halfRight .4s ease-out forwards; }
   @keyframes halfLeft  {
-    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0); }
-    100% { opacity:0; transform:translate(calc(-50% - 30px),calc(-50% + 25px)) rotate(-40deg) scale(.5); }
+    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0deg); }
+    100% { opacity:0; transform:translate(calc(-50% - 55px),calc(-50% + 45px)) rotate(-65deg) scale(.3); }
   }
   @keyframes halfRight {
-    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0); }
-    100% { opacity:0; transform:translate(calc(-50% + 30px),calc(-50% + 25px)) rotate(40deg)  scale(.5); }
+    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0deg); }
+    100% { opacity:0; transform:translate(calc(-50% + 55px),calc(-50% + 45px)) rotate(65deg)  scale(.3); }
   }
   .slash-red-flash {
     position:absolute; inset:0; border-radius:0; background:rgba(239,68,68,.2);
@@ -688,17 +703,22 @@ function slashFlash(x, y, txt, color) {
 }
 
 function slashParticles(x, y, ok) {
-  var col = ok ? '#4ade80' : '#f87171';
-  for (var i = 0; i < 10; i++) {
+  var colors = ok
+    ? ['#4ade80','#86efac','#22c55e','#d9f99d','#fde68a']
+    : ['#f87171','#fca5a5','#ef4444','#fb923c','#fecdd3'];
+  for (var i = 0; i < 18; i++) {
     var p = document.createElement('div');
     p.className = 'slash-particle';
+    var sz = Math.round(5 + Math.random() * 9);
+    p.style.setProperty('--sz', sz+'px');
     p.style.left = x+'px'; p.style.top = y+'px';
-    p.style.background = col;
-    var a = (i/10)*Math.PI*2, d = 20+Math.random()*40;
+    p.style.background = colors[i % colors.length];
+    var a = (i/18)*Math.PI*2 + (Math.random()-.5)*.5;
+    var d = 28 + Math.random() * 65;
     p.style.setProperty('--dx', Math.cos(a)*d+'px');
     p.style.setProperty('--dy', Math.sin(a)*d+'px');
     if (SL.arenaEl) SL.arenaEl.appendChild(p);
-    setTimeout(function() { p.remove(); }, 520);
+    setTimeout(function() { p.remove(); }, 580);
   }
 }
 
@@ -718,12 +738,17 @@ function slashDrawTrail() {
   if (!SL.ctx) return;
   SL.ctx.clearRect(0, 0, SL.arenaW, SL.arenaH);
   if (SL.trail.length < 2) return;
+  var first = SL.trail[0], last = SL.trail[SL.trail.length - 1];
+  var grad = SL.ctx.createLinearGradient(first.x, first.y, last.x, last.y);
+  grad.addColorStop(0, 'rgba(255,255,255,0)');
+  grad.addColorStop(0.4, 'rgba(200,180,255,0.5)');
+  grad.addColorStop(1, 'rgba(255,255,255,0.95)');
   SL.ctx.beginPath();
   SL.ctx.moveTo(SL.trail[0].x, SL.trail[0].y);
   for (var i = 1; i < SL.trail.length; i++) SL.ctx.lineTo(SL.trail[i].x, SL.trail[i].y);
-  SL.ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-  SL.ctx.lineWidth = 4; SL.ctx.lineCap = 'round'; SL.ctx.lineJoin = 'round';
-  SL.ctx.shadowBlur = 16; SL.ctx.shadowColor = '#fff';
+  SL.ctx.strokeStyle = grad;
+  SL.ctx.lineWidth = 7; SL.ctx.lineCap = 'round'; SL.ctx.lineJoin = 'round';
+  SL.ctx.shadowBlur = 28; SL.ctx.shadowColor = '#c4b5fd';
   SL.ctx.stroke(); SL.ctx.shadowBlur = 0;
 }
 

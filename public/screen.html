@@ -147,24 +147,79 @@
   .opt-text { font-size:1.25rem; font-weight:500; }
 
   /* SLASH display */
-  #sc-slash { display:none; flex-direction:column; align-items:center; gap:28px; width:100%; }
-  .sc-slash-target {
-    font-size:4.5rem; font-weight:900; letter-spacing:5px; text-align:center;
-    text-shadow:0 0 40px currentColor; line-height:1.1;
+  #sc-slash { display:none; }
+  #sc-slash.show {
+    display:flex; flex-direction:column;
+    position:fixed; top:72px; left:0; right:200px; bottom:0;
+    background:#06060e; z-index:5;
   }
-  .sc-slash-meta { display:flex; gap:32px; align-items:center; font-size:1.6rem; }
-  .sc-slash-lives { letter-spacing:4px; }
-  .sc-slash-wave  { color:var(--muted); font-size:1rem; font-weight:700; letter-spacing:1px; }
-  .sc-slash-deco-row { position:relative; width:100%; height:140px; overflow:hidden; }
-  .sc-slash-deco-item {
-    position:absolute; font-size:2.4rem; opacity:.55;
-    animation:scSlashFall linear infinite;
-    filter:drop-shadow(0 3px 8px rgba(0,0,0,.6));
+  .scsl-hud {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 28px; background:rgba(0,0,0,.55); flex-shrink:0;
   }
-  @keyframes scSlashFall {
-    from { top:-50px; opacity:.6; }
-    to   { top:160px; opacity:.05; }
+  .scsl-target-text {
+    font-size:2.8rem; font-weight:900; letter-spacing:4px;
+    text-shadow:0 0 30px currentColor;
+    animation:scslPulse 1.8s ease-in-out infinite;
   }
+  @keyframes scslPulse { 0%,100%{opacity:1} 50%{opacity:.72} }
+  .scsl-lives  { font-size:2rem; letter-spacing:4px; }
+  .scsl-score  { font-size:1.1rem; font-weight:700; color:#22c55e; text-align:right; }
+  .scsl-wave   { font-size:.8rem; color:#555; font-weight:700; text-align:right; margin-top:2px; }
+  #scsl-arena  {
+    flex:1; position:relative; overflow:hidden;
+    background:radial-gradient(ellipse at 50% 20%, #0f0f2a 0%, #050508 100%);
+  }
+  #scsl-arena::before {
+    content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 70%, rgba(255,255,255,.35) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 85%, rgba(255,255,255,.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 90%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(2px 2px at 90% 50%, rgba(255,255,255,.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 40%, rgba(255,255,255,.2) 0%, transparent 100%);
+  }
+  .scsl-item {
+    position:absolute; font-size:4rem; line-height:1; pointer-events:none;
+    filter:drop-shadow(0 0 16px rgba(255,255,255,.3)) drop-shadow(0 4px 20px rgba(0,0,0,.9));
+    will-change:transform; z-index:5;
+  }
+  .scsl-particle {
+    position:absolute; border-radius:50%; pointer-events:none; z-index:12;
+    animation:scslPFly .6s ease-out forwards;
+  }
+  @keyframes scslPFly {
+    0%   { opacity:1; transform:translate(0,0) scale(1); }
+    100% { opacity:0; transform:translate(var(--dx),var(--dy)) scale(.2); }
+  }
+  .scsl-half { position:absolute; font-size:4rem; line-height:1; pointer-events:none; z-index:8; }
+  .scsl-half-l { animation:scslHalfL .5s cubic-bezier(.22,.61,.36,1) forwards; }
+  .scsl-half-r { animation:scslHalfR .5s cubic-bezier(.22,.61,.36,1) forwards; }
+  @keyframes scslHalfL {
+    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0); }
+    100% { opacity:0; transform:translate(calc(-50% - 60px),calc(-50% + 50px)) rotate(-70deg) scale(.3); }
+  }
+  @keyframes scslHalfR {
+    0%   { opacity:1; transform:translate(-50%,-50%) rotate(0); }
+    100% { opacity:0; transform:translate(calc(-50% + 60px),calc(-50% + 50px)) rotate(70deg) scale(.3); }
+  }
+  .scsl-flash {
+    position:absolute; font-size:1.4rem; font-weight:900; pointer-events:none; z-index:15;
+    white-space:nowrap; animation:scslFlashUp .8s ease-out forwards;
+  }
+  @keyframes scslFlashUp {
+    0%   { opacity:1; transform:translate(-50%,-50%); }
+    100% { opacity:0; transform:translate(-50%,-400%); }
+  }
+  .scsl-red-flash {
+    position:absolute; inset:0; background:rgba(239,68,68,.18);
+    pointer-events:none; z-index:20;
+    animation:scslRF .4s ease-out forwards;
+  }
+  @keyframes scslRF { 0%{opacity:1} 100%{opacity:0} }
 
   /* ZIP */
   #sc-zip { display:none; flex-direction:column; align-items:center; gap:20px; width:100%; }
@@ -331,12 +386,17 @@
 
       <!-- SLASH -->
       <div id="sc-slash">
-        <div class="sc-slash-target" id="sc-slash-target" style="color:var(--blue)">✂️ CUT DRY</div>
-        <div class="sc-slash-meta">
-          <span class="sc-slash-lives" id="sc-slash-lives">❤️❤️❤️</span>
-          <span class="sc-slash-wave"  id="sc-slash-wave">Wave 1 / 5</span>
+        <div class="scsl-hud">
+          <div class="scsl-lives" id="scsl-lives">❤️❤️❤️</div>
+          <div class="scsl-target-text" id="scsl-target-text" style="color:#3b82f6">✂️ CUT DRY</div>
+          <div>
+            <div class="scsl-score" id="scsl-score">0 pts</div>
+            <div class="scsl-wave"  id="scsl-wave">Wave 1 / 5</div>
+          </div>
         </div>
-        <div class="sc-slash-deco-row" id="sc-slash-deco"></div>
+        <div id="scsl-arena">
+          <canvas id="scsl-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:10;"></canvas>
+        </div>
       </div>
 
       <!-- ZIP -->
@@ -513,9 +573,14 @@
 
   function showScreenContent(gt) {
     document.getElementById('sc-quiz-sort').style.display = gt==='quiz'   ? 'flex' : 'none';
-    document.getElementById('sc-slash').style.display     = gt==='slash'  ? 'flex' : 'none';
     document.getElementById('sc-zip').style.display       = gt==='zip'    ? 'flex' : 'none';
     document.getElementById('sc-memory').style.display    = gt==='memory' ? 'flex' : 'none';
+    if (gt === 'slash') {
+      document.getElementById('sc-slash').classList.add('show');
+    } else {
+      document.getElementById('sc-slash').classList.remove('show');
+      scslStop();
+    }
     document.getElementById('p-game-type').textContent    = (ICONS[gt]||'') + '  ' + (LABELS[gt]||gt);
     document.getElementById('p-round-label').textContent  = ROUND_LABELS[gt] || 'Round';
   }
@@ -599,18 +664,7 @@
     }
 
     if (gt === 'slash' && state.payload) {
-      const { target, targetLabel, targetColor, lives } = state.payload;
-      const tEl = document.getElementById('sc-slash-target');
-      if (tEl) {
-        tEl.textContent  = `✂️  CUT ${targetLabel || target.toUpperCase()}`;
-        tEl.style.color  = targetColor || 'var(--blue)';
-        tEl.style.textShadow = `0 0 40px ${targetColor || '#3b82f6'}`;
-      }
-      const lEl = document.getElementById('sc-slash-lives');
-      if (lEl) lEl.textContent = '❤️'.repeat(Math.max(0,lives||3)) + '🖤'.repeat(Math.max(0,3-(lives||3)));
-      const wEl = document.getElementById('sc-slash-wave');
-      if (wEl) wEl.textContent = `Wave ${state.progress} / ${state.total}`;
-      spawnSlashDecor(target);
+      scslStart(state.payload, state.progress, state.total);
     }
 
     if (gt === 'zip' && state.payload) {
@@ -628,6 +682,152 @@
       <div class="sc-mem-card ${c.matched ? 'matched' : ''}">
         ${c.matched ? c.emoji : '<span style="color:var(--muted);font-size:1rem">♻️</span>'}
       </div>`).join('');
+  }
+
+  // ── Screen Slash Mirror ───────────────────────────────────
+  let SCSL = {
+    active:false, items:[], spawnTimers:[],
+    rafId:null, lastTime:0,
+    arenaEl:null, canvasEl:null, ctx:null,
+    arenaW:0, arenaH:0, target:null
+  };
+
+  function scslStop() {
+    SCSL.active = false;
+    SCSL.spawnTimers.forEach(clearTimeout); SCSL.spawnTimers = [];
+    if (SCSL.rafId) { cancelAnimationFrame(SCSL.rafId); SCSL.rafId = null; }
+    if (SCSL.arenaEl) {
+      SCSL.items.forEach(it => { if (it.el) it.el.remove(); });
+      Array.from(SCSL.arenaEl.children).forEach(c => { if (c !== SCSL.canvasEl) c.remove(); });
+    }
+    SCSL.items = [];
+    if (SCSL.ctx) SCSL.ctx.clearRect(0, 0, SCSL.arenaW, SCSL.arenaH);
+  }
+
+  function scslStart(payload, progress, total) {
+    scslStop();
+    SCSL.active = true;
+    SCSL.target = payload.target;
+    SCSL.arenaEl  = document.getElementById('scsl-arena');
+    SCSL.canvasEl = document.getElementById('scsl-canvas');
+    SCSL.ctx      = SCSL.canvasEl.getContext('2d');
+    document.getElementById('sc-slash').classList.add('show');
+
+    setTimeout(() => {
+      if (!SCSL.active) return;
+      const r = SCSL.arenaEl.getBoundingClientRect();
+      SCSL.arenaW = r.width  > 10 ? r.width  : window.innerWidth - 200;
+      SCSL.arenaH = r.height > 10 ? r.height : window.innerHeight - 72;
+      SCSL.canvasEl.width  = SCSL.arenaW;
+      SCSL.canvasEl.height = SCSL.arenaH;
+
+      const { target, targetLabel, targetColor, lives } = payload;
+      const tEl = document.getElementById('scsl-target-text');
+      if (tEl) { tEl.textContent = '✂️  CUT ' + targetLabel; tEl.style.color = targetColor; tEl.style.textShadow = '0 0 32px ' + targetColor; }
+      const lEl = document.getElementById('scsl-lives');
+      if (lEl) lEl.textContent = '❤️'.repeat(Math.max(0,lives||3)) + '🖤'.repeat(Math.max(0,3-(lives||3)));
+      const wEl = document.getElementById('scsl-wave');
+      if (wEl) wEl.textContent = 'Wave ' + progress + ' / ' + total;
+      const sEl = document.getElementById('scsl-score');
+      if (sEl) sEl.textContent = '0 pts';
+
+      payload.items.forEach((item, i) => {
+        const h = setTimeout(() => {
+          if (!SCSL.active) return;
+          scslSpawn(item, payload.baseSpeed || 100);
+        }, i * (payload.spawnDelay || 1200) + 300);
+        SCSL.spawnTimers.push(h);
+      });
+
+      SCSL.lastTime = performance.now();
+      SCSL.rafId = requestAnimationFrame(scslLoop);
+    }, 80);
+  }
+
+  function scslSpawn(itemData, baseSpeed) {
+    const sz = 64;
+    const x  = sz + Math.random() * (SCSL.arenaW - sz * 2);
+    const vy = baseSpeed * (0.7 + Math.random() * 0.65);
+    const vx = (Math.random() - 0.5) * 45;
+    const rs = (Math.random() - 0.5) * 150;
+    const el = document.createElement('div');
+    el.className = 'scsl-item'; el.textContent = itemData.emoji;
+    el.style.left = (x - sz/2) + 'px'; el.style.top = '-80px';
+    SCSL.arenaEl.appendChild(el);
+    SCSL.items.push({
+      id:itemData.id, emoji:itemData.emoji, category:itemData.category,
+      x, y:-80, vx, vy, rot:Math.random()*360, rs,
+      el, active:true, hit:false
+    });
+  }
+
+  function scslLoop(now) {
+    if (!SCSL.active) return;
+    const dt = Math.min((now - SCSL.lastTime) / 1000, 0.1);
+    SCSL.lastTime = now;
+    SCSL.items.forEach(it => {
+      if (!it.active || !it.el) return;
+      it.y += it.vy * dt; it.x += it.vx * dt; it.rot += it.rs * dt;
+      if (it.x < 48)             { it.x = 48;             it.vx =  Math.abs(it.vx); }
+      if (it.x > SCSL.arenaW-48) { it.x = SCSL.arenaW-48; it.vx = -Math.abs(it.vx); }
+      it.el.style.left      = (it.x - 48) + 'px';
+      it.el.style.top       = (it.y - 48) + 'px';
+      it.el.style.transform = `rotate(${it.rot.toFixed(1)}deg)`;
+      if (it.y > SCSL.arenaH + 100) { it.active=false; it.el.remove(); it.el=null; }
+    });
+    SCSL.rafId = requestAnimationFrame(scslLoop);
+  }
+
+  function scslCutEffect(itemId, correct, lives, score) {
+    const it = SCSL.items.find(i => i.id === itemId);
+    let x = SCSL.arenaW * 0.5, y = SCSL.arenaH * 0.4;
+    if (it) {
+      x = it.x; y = it.y;
+      it.hit = true; it.active = false;
+      const emoji = it.emoji;
+      if (it.el) { it.el.remove(); it.el = null; }
+      ['scsl-half scsl-half-l','scsl-half scsl-half-r'].forEach(cls => {
+        const h = document.createElement('div');
+        h.className = cls; h.textContent = emoji;
+        h.style.left = x + 'px'; h.style.top = y + 'px';
+        SCSL.arenaEl.appendChild(h);
+        setTimeout(() => h.remove(), 520);
+      });
+    }
+    const colors = correct
+      ? ['#4ade80','#86efac','#22c55e','#a7f3d0','#d9f99d']
+      : ['#f87171','#fca5a5','#ef4444','#fb923c','#fecdd3'];
+    for (let i = 0; i < 16; i++) {
+      const p = document.createElement('div');
+      p.className = 'scsl-particle';
+      const sz = 6 + Math.random() * 8;
+      p.style.width = sz+'px'; p.style.height = sz+'px';
+      p.style.left = x+'px'; p.style.top = y+'px';
+      p.style.background = colors[i % colors.length];
+      const a = (i/16)*Math.PI*2 + Math.random()*.4;
+      const d = 35 + Math.random() * 80;
+      p.style.setProperty('--dx', Math.cos(a)*d+'px');
+      p.style.setProperty('--dy', Math.sin(a)*d+'px');
+      SCSL.arenaEl.appendChild(p);
+      setTimeout(() => p.remove(), 640);
+    }
+    const fl = document.createElement('div');
+    fl.className = 'scsl-flash';
+    fl.textContent = correct ? `+${score} ✓` : '✗ −1';
+    fl.style.left = x+'px'; fl.style.top = (y-20)+'px';
+    fl.style.color = correct ? '#4ade80' : '#f87171';
+    SCSL.arenaEl.appendChild(fl);
+    setTimeout(() => fl.remove(), 820);
+    if (!correct) {
+      const rf = document.createElement('div');
+      rf.className = 'scsl-red-flash';
+      SCSL.arenaEl.appendChild(rf);
+      setTimeout(() => rf.remove(), 420);
+    }
+    const lEl = document.getElementById('scsl-lives');
+    if (lEl && lives !== undefined) lEl.textContent = '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(Math.max(0,3-lives));
+    const sEl = document.getElementById('scsl-score');
+    if (sEl && score !== undefined) sEl.textContent = score + ' pts';
   }
 
   // ── Socket events ─────────────────────────────────────────
@@ -708,10 +908,7 @@
 
   socket.on('sort_item_feedback', ({ itemId, correct, lives, playerName, score }) => {
     document.getElementById('p-score').textContent = score + ' pts';
-    if (lives !== undefined) {
-      const lEl = document.getElementById('sc-slash-lives');
-      if (lEl) lEl.textContent = '❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(Math.max(0,3-lives));
-    }
+    scslCutEffect(itemId, correct, lives, score);
   });
 
   socket.on('timer_tick', ({ timeLeft }) => updateTimer(timeLeft, maxTime));
