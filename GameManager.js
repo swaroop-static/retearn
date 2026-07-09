@@ -35,9 +35,10 @@ class GameManager {
     this.gameBests      = { quiz: null, slash: null, zip: null, memory: null };
     this.playerScores   = {};       // name → { quiz: N, sort: N, ... }
     this.totalPlayed    = 0;
-    this.timerHandle    = null;
-    this.timeLeft       = 0;
-    this.maintenance    = false;
+    this.timerHandle      = null;
+    this.timeLeft         = 0;
+    this.inactivityHandle = null;
+    this.maintenance      = false;
   }
 
   // ── Public API ──────────────────────────────────────────────
@@ -91,6 +92,9 @@ class GameManager {
   submitAnswer(socket, value) {
     if (!this.currentPlayer || this.currentPlayer.id !== socket.id) return;
     if (this.status !== STATUS.PLAYING) return;
+
+    // Any real player input resets the inactivity clock
+    if (value !== -1) this._resetInactivity();
 
     const result = this.currentGame.handleInput(value);
     if (!result) return;
@@ -180,6 +184,7 @@ class GameManager {
     if (this.currentPlayer && this.currentPlayer.id === socketId) {
       this._log(`Active player ${this.currentPlayer.name} disconnected`);
       this._clearTimer();
+      this._clearInactivity();
       setTimeout(() => this._startNextPlayer(), 2000);
     }
   }
@@ -223,6 +228,7 @@ class GameManager {
 
     this._log(`Round ${state.progress}/${state.total} [${state.gameType}]`);
     this._startTimer(state.timeLeft);
+    this._resetInactivity();
   }
 
   _startTimer(duration) {
@@ -245,9 +251,24 @@ class GameManager {
     if (this.timerHandle) { clearInterval(this.timerHandle); this.timerHandle = null; }
   }
 
+  _resetInactivity() {
+    if (this.inactivityHandle) clearTimeout(this.inactivityHandle);
+    this.inactivityHandle = setTimeout(() => {
+      if (this.status === STATUS.PLAYING) {
+        this._log(`${this.currentPlayer?.name} inactive 10s — ending game`);
+        this._finishGame();
+      }
+    }, 10000);
+  }
+
+  _clearInactivity() {
+    if (this.inactivityHandle) { clearTimeout(this.inactivityHandle); this.inactivityHandle = null; }
+  }
+
   _finishGame() {
     this.status = STATUS.FINISHED;
     this._clearTimer();
+    this._clearInactivity();
 
     const { score } = this.currentGame.finish();
     const { name, gameType } = this.currentPlayer;
@@ -278,6 +299,7 @@ class GameManager {
   _startNextPlayer() {
     this.currentPlayer = null;
     this.currentGame   = null;
+    this._clearInactivity();
 
     let next = null;
     let nextGameType = null;
