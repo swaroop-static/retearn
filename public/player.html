@@ -1295,6 +1295,7 @@ socket.on('sort_item_result', ({ itemId, correct, points, lives, score, state })
 
 socket.on('answer_result', (data) => {
   const { correct, correctValue, points, state } = data;
+  if (!state || state.playerName !== myName) return;
   const gt = state?.gameType || myGameType;
 
   if (gt === 'slash' || gt === 'sort') {
@@ -1358,6 +1359,7 @@ socket.on('timer_tick', ({ timeLeft }) => {
 });
 
 socket.on('timer_expired', () => {
+  if (!document.getElementById('view-game').classList.contains('active') && !document.getElementById('slash-overlay')?.classList.contains('active')) return;
   if (myGameType === 'slash' || myGameType === 'sort') {
     // Clear items but keep overlay — answer_result will decide hide vs. wave-transition
     SL.active = false; SL.drawing = false; SL.trail = [];
@@ -1373,7 +1375,8 @@ socket.on('timer_expired', () => {
   zipDrawing = false;
 });
 
-socket.on('game_finished', ({ score, leaderboard }) => {
+socket.on('game_finished', ({ score, playerName, leaderboard }) => {
+  if (playerName !== myName) return;
   slashHide();
   document.getElementById('final-name').textContent       = myName;
   document.getElementById('final-score').textContent      = score;

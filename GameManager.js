@@ -279,7 +279,7 @@ class GameManager {
     this._log(`${name} finished ${gameType} — score ${score}`);
 
     const lb = this._getLeaderboardPayload();
-    this._broadcastToRoom('game_finished', { score, leaderboard: lb });
+    this._broadcastToRoom('game_finished', { score, playerName: name, leaderboard: lb });
     this._broadcastToScreen('game_finished', { playerName: name, score, gameType, leaderboard: lb });
 
     setTimeout(() => this._countdownNextPlayer(), 3000);
